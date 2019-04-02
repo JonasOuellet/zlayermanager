@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": ".\\src\\zlm_env\\Scripts\\python36.exe",
+    "files.exclude": {
+        "src/zlm_env": true
+    },
+    "python.linting.pylintEnabled": false,
+    "python.linting.pep8Enabled": true,
+    "python.linting.enabled": true,
+}
