@@ -1,0 +1,160 @@
+[RoutineDef, zlmGetLayerCount,
+    [IShowActions, 0]
+
+    //initialise output value to 0
+    [VarSet, output, 0]
+
+    //if there's a scrollbar there is more thanone layer
+    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
+
+	    //store current scroll bar position
+		[VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
+
+		//set scroll bar to a maximum to ensure it is at the top
+		[ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
+		[VarSet, output, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] + 1]
+
+        // restore scroll bar position
+        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
+	,
+		[If,[IsEnabled, "Tool:Layers:Layer Intensity"],
+			[VarSet,output,1]	
+		]
+	]
+    [IShowActions, 1]
+,output]
+
+// Does not work when a layer is recording 
+[RoutineDef, zlmSaveLayerInfo,
+    [IShowActions, 0]
+    [IFreeze, 
+
+    [VarSet, layersCount, 0]
+    [RoutineCall, zlmGetLayerCount, layersCount]
+    [VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
+
+    [VarSet, isRecording, 0]
+    [VarSet, layerNotFound, 0]
+    [VarSet, recordingLayer, ""]
+    [VarSet, recordingYpos, 0]
+    [If, layersCount > 0, 
+        [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
+        // frame current layer
+        [If, [IsEnabled, Tool:Layers:SelectDown],
+            [IPress, Tool:Layers:SelectDown]
+        , /* else */
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
+        ]
+        
+        [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
+        [VarSet, mode, [IModGet, curLayerPath]]
+
+        // recording
+        [If, #mode == 1,
+            [VarSet, isRecording, 1]
+            [VarSet, layerNotFound, 1]
+            // deactivate Recording
+            [VarSet, wid, [IWidth,curLayerPath]]	
+            [IClick, curLayerPath, wid-10, 5]
+            [VarSet, recordingLayer, curLayerName]
+            [VarSet, recordingYpos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
+        ]
+    ]
+
+    [If, [MemGetSize, layerNameMem],,
+        [MemCreate, layerNameMem, 1024]
+    ]
+
+    //go to top layer	
+    [Loop, 100000,
+        [If, [IsEnabled, Tool:Layers:SelectUp],
+            [IPress, Tool:Layers:SelectUp]
+		,
+			[LoopExit]
+		]
+    ]
+
+    [VarSet, currentSize, 0]
+    [VarSet, byteOffset, 0]
+
+    [VarSet, quote, [StrFromAsc, 34]]
+
+    // Loop Through all layer, get the name and add to the memory
+    [Loop, layersCount,
+        [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
+        [VarSet, intensity, [IGet, "Tool:Layers:Layer Intensity"]]
+        [VarSet, mode, [IModGet, [StrMerge, "Tool:Layers:", #curLayerName]]]
+
+        [If, #isRecording && #layerNotFound,
+            [If, ([StrLength, #recordingLayer] == [StrLength, #curLayerName]) && ([StrFind, #recordingLayer, #curLayerName] == 0),
+                [VarSet, layerNotFound, 0]
+                [VarSet, mode, 1]
+            ]
+        ]
+
+        [VarSet, curLayerName, [StrMerge, #quote, curLayerName, #quote, " ", #intensity, " ", #mode, [StrFromAsc, 10]]]
+
+        [VarAdd, currentSize, [StrLength, curLayerName]]
+
+        // Check if memory is big enough
+        // Resize it enough so we dont have to resize everytime
+        [If, currentSize > [MemGetSize, layerNameMem],
+            [MemResize, layerNameMem, (currentSize + ((layersCount - counter) * 20))]
+        ,]
+
+        // Write data to the memory
+        [VarAdd, byteOffset, [MemWriteString, layerNameMem, curLayerName, byteOffset, 0]]
+
+        [IPress, Tool:Layers:SelectDown]
+
+    ,counter]
+
+    // Write the name of the sub tools
+    [VarSet,subtoolName,[IGetTitle,Tool:ItemInfo]]
+    [VarSet,idx,[SubToolGetActiveIndex]]
+    [VarSet, subtoolLine, [StrMerge, #quote, #subtoolName, #quote, " ", #idx]]
+
+    [VarAdd, currentSize, [StrLength, subtoolLine]]
+
+    // Check if memory is big enough
+    // Resize it enough so we dont have to resize everytime
+    [If, currentSize > [MemGetSize, layerNameMem],
+        [MemResize, layerNameMem, currentSize]
+    ,]
+    [VarAdd, byteOffset, [MemWriteString, layerNameMem, subtoolLine, byteOffset, 0]]
+
+
+    // Resize memory to the actual total size so we don't write any empty bits.
+    [MemResize, layerNameMem, currentSize]
+
+    [MemSaveToFile, layerNameMem, filepath, 1]
+
+    [MemDelete, layerNameMem]
+
+    // If was recording
+    [If, #isRecording, 
+        [ISet, "Tool:Layers:Layers Scrollbar", 0, recordingYpos]
+        [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #recordingLayer]]
+        [VarSet, wid, [IWidth,curLayerPath]]
+        [IClick, curLayerPath, wid-20, 5]	
+    ]
+
+    // restore scroll bar position
+    [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
+    
+    ] // IFreeze
+
+    [IShowActions, 1]
+
+, filepath]
+
+
+// [IButton, "LayerCount",,
+//     [VarSet, layersCount, 0]
+//     [RoutineCall, zlmGetLayerCount, layersCount]
+//     [Note, layersCount]
+// ]
+
+// [IButton, "SaveLayers",, 
+//     [RoutineCall, zlmSaveLayerInfo, "layers.txt"]
+// ]

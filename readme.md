@@ -21,6 +21,14 @@ Open a console in the `.\src` directory then enter the following:
 
 **Notes:** You might need to use `python` if you onyl have one version of python installed.
 
+#### Edit activation script to add the src folder to the python path
+
+Add this `set PYTHONPATH=E:\zLayerManager\src;%PYTHONPATH%` to the bottom off the activate script. Replace the path depending off your location to the src folder.
+
+Activate script is located here `zlm_env\Scripts\activate.bat` on windows or here `zlm_env/bin/activate` for linux or macosx.
+
+
+
 #### To Activate the virtual environment
 
 On windows:

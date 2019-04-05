@@ -1,2 +1,5 @@
 dist
-src/zlm_env/
+src/zlm_env
+src/zscripts/zlmData
+**/__pycache__
+**.zsc

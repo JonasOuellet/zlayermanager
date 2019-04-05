@@ -1,0 +1,55 @@
+/* Initialize plugin variable */
+[VarDef, zlmDev, 1]
+[VarDef, zlmWorkingDir, ""]
+
+<zscriptinsert, "layerOps.txt">
+
+
+/**
+* Get the path where this zplugin is located
+*/
+[RoutineDef, zlmGetPluginPath,
+    // Check if we are on pc
+    [If, [ZBrushInfo, 6] == 0,
+        [VarSet, outputVar, [FileNameResolvePath, "..\\"]]
+    , /* Else */
+        [VarSet, outputVar, [FileNameResolvePath, "../"]]
+    ]
+
+    [Note, outputVar]
+    
+, outputVar /*string*/]
+
+[RoutineDef, zlmGetPluginDocPath,
+    // Check if we are on pc
+    [If, [ZBrushInfo, 6] == 0,
+        [VarSet, outputVar, [FileNameResolvePath, "..\zlmData"]]
+    , /* Else */
+        [VarSet, outputVar, [FileNameResolvePath, "../zlmData"]]
+    ]
+
+, outputVar /*string*/]
+
+[RoutineDef, zlmGetLayerPath,
+    // Check if we are on pc
+    [If, [ZBrushInfo, 6] == 0,
+        [VarSet, outputVar, [FileNameResolvePath, "zlmData\layers.TXT"]]
+    , /* Else */
+        [VarSet, outputVar, [FileNameResolvePath, "zlmData/layers.TXT"]]
+    ]
+, outputVar]
+
+
+[ISubPalette,"Zplugin:zLayerManager"]
+
+[IButton, /*"Zplugin:zLayerManager:Open"*/ "Open", "Open Layer Manager UI",
+    [VarSet, filePath, ""]
+    [RoutineCall, zlmGetLayerPath, filePath]
+    [Note, filePath]
+    [RoutineCall, zlmSaveLayerInfo, filePath]
+    [If, #zlmDev,
+        [ShellExecute, [StrMerge, "call E:\zLayerManager\src\zlm_env\Scripts\activate.bat & call E:\zLayerManager\src\zlm_env\Scripts\python36.exe E:\zLayerManager\src\zlm_sender -o -f ", #filePath]]
+    , /* Else */
+        [Note, "ceci est un test"]
+    ]
+]

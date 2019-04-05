@@ -1,0 +1,1 @@
+"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe" E:\zLayerManager\src\zscripts\zLayerManager.txt
