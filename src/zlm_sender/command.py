@@ -22,6 +22,6 @@ def open(file_path=None):
 
     elif file_path:
         # pass the file path to the ui so it update
-        pass
+        conn.send('update', file_path)
 
     conn.close()

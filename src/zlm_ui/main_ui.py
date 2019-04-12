@@ -1,7 +1,8 @@
 from PySide2 import QtWidgets, QtCore
 import zlm_core
 from zlm_settings import ZlmSettings
-from zlm_ui.zlm_layerTree import ZlmLayerTreeWidget
+from zlm_ui.layer_widget import ZlmLayerWidget
+from comserver import CommunicationServer
 
 
 class ZlmMainUI(QtWidgets.QMainWindow):
@@ -19,7 +20,7 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.setWindowTitle("ZLayerManager")
         # self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
 
-        self.tw_widget = ZlmLayerTreeWidget(self)
+        self.tw_widget = ZlmLayerWidget(self)
         self.lbl_subtool = QtWidgets.QLabel("SubTool: ")
 
         mainLayout = QtWidgets.QVBoxLayout()
@@ -41,10 +42,17 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         if geo:
             self.setGeometry(*geo)
 
+
+        # Setup the communication server
+        self.com_server = CommunicationServer()
+        self.com_server.add_callback('update', self.load_layers)
+        self.com_server.start()
+
     def showEvent(self, event):
         self.showing.emit()
 
     def closeEvent(self, event):
+        self.com_server.stop()
         self.closing.emit()
 
         geo = self.geometry()

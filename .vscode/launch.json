@@ -18,7 +18,7 @@
             "program": "${workspaceFolder}\\src\\zlm_ui\\__main__.py",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}\\src\\zscripts\\layers.TXT"
+                "${workspaceFolder}\\src\\zscripts\\zlmData\\layers.TXT"
             ]
         },
         {

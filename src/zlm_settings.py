@@ -1,5 +1,15 @@
 import os
 import json
+import sys
+
+
+if not getattr(sys, 'frozen', False):
+    ZBURSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
+else:
+    # find path
+    pass
+
+SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.txt')
 
 
 class ZlmSettings(object):
@@ -9,6 +19,8 @@ class ZlmSettings(object):
     def __init__(self, auto_load=True):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
         self.communication_port = 6008
+
+        self.export_format = '.obj'
 
         self.bigData = {}
 
@@ -82,3 +94,8 @@ class ZlmSettings(object):
     def __setitem__(self, key, value):
         self.bigData[key] = value
 
+    def get_export_folder(self):
+        folder = os.path.join(self.working_folder, 'export')
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return folder

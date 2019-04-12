@@ -1,7 +1,8 @@
 from multiprocessing.connection import Client
 from zlm_settings import ZlmSettings
 
-KEY = 'secret'
+
+KEY = bytes('secret', 'utf-8')
 ADDRESS = 'localhost'
 
 
@@ -34,3 +35,9 @@ class Connection(object):
             self._conn.close()
 
         self._conn = None
+
+    def send(self, *args):
+        try:
+            self._conn.send(args)
+        except:
+            pass

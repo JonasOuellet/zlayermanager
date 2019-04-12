@@ -1,17 +1,17 @@
-from PySide2.QtCore import QThread, QObject
+from PySide2.QtCore import QThread, QObject, Signal
 from zlm_settings import ZlmSettings
 from multiprocessing.connection import Listener, Client
 import time
+
+SECRET = bytes('secret', 'utf-8')
 
 
 class CommunicationDeamon(QThread):
     commandReceived = Signal(object)
 
-    def __init__(self, address, secret):
+    def __init__(self, address):
         QThread.__init__(self)
-        self.batcherUI = batcherUI
-        self.listener = Listener(address, authkey=secret)
-        self.connection = None
+        self.listener = Listener(address, authkey=SECRET)
 
     def run(self):
         while True:
@@ -22,10 +22,9 @@ class CommunicationDeamon(QThread):
                 self.listener.close()
                 return
 
-            self.commandReceived.emit(msg)
+            conn.close()
 
-            while self.connection:
-                self.msleep(10)
+            self.commandReceived.emit(msg)
 
 
 class CommunicationServer(QObject):
@@ -35,8 +34,6 @@ class CommunicationServer(QObject):
         self.settings = ZlmSettings.instance()
 
         self._address = None
-        self._secret = 'secret'
-
         self._command_dict = {}
 
     def isRunning(self):
@@ -48,14 +45,14 @@ class CommunicationServer(QObject):
     def start(self):
         if not self.isRunning():
             self._address = ('localhost', self.settings.communication_port)
-            self._deamon = CommunicationDeamon(self._address, self._secret)
+            self._deamon = CommunicationDeamon(self._address)
             self._deamon.commandReceived.connect(self._oncommand)
             self._deamon.start()
         else:
             raise Exception('Server already running')
 
     def stop(self):
-        client = Client(self._address, authkey=self._secret)
+        client = Client(self._address, authkey=SECRET)
         client.send(['stop'])
         client.close()
 
@@ -72,10 +69,10 @@ class CommunicationServer(QObject):
         self.start()
 
     def _oncommand(self, msg):
-        func = self._command_dict(msg[0], None)
+        func = self._command_dict.get(msg[0], None)
         if func:
             for f in func:
-                f(msg)
+                f(*msg[1:])
 
     def add_callback(self, command_name, callback):
         if command_name not in self._command_dict:
