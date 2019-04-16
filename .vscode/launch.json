@@ -28,9 +28,8 @@
             "program": "${workspaceFolder}\\src\\zlm_sender\\__main__.py",
             "console": "integratedTerminal",
             "args": [
-                "-o",
-                "-f",
-                "${workspaceFolder}\\src\\zscripts\\zlmData\\layers.TXT"
+                "-i",
+                "C:\\Users\\gsq_jouellet\\zLayerManager\\files\\export\\smile_l.obj"
             ]
         },
         {

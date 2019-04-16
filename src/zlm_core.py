@@ -228,6 +228,7 @@ def get_layers_as_preset():
 
     return out
 
+
 def apply_preset(preset):
     # loop through all layers and apply default value
 
@@ -334,11 +335,18 @@ def send_intensity(layers=None, intensity=1.0):
     subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
 
 
-def export_layers(output_folder, output_format='.obj', layers=None):
+def export_layers(output_folder, output_format='.OBJ', layers=None,
+                  maya_auto_import=False):
     if layers is None:
         layers = _zOp.instances_list
 
     layerCount = len(_zOp.instances_list) - 1
+
+    if maya_auto_import:
+        if getattr(sys, 'frozen', False):
+            pass
+        else:
+            maya_import = '[ShellExecute, "CONSOLESTATE /Hide & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\activate.bat & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36.exe E:\\zLayerManager\\src\\zlm_sender -i {}"]\n'
 
     with open(SCRIPT_PATH, mode='w') as f:
         f.write(RECT_FUNC)
@@ -349,19 +357,22 @@ def export_layers(output_folder, output_format='.obj', layers=None):
         f.write('\n[IFreeze,\n')
 
         f.write('[RoutineCall, zlmDeactivateRec]\n')
-        
+
         # f.write('[VarSet, zlmOpath, "{}"]'.format(output_folder))
 
         layerCount = len(_zOp.instances_list) - 1
         # Deactive any active layers
-        for x, l in enumerate(_zOp.instances_list):
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, l.mode, 1.0))
+        for x in range(layerCount, -1, -1):
+            l = _zOp.instances_list[x]
+            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, 0, 1.0))
 
         # export layers
         for l in layers:
             # path = '[StrMerge, #zlmOpath,"{}"]'.format(l.name + output_format)
             path = os.path.join(output_folder, l.name + output_format)
             f.write('[RoutineCall,zlmExportLayer,"{}",{},"{}"]\n'.format(l.name, layerCount-l.index, path))
+            if maya_auto_import:
+                f.write(maya_import.format(path))
 
         # restore layer back
         recording_layer = None
@@ -379,10 +390,10 @@ def export_layers(output_folder, output_format='.obj', layers=None):
         if recording_layer:
             f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
                     layerCount-recording_layer.index, recording_layer.mode, 1.0))
-            
+
         f.write(SUBDIV_RESTORE_)
         f.write(']')
-    
+
     subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
 
 

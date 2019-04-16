@@ -1,7 +1,8 @@
 import os
 import sys
+import socket
 
-from zlm_sender.communicate import Connection
+from zlm_sender.communicate import Connection, ZlmSettings
 
 
 def open(file_path=None):
@@ -25,3 +26,17 @@ def open(file_path=None):
         conn.send('update', file_path)
 
     conn.close()
+
+
+def maya_import(file_path):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        client.connect(('127.0.0.1', ZlmSettings.instance().maya_communication_port))
+
+        command = 'python("import zlm;zlm.zlm_import_file(\'{}\')")'.format(file_path.replace('\\', '/'))
+        command = bytes(command, 'utf-8')
+        client.send(command)
+    except:
+        raise
+    finally:
+        client.close()

@@ -3,12 +3,11 @@ import json
 import sys
 
 
-if getattr(sys, 'frozen', False):
+if not getattr(sys, 'frozen', False):
+    ZBURSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
+else:
     # find path
     pass
-else:
-    ZBURSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
-
 
 SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.txt')
 

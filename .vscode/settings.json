@@ -3,7 +3,8 @@
     "files.exclude": {
         "src/zlm_env": true,
         "src/**/*.zsc": true,
-        "**/__pycache__": true
+        "**/__pycache__": true,
+        "**/*.pyc": true
     },
     "python.linting.pylintEnabled": false,
     "python.linting.pep8Enabled": true,

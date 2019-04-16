@@ -41,25 +41,25 @@ class ZlmLayerWidget(QtWidgets.QWidget):
     def export_all(self):
         settings = ZlmSettings.instance()
 
-        zlm_core.export_layers(settings.get_export_folder(), settings.export_format)
+        zlm_core.export_layers(settings.get_export_folder(), settings.export_format, maya_auto_import=settings.maya_auto_import)
 
     def export_selected(self):
         settings = ZlmSettings.instance()
         layers = self.tree_widget.get_selected_layers()
         if layers:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers)
+            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers, maya_auto_import=settings.maya_auto_import)
 
     def export_active(self):
         settings = ZlmSettings.instance()
         layers = self.tree_widget.get_active_layers()
         if layers:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers)
+            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers, maya_auto_import=settings.maya_auto_import)
 
     def export_record(self):
         settings = ZlmSettings.instance()
         layer = self.tree_widget.get_recording_layer()
         if layer:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, [layer])
+            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, [layer], maya_auto_import=settings.maya_auto_import)
 
     def tree_widget_custom_menu(self, pos):
         menu = QtWidgets.QMenu(self)
