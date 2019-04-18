@@ -25,17 +25,16 @@ class LayerFilterWidget(QtWidgets.QWidget):
 
         self.mainUI = parent
         self.mainUI.closing.connect(self.onClose)
-        # self.mainUI.showing.connect(self.onShow)
 
         self.le_search_bar = QtWidgets.QLineEdit()
         self.le_search_bar.textEdited.connect(self._search_bar_changed)
         self.pb_filter = QtWidgets.QPushButton("Filter")
-        self.pb_filter.clicked.connect(self.onfilterclicked)
 
         self.current_filter = self.mainUI.settings.get('filter', 0)
         self.le_search_bar.setText(self.mainUI.settings.get('filterText', ''))
 
         self.filter_menu = self._build_menu()
+        self.pb_filter.setMenu(self.filter_menu)
 
         layout = QtWidgets.QHBoxLayout()
 
@@ -49,7 +48,7 @@ class LayerFilterWidget(QtWidgets.QWidget):
         self.mainUI.settings['filter'] = self.current_filter
 
     def _build_menu(self):
-        menu = QtWidgets.QMenu()
+        menu = QtWidgets.QMenu(self)
 
         group = QtWidgets.QActionGroup(menu)
 
@@ -70,11 +69,6 @@ class LayerFilterWidget(QtWidgets.QWidget):
         if toggled:
             self.current_filter = self.filter_option.index(new_filter)
             self.filter_edited.emit(self.le_search_bar.text(), self.current_filter)
-
-    def onfilterclicked(self):
-        pos = self.mapToGlobal(self.pb_filter.pos())
-        pos.setY(pos.y() + self.pb_filter.geometry().height())
-        self.filter_menu.popup(pos)
 
     def _search_bar_changed(self, text):
         self.filter_edited.emit(text, self.current_filter)

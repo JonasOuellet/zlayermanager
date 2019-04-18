@@ -210,8 +210,9 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         self.setHeaderLabels(column_names)
         # self.setHeaderHidden(True)
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
-        # self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Fixed)
+    
         self.itemDict = {}
         self.current_item_recording = None
 
@@ -261,7 +262,11 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         if mode == ZlmLayerMode.record:
             if self.current_item_recording:
                 self.current_item_recording.layer.mode = ZlmLayerMode.active
-                self.current_item_recording.mode_widget.setMode(ZlmLayerMode.active)
+                # current item recording might be deleted if filter was used
+                try:
+                    self.current_item_recording.mode_widget.setMode(ZlmLayerMode.active)
+                except:
+                    pass
             self.current_item_recording = item
             item.layer.mode = mode
         else:
@@ -327,8 +332,10 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
 
     def on_item_slider_moved(self, item, value):
         value = round(value, 2)
-        if value < 0.000001:
-            value = 0
+        if value < 0.01:
+            # to keep the layer active and avoid a lag when scrubbing to zero
+            # and scrubbing back to higher value
+            value = 0.01
         if value > 1.0:
             value = 1.0
         send_intensity(self._selected_layers, value)
@@ -398,3 +405,24 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
                     layers.append(l.layer)
 
         return layers
+
+    def resizeEvent(self, event):
+        width = event.size().width()
+        width -= (self.columnWidth(0) + self.columnWidth(1) + self.columnWidth(2))
+
+        if width < 60:
+            width = 60
+        self.setColumnWidth(3, width)
+
+    # def columnResized(self, index, old_size, new_size):
+    #     print(index)
+    #     if index < 3:
+    #         width = self.width()
+    #         width -= (self.columnWidth(0) + self.columnWidth(1) + self.columnWidth(2))
+
+    #         if width < 60:
+    #             self.setColumnWidth(index, old_size)
+    #             width = 60
+
+    #         self.setColumnWidth(3, width)
+

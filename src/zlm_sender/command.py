@@ -33,7 +33,7 @@ def maya_import(file_path):
     try:
         client.connect(('127.0.0.1', ZlmSettings.instance().maya_communication_port))
 
-        command = 'python("import zlm;zlm.zlm_import_file(\'{}\')")'.format(file_path.replace('\\', '/'))
+        command = "import zlm;zlm.zlm_import_file('{}')".format(file_path.replace('\\', '/'))
         command = bytes(command, 'utf-8')
         client.send(command)
     except:

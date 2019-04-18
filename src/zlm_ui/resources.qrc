@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+
+<qresource prefix="/">
+    <file alias="zbrush.png">img/zbrush.png</file>
+    <file alias="arrow-down.png">img/down_arrow.png</file>
+    <file alias="arrow-up.png">img/up_arrow.png</file>
+    <file alias="arrow-down-big.png">img/down_arrow_big.png</file>
+    <file alias="menu-checked.png">img/menu_checked.png</file>
+</qresource>
+
+</RCC>

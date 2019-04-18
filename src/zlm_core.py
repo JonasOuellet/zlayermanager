@@ -292,8 +292,12 @@ def send_to_zbrush():
     with open(SCRIPT_PATH, mode='w') as f:
         f.write(SET_LAYER_FUNC)
         f.write(RECT_FUNC)
+
         f.write('[IShowActions, 0]')
         f.write('\n[IFreeze,\n')
+
+        f.write(SUBDIV_STORE_)
+        f.write(SUBDIV_MAX_)
         f.write('[RoutineCall, zlmDeactivateRec]\n')
 
         recording_layer = None
@@ -306,15 +310,17 @@ def send_to_zbrush():
                     continue
                 else:
                     l, recording_layer = (recording_layer, l)
-                    
+
             f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, l.mode, l.intensity))
 
         if recording_layer:
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
-                layerCount-recording_layer.index, recording_layer.mode, 1.0))
 
+            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
+                     layerCount-recording_layer.index, recording_layer.mode, 1.0))
+
+        f.write(SUBDIV_RESTORE_)
         f.write(']')
-        
+
     subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
 
 
@@ -330,7 +336,7 @@ def send_intensity(layers=None, intensity=1.0):
 
         for layer in layers:
             f.write('[RoutineCall,zlmIntensity,{},{},{}]\n'.format(layer.name, layerCount-layer.index, intensity))
-    
+
         f.write(']')
     subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
 
@@ -346,25 +352,27 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
         if getattr(sys, 'frozen', False):
             pass
         else:
-            maya_import = '[ShellExecute, "CONSOLESTATE /Hide & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\activate.bat & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36.exe E:\\zLayerManager\\src\\zlm_sender -i {}"]\n'
+            maya_import = '[ShellExecute, "call E:\\zLayerManager\\src\\zlm_env\\Scripts\\activate.bat & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36.exe E:\\zLayerManager\\src\\zlm_sender -i {}"]\n'
 
     with open(SCRIPT_PATH, mode='w') as f:
         f.write(RECT_FUNC)
         f.write(SET_LAYER_FUNC)
         f.write(EXPORT_LAYER_FUNC)
-        f.write(SUBDIV_ZERO_)
+
         f.write('[IShowActions, 0]')
         f.write('\n[IFreeze,\n')
 
+        f.write(SUBDIV_STORE_)
+        f.write(SUBDIV_MAX_)
         f.write('[RoutineCall, zlmDeactivateRec]\n')
-
-        # f.write('[VarSet, zlmOpath, "{}"]'.format(output_folder))
 
         layerCount = len(_zOp.instances_list) - 1
         # Deactive any active layers
         for x in range(layerCount, -1, -1):
             l = _zOp.instances_list[x]
             f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, 0, 1.0))
+
+        f.write(SUBDIV_ZERO_)
 
         # export layers
         for l in layers:
@@ -388,6 +396,7 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
             f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, l.mode, l.intensity))
 
         if recording_layer:
+            f.write(SUBDIV_MAX_)
             f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
                     layerCount-recording_layer.index, recording_layer.mode, 1.0))
 
@@ -397,33 +406,35 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
     subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
 
 
-RECT_FUNC = '''[RoutineDef,zlmDeactivateRec,[VarSet,curLayerName,[IGetTitle,"Tool:Layers:Layer Intensity"]][If, [IsEnabled,Tool:Layers:SelectDown],[IPress, Tool:Layers:SelectDown]
-,[ISet, "Tool:Layers:Layers Scrollbar", 0, 0]]
-[If, [IsEnabled, Tool:Layers:SelectUp],[IPress, Tool:Layers:SelectUp][IPress, Tool:Layers:SelectUp]]
-[VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
-[VarSet, mode, [IModGet, curLayerPath]]
-[If, #mode == 1,
-[VarSet, wid, [IWidth,curLayerPath]]
-[IClick, curLayerPath, wid-10, 5]]]'''
+RECT_FUNC = '''[RoutineDef, zlmDeactivateRec,
+    [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
+    // frame current layer
+    [If, [IsEnabled, Tool:Layers:SelectDown],
+        [IPress, Tool:Layers:SelectDown]
+    , /* else */
+        [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
+    ]
+    [If, [IsEnabled, Tool:Layers:SelectUp],
+        [IPress, Tool:Layers:SelectUp]
+        [IPress, Tool:Layers:SelectDown]
+    ]
+
+    [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
+    [VarSet, mode, [IModGet, curLayerPath]]
+
+    [If, #mode == 1,
+        // deactivate Recording
+        [VarSet, wid, [IWidth,curLayerPath]]	
+        [IClick, curLayerPath, wid-10, 5]
+    ] 
+]
+'''
 SET_LAYER_FUNC = '''[RoutineDef, zlmSetLayerMode,
     [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
     [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
-
-    [If, mode == 2,
-            [ISet, layerPath, intensity]
-    ]
-
+    [If, mode == 2,[ISet, layerPath, intensity]]
     [VarSet, curMode, [IModGet, layerPath]]
-    
-    [If, curMode != mode,
-        [VarSet, wid, [IWidth, layerPath]]
-        [If, mode == 1,
-            [IClick, layerPath, wid-20, 5]
-        ]
-        [If, ((mode == 0) || (mode == 2)),
-            [IClick, layerPath, wid-5, 5]
-        ]
-    ]
+    [If, curMode != mode,[VarSet, wid, [IWidth, layerPath]][If, mode == 1,[IClick, layerPath, wid-20, 5]][If, ((mode == 0) || (mode == 2)),[IClick, layerPath, wid-5, 5]]]
 , layerName, index, mode, intensity]
 '''
 
@@ -438,20 +449,18 @@ EXPORT_LAYER_FUNC = '''[RoutineDef, zlmExportLayer,
     [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
     [VarSet, wid, [IWidth, layerPath]]
     [ISet, layerPath, 1.0]
-
-    [If, [IModGet, layerPath] == 0,
-        [IClick, layerPath, wid-5, 5]
-    ]
+    [If, [IModGet, layerPath] == 0,[IClick, layerPath, wid-5, 5]]
     [FileNameSetNext, #savePath]
     [IKeyPress, 13, [IPress, TOOL:Export:Export ]]
-
     [IClick, layerPath, wid-5, 5]
-
-, layerName /*string*/, index /*number*/, savePath /*string*/]'''
-
-
-SUBDIV_ZERO_ = '''[VarSet, subLevel, [IGet, "Tool:Geometry:SDiv"]]
-[ISet, "Tool:Geometry:SDiv", 0, 0]
+, layerName /*string*/, index /*number*/, savePath /*string*/]
 '''
 
-SUBDIV_RESTORE_ = '[ISet, "Tool:Geometry:SDiv", #subLevel, 0]'
+
+SUBDIV_STORE_ = '[VarSet, subLevel, [IGet, "Tool:Geometry:SDiv"]]\n'
+
+SUBDIV_ZERO_ = '[ISet, "Tool:Geometry:SDiv", 0, 0]\n'
+
+SUBDIV_RESTORE_ = '[ISet, "Tool:Geometry:SDiv", #subLevel, 0]\n'
+
+SUBDIV_MAX_ = '[ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]\n'

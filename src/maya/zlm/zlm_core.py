@@ -32,10 +32,10 @@ def open_port():
     portStr = ':{}'.format(settings.maya_communication_port)
 
     if not cmds.commandPort(portStr, q=True):
-        cmds.commandPort(n=portStr)
+        cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
         _LAST_OPENED_PORT = settings.maya_communication_port
     else:
-        print "Zlm port '{}' already opened".format(port)
+        print "Zlm port '{}' already opened".format(portStr[1:])
 
 
 def callback_add(cb_type, callback):

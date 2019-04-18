@@ -163,6 +163,19 @@
 //     [RoutineCall, zlmSaveLayerInfo, "layers.txt"]
 // ]
 
+[RoutineDef, zlmSubdivInit,
+    // check if zlmSubDiv var exit
+    [If, [MemGetSize, zlmSubDiv] == 0,
+        [MVarDef, zlmSubDiv, 1]
+    ]
+    [MVarSet, zlmSubDiv, 0, [[IGet, "Tool:Geometry:SDiv"]]]
+]
+
+[RoutineDef, zlmRestoreSubDiv,
+    [ISet, "Tool:Geometry:SDiv", [MVarGet, zlmSubDiv, 0], 0]
+
+    [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
+]
 
 [RoutineDef, zlmDeactivateRec,
     [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
@@ -180,11 +193,29 @@
     [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
     [VarSet, mode, [IModGet, curLayerPath]]
 
-    // recording
     [If, #mode == 1,
+        // if mode is one and and the slider is disabled, i need to activate max subdiv
+        [VarSet, enabled, [IsEnabled, curLayerPath]]
+        [If, enabled == 0,
+            [VarSet, subLevel, [IGet, "Tool:Geometry:SDiv"]]
+            [VarSet, loopCount, [IGetMax, "Tool:Geometry:SDiv"] - subLevel]
+            [Loop, loopCount,
+                [IPress, "Tool:Geometry:Higher Res"]
+                [IUpdate, 1, 1]
+            ]
+        ]
+
         // deactivate Recording
         [VarSet, wid, [IWidth,curLayerPath]]	
         [IClick, curLayerPath, wid-10, 5]
+
+        // restore subdiv level
+        [If, enabled == 0,
+            [Loop, loopCount,
+                [IPress, "Tool:Geometry:Lower Res"]
+                [IUpdate, 1, 1]
+            ]
+        ]
     ] 
 ]
 

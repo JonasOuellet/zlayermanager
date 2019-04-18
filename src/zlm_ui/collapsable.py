@@ -6,13 +6,14 @@ class ZlmCollapsableWidget(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self)
 
         self._pb_open = QtWidgets.QPushButton(title)
+        self._pb_open.setProperty('class', 'collapsable')
         self._pb_open.setCheckable(True)
         self._pb_open.setChecked(True)
         self._pb_open.toggled.connect(self.on_open_toggled)
         self.content_widget = QtWidgets.QFrame()
         self.content_widget.setLineWidth(3)
         self.content_widget.setMidLineWidth(3)
-        self.content_widget.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Raised)
+        self.content_widget.setProperty('class', 'collapsable')
 
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

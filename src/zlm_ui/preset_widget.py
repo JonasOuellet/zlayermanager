@@ -4,7 +4,7 @@ import zlm_core
 
 
 class ZlmPresetWidget(QtWidgets.QWidget):
-    preset_changed = QtCore.Signal()
+    preset_activated = QtCore.Signal()
 
     def __init__(self):
         QtWidgets.QWidget.__init__(self)
@@ -86,5 +86,5 @@ class ZlmPresetWidget(QtWidgets.QWidget):
         preset = self.get_current_preset()
         if preset:
             zlm_core.apply_preset(preset)
-            self.preset_changed.emit()
+            self.preset_activated.emit()
             zlm_core.send_to_zbrush()

@@ -1,8 +1,14 @@
-from PySide2 import QtWidgets, QtCore
+import sys
+import os
+
+from PySide2 import QtWidgets, QtCore, QtGui
+
 import zlm_core
 from zlm_settings import ZlmSettings
 from zlm_ui.layer_widget import ZlmLayerWidget
-from comserver import CommunicationServer
+from zlm_ui.comserver import CommunicationServer
+
+from zlm_ui import resources_rc
 
 
 class ZlmMainUI(QtWidgets.QMainWindow):
@@ -18,6 +24,8 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.settings = ZlmSettings.instance().get('ui', self.default_settings)
 
         self.setWindowTitle("ZLayerManager")
+        self._apply_custom_stylesheet()
+        self.setWindowIcon(QtGui.QIcon(':/zbrush.png'))
         # self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
 
         self.tw_widget = ZlmLayerWidget(self)
@@ -41,7 +49,6 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         geo = self.settings.get('geometry', None)
         if geo:
             self.setGeometry(*geo)
-
 
         # Setup the communication server
         self.com_server = CommunicationServer()
@@ -70,3 +77,16 @@ class ZlmMainUI(QtWidgets.QMainWindow):
             self.lbl_subtool.setText("SubTool: " + self.subTool.name)
         else:
             self.lbl_subtool.setText("SubTool: ")
+
+    def _apply_custom_stylesheet(self):
+        if getattr(sys, 'frozen', False):
+            root = sys.executable
+        else:
+            root = __file__
+
+        stylesheet = os.path.join(os.path.dirname(root), 'stylesheet.css')
+        try:
+            with open(stylesheet, mode='r') as f:
+                self.setStyleSheet(f.read())
+        except Exception as e:
+            print(e)

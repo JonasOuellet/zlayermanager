@@ -19,7 +19,7 @@ class ZlmLayerWidget(QtWidgets.QWidget):
         self.tree_widget.customContextMenuRequested.connect(self.tree_widget_custom_menu)
 
         self.filter_widget.filter_edited.connect(self.tree_widget.build)
-        self.preset_widget.preset_changed.connect(self.tree_widget.update_layer)
+        self.preset_widget.preset_activated.connect(self.tree_widget.update_layer)
 
         self.export_widget = ZlmExportWidget()
         self.export_widget.pb_all.clicked.connect(self.export_all)
