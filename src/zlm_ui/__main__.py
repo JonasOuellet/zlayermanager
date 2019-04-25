@@ -1,6 +1,6 @@
 import sys
 
-from zlm_ui import main_ui 
+from zlm_ui import main_ui
 
 
 if __name__ == "__main__":

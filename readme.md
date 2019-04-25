@@ -28,6 +28,20 @@ zlm.callback_add(zlm.CBType.import_all, zlm.clean_folder)
 
 **Notes:** You can specify any import callback, in this exemple, default import callback are used.  When importing a blendshape, it check if there is a mesh with the same name in the scene, if soo, it will update it vertex position with the new mesh and delete the new mesh.  Oterwise, it will keep the new imported mesh in the scene.
 
+## Build
+
+To build you have to navigate to `src` folder
+
+#### Building zlm.exe
+```bash
+pyinstaller --distpath ..\dist\ZlmData zlm.spec
+```
+
+#### Building zlm_ui.exe
+```bash
+pyinstaller --distpath ..\dist\ZlmData zlm_ui.spec
+```
+
 ## How to Contribute 
 
 ### Installing python

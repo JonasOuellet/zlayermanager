@@ -212,7 +212,7 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Fixed)
-    
+
         self.itemDict = {}
         self.current_item_recording = None
 
@@ -225,6 +225,8 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
     def onShow(self):
         if 'layerViewColumn' in self.mainUI.settings:
             self.setColumnsWidth(self.mainUI.settings['layerViewColumn'])
+            # space for scroll bar
+            self.updateColumnSize(self.width()-20)
 
     def getColumnsWidth(self):
         columnCount = self.columnCount()
@@ -256,8 +258,6 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         column = self.sortColumn()
         if column == 2:
             self.setSortingEnabled(False)
-        self.setSortingEnabled(True)
-        self.sortByColumn(column)
 
         if mode == ZlmLayerMode.record:
             if self.current_item_recording:
@@ -406,23 +406,14 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
 
         return layers
 
-    def resizeEvent(self, event):
-        width = event.size().width()
+    def updateColumnSize(self, width):
         width -= (self.columnWidth(0) + self.columnWidth(1) + self.columnWidth(2))
 
         if width < 60:
             width = 60
         self.setColumnWidth(3, width)
 
-    # def columnResized(self, index, old_size, new_size):
-    #     print(index)
-    #     if index < 3:
-    #         width = self.width()
-    #         width -= (self.columnWidth(0) + self.columnWidth(1) + self.columnWidth(2))
+    def resizeEvent(self, event):
+        width = event.size().width()
 
-    #         if width < 60:
-    #             self.setColumnWidth(index, old_size)
-    #             width = 60
-
-    #         self.setColumnWidth(3, width)
-
+        self.updateColumnSize(width)

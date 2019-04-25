@@ -30,10 +30,17 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
         self.tw_widget = ZlmLayerWidget(self)
         self.lbl_subtool = QtWidgets.QLabel("SubTool: ")
+    
+        pb_option = QtWidgets.QPushButton(QtGui.QIcon(':/gear.png'), '')
+
+        topLayout = QtWidgets.QHBoxLayout()
+        topLayout.addWidget(self.lbl_subtool)
+        topLayout.addStretch()
+        topLayout.addWidget(pb_option)
 
         mainLayout = QtWidgets.QVBoxLayout()
 
-        mainLayout.addWidget(self.lbl_subtool)
+        mainLayout.addLayout(topLayout)
         mainLayout.addWidget(self.tw_widget)
 
         self.central_widget = QtWidgets.QWidget()
@@ -80,7 +87,8 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
     def _apply_custom_stylesheet(self):
         if getattr(sys, 'frozen', False):
-            root = sys.executable
+            root = sys._MEIPASS
+            print(root)
         else:
             root = __file__
 

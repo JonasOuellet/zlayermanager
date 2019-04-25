@@ -4,3 +4,4 @@ src/zscripts/zlmData
 **/__pycache__
 **.zsc
 **/*.pyc
+src/build

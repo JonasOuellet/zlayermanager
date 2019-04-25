@@ -6,6 +6,9 @@
     <file alias="arrow-up.png">img/up_arrow.png</file>
     <file alias="arrow-down-big.png">img/down_arrow_big.png</file>
     <file alias="menu-checked.png">img/menu_checked.png</file>
+    <file alias="sort-down.png">img/sort_down.png</file>
+    <file alias="sort-up.png">img/sort_up.png</file>
+    <file alias="gear.png">img/gear.png</file>
 </qresource>
 
 </RCC>

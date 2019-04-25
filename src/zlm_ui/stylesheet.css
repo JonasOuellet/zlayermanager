@@ -242,30 +242,28 @@ QTreeView::branch:closed:has-children:hover {
     image: url(:/gbxStyle/tree_closed_hover.png);
 }
 
-* QHeaderView::section {
+QHeaderView::section {
     background-color: rgb(42, 42, 42);
     color: rgb(235, 235, 235);
     padding: 0.3em;
     border: 1px solid rgb(150, 150, 150);
 }
 
-QTableWidget {
-	border-radius: 0px;
+QHeaderView::down-arrow { 
+    subcontrol-origin:padding;
+    subcontrol-position: center right;
+    padding-right: 5px;
+    image: url(:/sort-down.png);
+}
+
+QHeaderView::up-arrow { 
+    subcontrol-origin:padding;
+    subcontrol-position: center right;
+    padding-right: 5px;
+    image: url(:/sort-up.png);
 }
 
 * { gridline-color: white; }
-
-QTableWidget QTableCornerButton::section {
-    background-color: rgb(75, 75, 75);
-    border: 2px solid rgb(25, 25, 25);
-}
-
-QTableWidget QHeaderView::section {
-    background-color: rgb(80, 80, 80);
-    color: rgb(255, 255, 255);
-    padding: 0.3em;
-    border: 2px solid rgb(25, 25, 25);
-}
 
 QAbstractSpinBox, QComboBox {
 	border-style: solid;
