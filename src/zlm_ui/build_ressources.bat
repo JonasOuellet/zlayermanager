@@ -1,4 +1,4 @@
-set pysideRCC=..\zlm_env\Lib\site-packages\PySide2\pyside2-rcc.exe
+set pysideRCC=..\zlm_env\Scripts\pyrcc5.exe
 
 set outputName=resources_rc.py
 set qrcFile=resources.qrc

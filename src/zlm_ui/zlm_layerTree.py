@@ -1,5 +1,7 @@
-from PySide2 import QtWidgets, QtCore
 import re
+
+from PyQt5 import Qt, QtCore
+
 from zlm_core import ZlmLayerMode, ZlmLayer, send_to_zbrush, send_intensity
 from zlm_ui.filter_widget import is_valid_mode
 
@@ -7,33 +9,33 @@ from zlm_ui.filter_widget import is_valid_mode
 # Use delegate to make it faster ?
 # https://stackoverflow.com/questions/7175333/how-to-create-delegate-for-qtreewidget
 
-class NoWheelSlider(QtWidgets.QSlider):
+class NoWheelSlider(Qt.QSlider):
     def __init__(self):
-        QtWidgets.QSlider.__init__(self, QtCore.Qt.Horizontal)
+        Qt.QSlider.__init__(self, Qt.Qt.Horizontal)
         self.setRange(0, 100)
 
     def wheelEvent(self, event):
         pass
 
 
-class ZlmIntensity(QtWidgets.QWidget):
-    slider_pressed = QtCore.Signal(object, float)
-    slider_released = QtCore.Signal(object, float)
-    slider_moved = QtCore.Signal(object, float)
+class ZlmIntensity(Qt.QWidget):
+    slider_pressed = QtCore.pyqtSignal(object, float)
+    slider_released = QtCore.pyqtSignal(object, float)
+    slider_moved = QtCore.pyqtSignal(object, float)
 
-    spin_box_changed = QtCore.Signal(object, float)
+    spin_box_changed = QtCore.pyqtSignal(object, float)
     
     def __init__(self, item, intensity=1.0):
-        QtWidgets.QWidget.__init__(self)
+        Qt.QWidget.__init__(self)
         self.item = item
 
         self.slider = NoWheelSlider()
         
-        self.spinBox = QtWidgets.QDoubleSpinBox()
+        self.spinBox = Qt.QDoubleSpinBox()
         self.spinBox.setSingleStep(0.1)
         self.spinBox.setRange(0, 1.0)
 
-        layout = QtWidgets.QHBoxLayout()
+        layout = Qt.QHBoxLayout()
         layout.addWidget(self.slider)
         layout.addWidget(self.spinBox)
 
@@ -69,19 +71,19 @@ class ZlmIntensity(QtWidgets.QWidget):
         self.slider_released.emit(self.item, self.spinBox.value())
 
 
-class ZlmModeWidget(QtWidgets.QWidget):
-    mode_changed = QtCore.Signal(object, object)
+class ZlmModeWidget(Qt.QWidget):
+    mode_changed = QtCore.pyqtSignal(object, object)
 
     def __init__(self, item, mode=ZlmLayerMode.off):
-        QtWidgets.QWidget.__init__(self)
+        Qt.QWidget.__init__(self)
 
         self.item = item
 
-        layout = QtWidgets.QHBoxLayout()
-        self.pb_on = QtWidgets.QPushButton("On")
+        layout = Qt.QHBoxLayout()
+        self.pb_on = Qt.QPushButton("On")
         self.pb_on.setCheckable(True)
         self.pb_on.setMaximumSize(QtCore.QSize(32, 32))
-        self.pb_rect = QtWidgets.QPushButton("R")
+        self.pb_rect = Qt.QPushButton("R")
         self.pb_rect.setCheckable(True)
         self.pb_rect.setMaximumSize(QtCore.QSize(32, 32))
 
@@ -141,7 +143,7 @@ class ZlmModeWidget(QtWidgets.QWidget):
 # solution found here:
 # https://stackoverflow.com/questions/21030719/sort-a-pyside-qtgui-qtreewidget-by-an-alpha-numeric-column
 # re-implement the QTreeWidgetItem
-class ZlmTreeWidgetItem(QtWidgets.QTreeWidgetItem):
+class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
     def __init__(self, parent, layer=None):
         super(ZlmTreeWidgetItem, self).__init__(parent)
         self.tree_widget = parent
@@ -196,7 +198,7 @@ class ZlmTreeWidgetItem(QtWidgets.QTreeWidgetItem):
         return tuple((e if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
 
-class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
+class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def __init__(self, parent):
         super(ZlmLayerTreeWidget, self).__init__(parent)
         self.mainUI = parent
@@ -204,14 +206,14 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         self.mainUI.showing.connect(self.onShow)
 
         self.setSortingEnabled(True)
-        self.sortByColumn(0, QtCore.Qt.AscendingOrder)
+        self.sortByColumn(0, Qt.Qt.AscendingOrder)
         column_names = ['#', 'Layer Name', 'Mode', 'Intensity']
         self.setColumnCount(len(column_names))
         self.setHeaderLabels(column_names)
         # self.setHeaderHidden(True)
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Fixed)
+        self.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)
+        self.header().setSectionResizeMode(3, Qt.QHeaderView.ResizeMode.Fixed)
 
         self.itemDict = {}
         self.current_item_recording = None
@@ -377,7 +379,7 @@ class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
         if item and self.isItemSelected(item):
             self.setItemSelected(item, False)
         else:
-            QtWidgets.QTreeWidget.mousePressEvent(self, event)
+            Qt.QTreeWidget.mousePressEvent(self, event)
 
     def update_layer(self):
         column = self.sortColumn()

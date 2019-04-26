@@ -1,21 +1,21 @@
-from PySide2 import QtWidgets
+from PyQt5 import Qt
 
 
-class ZlmCollapsableWidget(QtWidgets.QWidget):
+class ZlmCollapsableWidget(Qt.QWidget):
     def __init__(self, title=""):
-        QtWidgets.QWidget.__init__(self)
+        Qt.QWidget.__init__(self)
 
-        self._pb_open = QtWidgets.QPushButton(title)
+        self._pb_open = Qt.QPushButton(title)
         self._pb_open.setProperty('class', 'collapsable')
         self._pb_open.setCheckable(True)
         self._pb_open.setChecked(True)
         self._pb_open.toggled.connect(self.on_open_toggled)
-        self.content_widget = QtWidgets.QFrame()
+        self.content_widget = Qt.QFrame()
         self.content_widget.setLineWidth(3)
         self.content_widget.setMidLineWidth(3)
         self.content_widget.setProperty('class', 'collapsable')
 
-        layout = QtWidgets.QVBoxLayout()
+        layout = Qt.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 

@@ -4,6 +4,7 @@ macholib==1.11
 pefile==2018.8.8
 pep8==1.7.1
 PyInstaller==3.4
-PySide2==5.12.2
+PyQt5==5.12.1
+PyQt5-sip==4.19.15
 pywin32-ctypes==0.2.0
 shiboken2==5.12.2

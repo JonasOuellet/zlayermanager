@@ -1,13 +1,16 @@
-from PySide2.QtCore import QThread, QObject, Signal
-from zlm_settings import ZlmSettings
-from multiprocessing.connection import Listener, Client
 import time
+from multiprocessing.connection import Listener, Client
+
+from PyQt5.QtCore import QThread, QObject, pyqtSignal
+
+from zlm_settings import ZlmSettings
+
 
 SECRET = bytes('secret', 'utf-8')
 
 
 class CommunicationDeamon(QThread):
-    commandReceived = Signal(object)
+    commandReceived = pyqtSignal(object)
 
     def __init__(self, address):
         QThread.__init__(self)

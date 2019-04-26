@@ -5,9 +5,9 @@ import sys
 
 if getattr(sys, 'frozen', False):
     # find path
-    pass
+    ZBRUSH_PATH = os.path.abspath(os.path.join(os.path.dirname(sys.executable), os.path.pardir, os.pardir, os.pardir, 'ZBrush.exe'))
 else:
-    ZBURSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
+    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
 
 
 SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.txt')

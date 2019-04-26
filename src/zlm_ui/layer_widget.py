@@ -1,21 +1,21 @@
-from PySide2 import QtWidgets, QtCore
+from PyQt5 import Qt
 
-from zlm_settings import ZlmSettings
 import zlm_core
+from zlm_settings import ZlmSettings
 from zlm_ui.zlm_layertree import ZlmLayerTreeWidget
 from zlm_ui.filter_widget import LayerFilterWidget
 from zlm_ui.preset_widget import ZlmPresetWidget
 from zlm_ui.export_widget import ZlmExportWidget
 
 
-class ZlmLayerWidget(QtWidgets.QWidget):
+class ZlmLayerWidget(Qt.QWidget):
     def __init__(self, parent):
-        QtWidgets.QWidget.__init__(self, parent)
+        Qt.QWidget.__init__(self, parent)
 
         self.preset_widget = ZlmPresetWidget()
         self.filter_widget = LayerFilterWidget(parent)
         self.tree_widget = ZlmLayerTreeWidget(parent)
-        self.tree_widget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree_widget.setContextMenuPolicy(Qt.Qt.ContextMenuPolicy.CustomContextMenu)
         self.tree_widget.customContextMenuRequested.connect(self.tree_widget_custom_menu)
 
         self.filter_widget.filter_edited.connect(self.tree_widget.build)
@@ -27,7 +27,7 @@ class ZlmLayerWidget(QtWidgets.QWidget):
         self.export_widget.pb_active.clicked.connect(self.export_active)
         self.export_widget.pb_record.clicked.connect(self.export_record)
 
-        layout = QtWidgets.QVBoxLayout()
+        layout = Qt.QVBoxLayout()
         layout.addWidget(self.preset_widget)
         layout.addWidget(self.filter_widget)
         layout.addWidget(self.tree_widget)
@@ -62,8 +62,8 @@ class ZlmLayerWidget(QtWidgets.QWidget):
             zlm_core.export_layers(settings.get_export_folder(), settings.export_format, [layer], maya_auto_import=settings.maya_auto_import)
 
     def tree_widget_custom_menu(self, pos):
-        menu = QtWidgets.QMenu(self)
-        turn_off_action = QtWidgets.QAction('Turn All Off', self)
+        menu = Qt.QMenu(self)
+        turn_off_action = Qt.QAction('Turn All Off', self)
         turn_off_action.triggered.connect(self.turn_all_off)
 
         menu.addAction(turn_off_action)

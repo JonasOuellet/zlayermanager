@@ -6,7 +6,7 @@ import os
 import sys
 import json
 
-from zlm_settings import ZBURSH_PATH, SCRIPT_PATH
+from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH
 
 ZLM_OP_RENAME = 0
 ZLM_OP_MODE = 1
@@ -321,7 +321,7 @@ def send_to_zbrush():
         f.write(SUBDIV_RESTORE_)
         f.write(']')
 
-    subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
+    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
 
 
 def send_intensity(layers=None, intensity=1.0):
@@ -338,7 +338,7 @@ def send_intensity(layers=None, intensity=1.0):
             f.write('[RoutineCall,zlmIntensity,{},{},{}]\n'.format(layer.name, layerCount-layer.index, intensity))
 
         f.write(']')
-    subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
+    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
 
 
 def export_layers(output_folder, output_format='.OBJ', layers=None,
@@ -403,7 +403,7 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
         f.write(SUBDIV_RESTORE_)
         f.write(']')
 
-    subprocess.call([ZBURSH_PATH, SCRIPT_PATH])
+    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
 
 
 RECT_FUNC = '''[RoutineDef, zlmDeactivateRec,

@@ -10,7 +10,7 @@ def open(file_path=None):
     # error when connecting so it means that the UI is not opened
     if not conn.connect():
         if not getattr(sys, 'frozen', False):
-            command = 'start E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36w.exe E:\\zLayerManager\\src\\zlm_ui'
+            command = 'start "" E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36w.exe E:\\zLayerManager\\src\\zlm_ui'
             if file_path:
                 if ' ' in file_path:
                     command += ' "{}"'.format(file_path)
@@ -19,7 +19,21 @@ def open(file_path=None):
             os.system(command)
 
         else:
-            pass
+            executable = os.path.join(os.path.dirname(sys.executable), 'zlm_ui.exe')
+
+            command = 'start "" '
+            if ' ' in executable:
+                command += '"{}"'.format(executable)
+            else:
+                command += executable
+
+            if file_path:
+                if ' ' in file_path:
+                    command += ' "{}"'.format(file_path)
+                else:
+                    command += ' {}'.format(file_path)
+
+            os.system(command)
 
     elif file_path:
         # pass the file path to the ui so it update

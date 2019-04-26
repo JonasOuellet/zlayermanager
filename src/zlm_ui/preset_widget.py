@@ -1,27 +1,27 @@
-from PySide2 import QtWidgets, QtCore
+from PyQt5 import Qt, QtCore
 
 import zlm_core
 
 
-class ZlmPresetWidget(QtWidgets.QWidget):
-    preset_activated = QtCore.Signal()
+class ZlmPresetWidget(Qt.QWidget):
+    preset_activated = QtCore.pyqtSignal()
 
     def __init__(self):
-        QtWidgets.QWidget.__init__(self)
+        Qt.QWidget.__init__(self)
 
-        self.cb_preset_file = QtWidgets.QComboBox()
-        self.cb_layer_presets = QtWidgets.QComboBox()
-        pb_activate = QtWidgets.QPushButton('Activate')
+        self.cb_preset_file = Qt.QComboBox()
+        self.cb_layer_presets = Qt.QComboBox()
+        pb_activate = Qt.QPushButton('Activate')
         pb_activate.clicked.connect(self.on_preset_activated)
 
-        layout1 = QtWidgets.QHBoxLayout()
+        layout1 = Qt.QHBoxLayout()
         layout1.addWidget(self.cb_preset_file)
 
-        layout2 = QtWidgets.QHBoxLayout()
+        layout2 = Qt.QHBoxLayout()
         layout2.addWidget(self.cb_layer_presets)
         layout2.addWidget(pb_activate)
 
-        mainLayout = QtWidgets.QVBoxLayout()
+        mainLayout = Qt.QVBoxLayout()
         mainLayout.addLayout(layout1)
         mainLayout.addLayout(layout2)
 
@@ -63,8 +63,8 @@ class ZlmPresetWidget(QtWidgets.QWidget):
 
         try:
             self.cb_layer_presets.addItems(list(self.presets[key][filename].keys()))
-        except Exception as e:
-            print(e)
+        except:
+            pass
 
     def get_current_preset(self):
         index = self.cb_preset_file.currentIndex()
@@ -78,8 +78,8 @@ class ZlmPresetWidget(QtWidgets.QWidget):
 
         try:
             return self.presets[key][filename][presetname]
-        except Exception as e:
-            print(e)
+        except:
+            pass
         return None
 
     def on_preset_activated(self):

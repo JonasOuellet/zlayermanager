@@ -1,13 +1,21 @@
-[VarDef, zlmDev, 1]
-
 [RoutineDef, zlmGetLayerPath,
     // Check if we are on pc
     [If, [ZBrushInfo, 6] == 0,
-        [VarSet, outputVar, [FileNameResolvePath, "zlmData\layers.TXT"]]
+        [VarSet, outputVar, [FileNameResolvePath, "ZlmData\layers.TXT"]]
     , /* Else */
-        [VarSet, outputVar, [FileNameResolvePath, "zlmData/layers.TXT"]]
+        [VarSet, outputVar, [FileNameResolvePath, "ZlmData/layers.TXT"]]
     ]
 , outputVar]
+
+[RoutineDef, zlmGetExecutable,
+    // Check if we are on pc
+    [If, [ZBrushInfo, 6] == 0,
+        [VarSet, outputVar, [FileNameResolvePath, "ZlmData\zlm.exe"]]
+    , /* Else */
+        [VarSet, outputVar, [FileNameResolvePath, "ZlmData/zlm.exe"]]
+    ]
+, outputVar]
+
 
 [RoutineDef, zlmGetLayerCount,
     [IShowActions, 0]
@@ -165,11 +173,14 @@
 
 [IButton, "Zplugin:zLayerManager:Open", "Open Layer Manager UI or update it if already opened",
     [VarSet, filePath, ""]
+    [VarSet, exec, ""]
     [RoutineCall, zlmGetLayerPath, filePath]
     [RoutineCall, zlmSaveLayerInfo, filePath]
-    [If, #zlmDev,
-        [ShellExecute, [StrMerge, "call E:\zLayerManager\src\zlm_env\Scripts\activate.bat & call E:\zLayerManager\src\zlm_env\Scripts\python36.exe E:\zLayerManager\src\zlm_sender -o -f ", #filePath]]
-    , /* Else */
-        [Note, "ceci est un test"]
-    ]
+    [RoutineCall, zlmGetExecutable, exec]
+    [VarSet, quote, [StrFromAsc, 34]]
+
+    [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]
+    /* Uncomment this when developping, and comment upper line
+    [ShellExecute, [StrMerge, "call E:\zLayerManager\src\zlm_env\Scripts\activate.bat & call E:\zLayerManager\src\zlm_env\Scripts\python36.exe E:\zLayerManager\src\zlm_sender -o -f ", #filePath]]
+    */
 ]

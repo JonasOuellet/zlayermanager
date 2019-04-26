@@ -1,5 +1,6 @@
-from PySide2 import QtWidgets, QtCore
 from functools import partial
+
+from PyQt5 import Qt, QtCore
 
 
 def is_valid_mode(mode, filter_mode):
@@ -15,20 +16,20 @@ def is_valid_mode(mode, filter_mode):
     return filter_mode == mode
 
 
-class LayerFilterWidget(QtWidgets.QWidget):
-    filter_edited = QtCore.Signal(str, int)
+class LayerFilterWidget(Qt.QWidget):
+    filter_edited = QtCore.pyqtSignal(str, int)
 
     filter_option = ['All', 'Off', 'Active', 'Record']
 
     def __init__(self, parent):
-        QtWidgets.QWidget.__init__(self)
+        Qt.QWidget.__init__(self)
 
         self.mainUI = parent
         self.mainUI.closing.connect(self.onClose)
 
-        self.le_search_bar = QtWidgets.QLineEdit()
+        self.le_search_bar = Qt.QLineEdit()
         self.le_search_bar.textEdited.connect(self._search_bar_changed)
-        self.pb_filter = QtWidgets.QPushButton("Filter")
+        self.pb_filter = Qt.QPushButton("Filter")
 
         self.current_filter = self.mainUI.settings.get('filter', 0)
         self.le_search_bar.setText(self.mainUI.settings.get('filterText', ''))
@@ -36,7 +37,7 @@ class LayerFilterWidget(QtWidgets.QWidget):
         self.filter_menu = self._build_menu()
         self.pb_filter.setMenu(self.filter_menu)
 
-        layout = QtWidgets.QHBoxLayout()
+        layout = Qt.QHBoxLayout()
 
         layout.addWidget(self.le_search_bar)
         layout.addWidget(self.pb_filter)
@@ -48,12 +49,12 @@ class LayerFilterWidget(QtWidgets.QWidget):
         self.mainUI.settings['filter'] = self.current_filter
 
     def _build_menu(self):
-        menu = QtWidgets.QMenu(self)
+        menu = Qt.QMenu(self)
 
-        group = QtWidgets.QActionGroup(menu)
+        group = Qt.QActionGroup(menu)
 
         for x, filt in enumerate(self.filter_option):
-            action1 = QtWidgets.QAction(filt, menu)
+            action1 = Qt.QAction(filt, menu)
             action1.setCheckable(True)
             group.addAction(action1)
             menu.addAction(action1)

@@ -4,7 +4,7 @@ import sys
 
 
 if not getattr(sys, 'frozen', False):
-    ZBURSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
+    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
 else:
     # find path
     pass
