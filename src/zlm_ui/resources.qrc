@@ -9,6 +9,9 @@
     <file alias="sort-down.png">img/sort_down.png</file>
     <file alias="sort-up.png">img/sort_up.png</file>
     <file alias="gear.png">img/gear.png</file>
+    <file alias="add.png">img/add.png</file>
+    <file alias="remove.png">img/remove.png</file>
+    <file alias="save.png">img/save.png</file>
 </qresource>
 
 </RCC>

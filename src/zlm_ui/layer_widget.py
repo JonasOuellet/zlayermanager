@@ -12,6 +12,9 @@ class ZlmLayerWidget(Qt.QWidget):
     def __init__(self, parent):
         Qt.QWidget.__init__(self, parent)
 
+        self.main_ui = parent
+        self.main_ui.closing.connect(self.on_close)
+
         self.preset_widget = ZlmPresetWidget()
         self.filter_widget = LayerFilterWidget(parent)
         self.tree_widget = ZlmLayerTreeWidget(parent)
@@ -28,12 +31,18 @@ class ZlmLayerWidget(Qt.QWidget):
         self.export_widget.pb_record.clicked.connect(self.export_record)
 
         layout = Qt.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+
         layout.addWidget(self.preset_widget)
         layout.addWidget(self.filter_widget)
         layout.addWidget(self.tree_widget)
         layout.addWidget(self.export_widget)
 
         self.setLayout(layout)
+
+        self.export_widget.set_collapsed(self.main_ui.settings.get('export_collapsed', False))
+        self.preset_widget.set_collapsed(self.main_ui.settings.get('preset_collapsed', False))
+        self.preset_widget.set_current_preset_path(self.main_ui.settings.get('preset_path', None))
 
     def build(self):
         self.tree_widget.build(self.filter_widget.le_search_bar.text(), self.filter_widget.current_filter)
@@ -74,3 +83,8 @@ class ZlmLayerWidget(Qt.QWidget):
             layer.mode = 0
         self.tree_widget.update_layer()
         zlm_core.send_to_zbrush()
+
+    def on_close(self):
+        self.main_ui.settings['export_collapsed'] = self.export_widget.is_collapsed()
+        self.main_ui.settings['preset_collapsed'] = self.preset_widget.is_collapsed()
+        self.main_ui.settings['preset_path'] = self.preset_widget.get_current_preset_path()

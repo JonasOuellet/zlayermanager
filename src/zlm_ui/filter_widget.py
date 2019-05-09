@@ -24,29 +24,30 @@ class LayerFilterWidget(Qt.QWidget):
     def __init__(self, parent):
         Qt.QWidget.__init__(self)
 
-        self.mainUI = parent
-        self.mainUI.closing.connect(self.onClose)
+        self.main_ui = parent
+        self.main_ui.closing.connect(self.on_close)
 
         self.le_search_bar = Qt.QLineEdit()
         self.le_search_bar.textEdited.connect(self._search_bar_changed)
         self.pb_filter = Qt.QPushButton("Filter")
 
-        self.current_filter = self.mainUI.settings.get('filter', 0)
-        self.le_search_bar.setText(self.mainUI.settings.get('filterText', ''))
+        self.current_filter = self.main_ui.settings.get('filter', 0)
+        self.le_search_bar.setText(self.main_ui.settings.get('filterText', ''))
 
         self.filter_menu = self._build_menu()
         self.pb_filter.setMenu(self.filter_menu)
 
         layout = Qt.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(self.le_search_bar)
         layout.addWidget(self.pb_filter)
 
         self.setLayout(layout)
 
-    def onClose(self):
-        self.mainUI.settings['filterText'] = self.le_search_bar.text()
-        self.mainUI.settings['filter'] = self.current_filter
+    def on_close(self):
+        self.main_ui.settings['filterText'] = self.le_search_bar.text()
+        self.main_ui.settings['filter'] = self.current_filter
 
     def _build_menu(self):
         menu = Qt.QMenu(self)

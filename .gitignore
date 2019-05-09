@@ -5,3 +5,5 @@ src/zscripts/zlmData
 **.zsc
 **/*.pyc
 src/build
+src/zlm.txt
+src/presets

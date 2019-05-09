@@ -6,7 +6,7 @@ import os
 import sys
 import json
 
-from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH
+from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH
 
 ZLM_OP_RENAME = 0
 ZLM_OP_MODE = 1
@@ -194,6 +194,37 @@ def get_preset_file():
     return out
 
 
+def validate_new_preset_file(preset_name):
+    if not preset_name:
+        return False
+
+    folders = get_preset_folders()
+    user_folder = folders['user']
+    full_path = os.path.join(user_folder, preset_name + '.json')
+    return not os.path.exists(full_path)
+
+
+def create_new_preset_file(preset_name):
+    folders = get_preset_folders()
+    user_folder = folders['user']
+    full_path = os.path.join(user_folder, preset_name + '.json')
+
+    f = open(full_path, mode='w')
+    f.write('{}')
+    f.close()
+
+
+def remove_preset_file(preset_name):
+    folders = get_preset_folders()
+    user_folder = folders['user']
+    full_path = os.path.join(user_folder, preset_name + '.json')
+
+    try:
+        os.remove(full_path)
+    except:
+        pass
+
+
 def load_presets():
     preset_files = get_preset_file()
     out = {}
@@ -350,7 +381,8 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
 
     if maya_auto_import:
         if getattr(sys, 'frozen', False):
-            pass
+            maya_import = '[ShellExecute, [StrMerge, "call ", #quote, "{}", #quote, " -i ", '.format(ZLM_PATH)
+            maya_import += '#quote, "{}", #quote]]\n'
         else:
             maya_import = '[ShellExecute, "call E:\\zLayerManager\\src\\zlm_env\\Scripts\\activate.bat & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36.exe E:\\zLayerManager\\src\\zlm_sender -i {}"]\n'
 
@@ -365,6 +397,8 @@ def export_layers(output_folder, output_format='.OBJ', layers=None,
         f.write(SUBDIV_STORE_)
         f.write(SUBDIV_MAX_)
         f.write('[RoutineCall, zlmDeactivateRec]\n')
+
+        f.write('[VarSet, quote, [StrFromAsc, 34]]')
 
         layerCount = len(_zOp.instances_list) - 1
         # Deactive any active layers

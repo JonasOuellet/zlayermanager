@@ -201,9 +201,9 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
 class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def __init__(self, parent):
         super(ZlmLayerTreeWidget, self).__init__(parent)
-        self.mainUI = parent
-        self.mainUI.closing.connect(self.onClose)
-        self.mainUI.showing.connect(self.onShow)
+        self.main_ui = parent
+        self.main_ui.closing.connect(self.on_close)
+        self.main_ui.showing.connect(self.on_show)
 
         self.setSortingEnabled(True)
         self.sortByColumn(0, Qt.Qt.AscendingOrder)
@@ -221,12 +221,12 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self._selected_items = []
         self._selected_layers = []
 
-    def onClose(self):
-        self.mainUI.settings['layerViewColumn'] = self.getColumnsWidth()
+    def on_close(self):
+        self.main_ui.settings['layerViewColumn'] = self.getColumnsWidth()
 
-    def onShow(self):
-        if 'layerViewColumn' in self.mainUI.settings:
-            self.setColumnsWidth(self.mainUI.settings['layerViewColumn'])
+    def on_show(self):
+        if 'layerViewColumn' in self.main_ui.settings:
+            self.setColumnsWidth(self.main_ui.settings['layerViewColumn'])
             # space for scroll bar
             self.updateColumnSize(self.width()-20)
 
@@ -248,8 +248,8 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self.itemDict.clear()
         self.clear()
 
-        if self.mainUI.layers:
-            for layer in self.mainUI.layers:
+        if self.main_ui.layers:
+            for layer in self.main_ui.layers:
                 if text in layer.name.lower() and is_valid_mode(layer.mode, mode):
                     item = ZlmTreeWidgetItem(self, layer)
                     l = self.itemDict.get(layer.name, [])
@@ -259,6 +259,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def on_item_mode_changed(self, item, mode):
         column = self.sortColumn()
         if column == 2:
+            order = self.header().sortIndicatorOrder()
             self.setSortingEnabled(False)
 
         if mode == ZlmLayerMode.record:
@@ -285,7 +286,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         if column == 2:
             self.setSortingEnabled(True)
-            self.sortByColumn(column)
+            self.sortByColumn(column, order)
 
         send_to_zbrush()
 
@@ -376,19 +377,22 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def mousePressEvent(self, event):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
         item = self.itemAt(event.pos())
-        if item and self.isItemSelected(item):
-            self.setItemSelected(item, False)
+        if item and item.isSelected():
+            item.setSelected(False)
         else:
             Qt.QTreeWidget.mousePressEvent(self, event)
 
     def update_layer(self):
         column = self.sortColumn()
+        order = self.header().sortIndicatorOrder()
+
         self.setSortingEnabled(False)
         for key, layers in self.itemDict.items():
             for item in layers:
                 item.update()
+
         self.setSortingEnabled(True)
-        self.sortByColumn(column)
+        self.sortByColumn(column, order)
 
     def get_selected_layers(self):
         return [i.layer for i in self.selectedItems()]
