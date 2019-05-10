@@ -4,7 +4,8 @@
 }
 
 QLabel {
-	color: rgb(232, 232, 232);
+    color: rgb(232, 232, 232);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 QPushButton {

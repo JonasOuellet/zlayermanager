@@ -22,10 +22,18 @@ class ZlmSettings(object):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
         self.communication_port = 6008
 
-        self.maya_auto_import = True
-        self.maya_communication_port = 6009
-
-        self.export_format = '.obj'
+        self.send_after_export = False
+        self.current_dcc = 'Maya'
+        self.dcc_settings = {
+            'Maya': {
+                'port': 6009,
+                'format': '.obj'
+            },
+            'Blender': {
+                'port': 6010,
+                'format': '.obj'
+            }
+        }
 
         self.bigData = {}
 

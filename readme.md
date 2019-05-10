@@ -44,7 +44,7 @@ Open a console in the `.\src` directory then enter the following:
 > python36 -m pip install -r requirements.txt
 ```
 
-**Notes:** You might need to use `python` if you onyl have one version of python installed.
+**Notes:** You might need to use `python` if you only have one version of python installed.
 
 #### Edit activation script to add the src folder to the python path
 
@@ -75,7 +75,7 @@ Enter `deactivate` in the console.
 
 ## Build
 
-To build you have to navigate to `src` folder
+To build you have to navigate to `src` folder and activate the virtual environment.
 
 #### Building zlm.exe
 ```bash

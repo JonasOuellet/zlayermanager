@@ -5,15 +5,18 @@ from PyQt5 import Qt, QtCore
 
 import zlm_core
 from zlm_settings import ZlmSettings
-from zlm_ui.layer_widget import ZlmLayerWidget
-from zlm_ui.comserver import CommunicationServer
 
 from zlm_ui import resources_rc
+from zlm_ui.layer_widget import ZlmLayerWidget
+from zlm_ui.comserver import CommunicationServer
+from zlm_ui.settings_dialog import SettingsDialog
 
 
 class ZlmMainUI(Qt.QMainWindow):
     closing = QtCore.pyqtSignal()
     showing = QtCore.pyqtSignal()
+
+    settings_changed = QtCore.pyqtSignal()
 
     default_settings = {
         'geometry': None
@@ -32,6 +35,7 @@ class ZlmMainUI(Qt.QMainWindow):
         self.lbl_subtool = Qt.QLabel("SubTool: ")
 
         pb_option = Qt.QPushButton(Qt.QIcon(':/gear.png'), '')
+        pb_option.clicked.connect(self.show_option)
 
         topLayout = Qt.QHBoxLayout()
         topLayout.addWidget(self.lbl_subtool)
@@ -97,3 +101,8 @@ class ZlmMainUI(Qt.QMainWindow):
                 self.setStyleSheet(f.read())
         except:
             pass
+
+    def show_option(self):
+        settings_dialog = SettingsDialog(self)
+        if settings_dialog.exec():
+            self.settings_changed.emit()

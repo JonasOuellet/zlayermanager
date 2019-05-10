@@ -16,16 +16,16 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         self.pb_activate.clicked.connect(self.on_preset_activated)
 
         self.pb_add_file = Qt.QPushButton(Qt.QIcon(':/add.png'), '')
-        self.pb_add_file.pressed.connect(self.pb_add_file_pressed)
+        self.pb_add_file.clicked.connect(self.pb_add_file_clicked)
         self.pb_rem_file = Qt.QPushButton(Qt.QIcon(':/remove.png'), '')
-        self.pb_rem_file.pressed.connect(self.pb_rem_file_pressed)
+        self.pb_rem_file.clicked.connect(self.pb_rem_file_clicked)
 
         self.pb_add_preset = Qt.QPushButton(Qt.QIcon(':/add.png'), '')
-        self.pb_add_preset.pressed.connect(self.pb_add_preset_pressed)
+        self.pb_add_preset.clicked.connect(self.pb_add_preset_clicked)
         self.pb_rem_preset = Qt.QPushButton(Qt.QIcon(':/remove.png'), '')
-        self.pb_rem_preset.pressed.connect(self.pb_rem_preset_pressed)
+        self.pb_rem_preset.clicked.connect(self.pb_rem_preset_clicked)
         self.pb_save_preset = Qt.QPushButton(Qt.QIcon(':/save.png'), '')
-        self.pb_save_preset.pressed.connect(self.pb_save_preset_pressed)
+        self.pb_save_preset.clicked.connect(self.pb_save_preset_clicked)
 
         layout1 = Qt.QHBoxLayout()
         layout1.addWidget(self.cb_preset_file, 1)
@@ -156,7 +156,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             self.preset_activated.emit()
             zlm_core.send_to_zbrush()
 
-    def pb_add_file_pressed(self):
+    def pb_add_file_clicked(self):
         dialog = Qt.QInputDialog(self)
         dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
         dialog.setWindowTitle("Preset Name")
@@ -173,7 +173,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             else:
                 Qt.QErrorMessage(self).showMessage('Invalid preset group name: "{}"'.format(text), "Invalid Preset Group Name")
 
-    def pb_rem_file_pressed(self):
+    def pb_rem_file_clicked(self):
         key, group, _ = self.get_current_preset_path()
         test = Qt.QMessageBox.warning(self, "Remove Preset Group", 'This will remove preset group "{}".  Are you sure?'.format(group),
                                       Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
@@ -192,7 +192,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             except:
                 self.build_preset_combobox()
 
-    def pb_add_preset_pressed(self):
+    def pb_add_preset_clicked(self):
         dialog = Qt.QInputDialog(self)
         dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
         dialog.setWindowTitle("Preset Name")
@@ -216,7 +216,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
                 zlm_core.save_layers_preset(group, self.presets[key][group])
                 self.set_current_preset_path((key, group, text))
 
-    def pb_rem_preset_pressed(self):
+    def pb_rem_preset_clicked(self):
         key, group, preset = self.get_current_preset_path()
         test = Qt.QMessageBox.warning(self, "Remove Preset",
                             'Are you sure you want to delete preset "{}"?'.format(preset),
@@ -238,7 +238,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             except:
                 pass
 
-    def pb_save_preset_pressed(self):
+    def pb_save_preset_clicked(self):
         key, group, preset = self.get_current_preset_path()
         test = Qt.QMessageBox.warning(self, "Save Preset",
                             'Are you sure you want to override preset "{}"?'.format(preset),
