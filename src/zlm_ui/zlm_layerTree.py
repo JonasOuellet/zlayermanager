@@ -5,6 +5,8 @@ from PyQt5 import Qt, QtCore
 from zlm_core import ZlmLayerMode, ZlmLayer, send_to_zbrush, send_intensity
 from zlm_ui.filter_widget import is_valid_mode
 
+MINIMUM_INTENSITY_WIDTH = 160
+
 
 # Use delegate to make it faster ?
 # https://stackoverflow.com/questions/7175333/how-to-create-delegate-for-qtreewidget
@@ -24,13 +26,13 @@ class ZlmIntensity(Qt.QWidget):
     slider_moved = QtCore.pyqtSignal(object, float)
 
     spin_box_changed = QtCore.pyqtSignal(object, float)
-    
+
     def __init__(self, item, intensity=1.0):
         Qt.QWidget.__init__(self)
         self.item = item
 
         self.slider = NoWheelSlider()
-        
+
         self.spinBox = Qt.QDoubleSpinBox()
         self.spinBox.setSingleStep(0.1)
         self.spinBox.setRange(0, 1.0)
@@ -45,6 +47,8 @@ class ZlmIntensity(Qt.QWidget):
         self.slider.sliderPressed.connect(self._slider_pressed)
         self.slider.sliderReleased.connect(self._slider_released)
         self.spinBox.valueChanged.connect(self._spinBoxChanged)
+
+        self.setMinimumWidth(MINIMUM_INTENSITY_WIDTH)
 
     def set_intensity(self, value):
         self.spinBox.blockSignals(True)
@@ -198,6 +202,15 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
         return tuple((e if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
 
+def prog_column_resizing(func):
+    def wrapper(self, *args, **kwargs):
+        self._is_resizing = True
+        to_return = func(self, *args, **kwargs)
+        self._is_resizing = False
+        return to_return
+    return wrapper
+
+
 class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def __init__(self, parent):
         super(ZlmLayerTreeWidget, self).__init__(parent)
@@ -210,10 +223,12 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         column_names = ['#', 'Layer Name', 'Mode', 'Intensity']
         self.setColumnCount(len(column_names))
         self.setHeaderLabels(column_names)
-        # self.setHeaderHidden(True)
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
+
+        # column resizing
+        self._is_resizing = False
         self.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)
-        self.header().setSectionResizeMode(3, Qt.QHeaderView.ResizeMode.Fixed)
+        self.header().sectionResized.connect(self.columnResized)
 
         self.itemDict = {}
         self.current_item_recording = None
@@ -228,7 +243,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         if 'layerViewColumn' in self.main_ui.settings:
             self.setColumnsWidth(self.main_ui.settings['layerViewColumn'])
             # space for scroll bar
-            self.updateColumnSize(self.width()-20)
+            self.updateColumnSize(self.width())
 
     def getColumnsWidth(self):
         columnCount = self.columnCount()
@@ -238,6 +253,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         return columnWidth
 
+    @prog_column_resizing
     def setColumnsWidth(self, width):
         # Set column With:
         for x, w in enumerate(width):
@@ -412,14 +428,31 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         return layers
 
-    def updateColumnSize(self, width):
+    @prog_column_resizing
+    def updateColumnSize(self, width=None):
+        if width is None:
+            width = self.width()
+
+        if self.verticalScrollBar().isVisible():
+            width -= self.verticalScrollBar().width()
+
         width -= (self.columnWidth(0) + self.columnWidth(1) + self.columnWidth(2))
 
-        if width < 60:
-            width = 60
+        valid = True
+        if width < MINIMUM_INTENSITY_WIDTH:
+            width = MINIMUM_INTENSITY_WIDTH
+            valid = False
         self.setColumnWidth(3, width)
+        return valid
 
     def resizeEvent(self, event):
         width = event.size().width()
 
         self.updateColumnSize(width)
+
+    def columnResized(self, column, oldSize, newSize):
+        if not self._is_resizing and column != 3:
+            if not self.updateColumnSize():
+                self._is_resizing = True
+                self.setColumnWidth(column, oldSize)
+                self._is_resizing = False

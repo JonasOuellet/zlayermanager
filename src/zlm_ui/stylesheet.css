@@ -232,22 +232,23 @@ QListView::item:selected, QTreeView::item:selected {
   background-color: rgb(46, 73, 96);
 }
 
+/*
 QTreeView::branch:open {
-    image: url(:/gbxStyle/tree_open.png);
+    image: url();
 }
 
 QTreeView::branch:open:hover {
-    image: url(:/gbxStyle/tree_open_hover.png);
+    image: url();
 }
 
 
 QTreeView::branch:closed:has-children {
-    image: url(:/gbxStyle/tree_closed.png);
+    image: url();
 }
 
 QTreeView::branch:closed:has-children:hover {
-    image: url(:/gbxStyle/tree_closed_hover.png);
-}
+    image: url();
+}*/
 
 QHeaderView::section {
     background-color: rgb(42, 42, 42);

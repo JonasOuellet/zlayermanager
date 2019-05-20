@@ -274,5 +274,3 @@
     // [ISet, "Tool:Geometry:SDiv", #subLevel, 0]
 
 , layerName /*string*/, index /*number*/, savePath /*string*/]
-
-[RoutineCall, zlmExportLayer,  "jaw_drop_mid", 141, "C:\Users\gsq_jouellet\Desktop\jaw_drop_mid.obj"]

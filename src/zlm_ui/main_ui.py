@@ -9,7 +9,7 @@ from zlm_settings import ZlmSettings
 from zlm_ui import resources_rc
 from zlm_ui.layer_widget import ZlmLayerWidget
 from zlm_ui.comserver import CommunicationServer
-from zlm_ui.settings_dialog import SettingsDialog
+from zlm_ui.settings_ui import SettingsDialog
 
 
 class ZlmMainUI(Qt.QMainWindow):
