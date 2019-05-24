@@ -36,3 +36,16 @@ class SubdivMax(ZCommand):
 
     def get(self):
         return '[IGetMax,"Tool:Geometry:SDiv"]'
+
+
+class Quote(ZCommand):
+    zscript = '[VarSet,qte,[StrFromAsc,34]]'
+
+    def call(self, *args, **kwargs):
+        return self.zscript
+
+    def get(self):
+        return '#qte'
+
+    # def definition(self, *args, **kwargs):
+    #     return self.zscript

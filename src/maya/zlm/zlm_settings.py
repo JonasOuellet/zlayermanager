@@ -3,15 +3,6 @@ import json
 import sys
 
 
-if not getattr(sys, 'frozen', False):
-    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
-else:
-    # find path
-    pass
-
-SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.txt')
-
-
 class ZlmSettings(object):
     _instance = None
     exclude_attr = set(['bigData'])
@@ -20,10 +11,18 @@ class ZlmSettings(object):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
         self.communication_port = 6008
 
-        self.maya_auto_import = True
-        self.maya_communication_port = 6009
-
-        self.export_format = '.obj'
+        self.send_after_export = False
+        self.current_dcc = 'Maya'
+        self.dcc_settings = {
+            'Maya': {
+                'port': 6009,
+                'format': '.obj'
+            },
+            'Blender': {
+                'port': 6010,
+                'format': '.obj'
+            }
+        }
 
         self.bigData = {}
 
@@ -102,3 +101,34 @@ class ZlmSettings(object):
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return folder
+
+    def get_import_folder(self):
+        folder = os.path.join(self.working_folder, 'import')
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return folder
+
+    def get_current_dcc_port(self):
+        try:
+            return self.dcc_settings[self.current_dcc]['port']
+        except:
+            pass
+        return None
+
+    def get_current_dcc_format(self):
+        try:
+            return self.dcc_settings[self.current_dcc]['format']
+        except:
+            pass
+        # default format
+        return '.obj'
+
+    def get_port_for_dcc(self, dcc):
+        try:
+            return self.dcc_settings[dcc]['port']
+        except:
+            raise Exception('Could not find port for software "{}".  Make sure this software is properly set in settings.')
+
+
+def instance():
+    return ZlmSettings.instance()

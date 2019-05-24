@@ -4,10 +4,7 @@ import glob
 from maya import cmds
 from maya.api import OpenMaya as om
 
-
-def load_obj_plugin():
-    if not cmds.pluginInfo('objExport.mll', query=True, loaded=True):
-        cmds.loadPlugin('objExport.mll')
+from zlm.zlm_utils import load_obj_plugin
 
 
 def import_obj(file_path):

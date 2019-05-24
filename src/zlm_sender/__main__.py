@@ -16,7 +16,7 @@ def main():
         command.open(args.file)
 
     elif args.import_file:
-        command.maya_import(args.import_file)
+        command.dcc_import(args.import_file)
 
 
 if __name__ == "__main__":

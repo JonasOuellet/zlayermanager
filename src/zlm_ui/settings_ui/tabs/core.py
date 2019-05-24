@@ -45,13 +45,15 @@ class CoreSettingWidget(SettingsTabBase):
     def browse_working_folder(self):
         directory = Qt.QFileDialog.getExistingDirectory(self, "Select file folder", self.le_working_folder.text())
         if directory:
+            if os.name == 'nt':
+                directory = directory.replace('/', '\\')
             self.le_working_folder.setText(directory)
 
     def reset_working_folder(self):
-        self.le_working_folder.setText(DEFAULT_SETTINGS.working_folder)
+        self.le_working_folder.setText(self.DEFAULT_SETTINGS.working_folder)
 
     def reset_port(self):
-        self.sb_com_port.setValue(DEFAULT_SETTINGS.communication_port)
+        self.sb_com_port.setValue(self.DEFAULT_SETTINGS.communication_port)
 
     #
     # Base class method

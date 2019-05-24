@@ -1,8 +1,8 @@
 import os
 import sys
-import socket
 
 from zlm_sender.communicate import Connection, ZlmSettings
+from zlm_dcc import send_dcc_cmd
 
 
 def open(file_path=None):
@@ -42,15 +42,6 @@ def open(file_path=None):
     conn.close()
 
 
-def maya_import(file_path):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        client.connect(('127.0.0.1', ZlmSettings.instance().maya_communication_port))
-
-        command = "import zlm;zlm.zlm_import_file('{}')".format(file_path.replace('\\', '/'))
-        command = bytes(command, 'utf-8')
-        client.send(command)
-    except:
-        raise
-    finally:
-        client.close()
+def dcc_import(file_path):
+    command = "import zlm;zlm.zlm_import_file('{}')".format(file_path.replace('\\', '/'))
+    send_dcc_cmd(command)

@@ -13,110 +13,10 @@ ZLM_OP_MODE = 1
 ZLM_OP_CREATE = 2
 
 
-class ZlmCreateOp(object):
-    def __init__(self, name):
-        self.name = name
-
-
-class ZlmRenameOp(object):
-    def __init__(self, basename, newname):
-        self.op = ZLM_OP_RENAME
-        self.basename = basename
-        self.newname = newname
-
-
-class ZlmLayerOp(object):
-    def __init__(self):
-        self.instances = {}
-        self.instances_list = []
-
-        self.currentRecording = None
-
-        # self.is_recording = False
-        # self.layer_record_start = None
-        # self.layer_record_end = None
-
-        self.ops = []
-
-    def start_recording(self):
-        self.is_recording = True
-
-    def stop_recording(self):
-        self.is_recording = False
-
-    def send_to_zbrush(self):
-        pass
-
-    def add_layer(self, layer):
-        # if self.is_recording:
-        #     pass
-        l = self.instances.get(layer.name, [])
-        l.append(layer)
-        self.instances[layer.name] = l
-        self.instances_list.append(layer)
-
-    def clear(self):
-        self.instances.clear()
-        self.instances_list.clear()
-
-
-_zOp = ZlmLayerOp()
-
-
 class ZlmLayerMode(IntEnum):
     off = 0
     record = 1
     active = 2
-
-
-class ZlmLayer(object):
-    def __init__(self, name, intensity, mode, index):
-        super(ZlmLayer, self).__init__()
-        self.name = name
-        self.intensity = intensity
-        self.mode = mode
-        self.index = index
-
-        _zOp.add_layer(self)
-
-    # @property
-    # def name(self):
-    #     return self._name
-
-    # @name.setter
-    # def name(self, value):
-    #     if ZlmLayer.layerOp.recording:
-
-    #     self._name = value
-
-    # @property
-    # def mode(self):
-    #     return self._mode
-
-    # @mode.setter
-    # def mode(self, value):
-    #     if value = ZlmLayerMode.record:
-    #         if _zOp.currentRecording:
-    #             _zOp.currentRecording.mode = ZlmLayerMode.active
-    #         _zOp.currentRecording = self
-    #     self._mode = value
-
-    @staticmethod
-    def from_line(line, line_index):
-        line = line.strip()
-        start = line.find("\"")
-        end = line.find("\"", start+1)
-
-        splitted = line[end+1:].strip().split(' ')
-        return ZlmLayer(line[start+1: end], float(splitted[0]), int(splitted[1]), line_index)
-
-    @staticmethod
-    def start_recording(self):
-        ZlmLayer.layerOp.start_recording()
-
-    @staticmethod
-    def stop_recording(self):
-        pass
 
 
 class ZlmSubTool(object):
@@ -130,7 +30,132 @@ class ZlmSubTool(object):
         start = line.find("\"")
         end = line.find("\"", start+1)
         splitted = line[end+1:].strip()
-        return ZlmSubTool(line[start+1: end], int(splitted))
+        name = line[start+1: end]
+        if name.endswith('.'):
+            name = name[:-1]
+        return ZlmSubTool(name, int(splitted))
+
+
+class ZlmLayer(object):
+    def __init__(self, name, intensity, mode, index, master=None):
+        super(ZlmLayer, self).__init__()
+        self._mode = 0
+        self.name = name
+        self.intensity = intensity
+        self.mode = mode
+        self.index = index
+
+        self.master = master
+
+    @property
+    def mode(self):
+        return int(self._mode)
+
+    @mode.setter
+    def mode(self, value):
+        if value == ZlmLayerMode.record:
+            if self.master:
+                if self.master.recording_layer:
+                    self.master.recording_layer.mode = ZlmLayerMode.active
+                self.master.recording_layer = self
+        self._mode = value
+
+    @staticmethod
+    def from_line(line, line_index):
+        line = line.strip()
+        start = line.find("\"")
+        end = line.find("\"", start+1)
+
+        splitted = line[end+1:].strip().split(' ')
+        return ZlmLayer(line[start+1: end], float(splitted[0]), int(splitted[1]), line_index)
+
+    def zbrush_index(self):
+        if self.master:
+            return len(self.master.instances_list) - self.index
+        return 0
+
+
+class ZlmLayers(object):
+    cb_layer_created = 0
+    cb_layer_removed = 1
+    cb_layer_updated = 2
+
+    def __init__(self):
+        self.instances = {}
+        self.instances_list = []
+
+        self.subtool = None
+
+        self.recording_layer = None
+
+        self._cb_on_layer_created = []
+        self._cb_on_layer_removed = []
+        self._cb_on_layer_updated = []
+
+    def add_callback(self, cb_type, callback):
+        if cb_type == 0:
+            self._cb_on_layer_created.append(callback)
+        elif cb_type == 1:
+            self._cb_on_layer_removed.append(callback)
+        elif cb_type == 2:
+            self._cb_on_layer_updated.append(callback)
+
+    def add_layer(self, layer):
+        l = self.instances.get(layer.name, [])
+        l.append(layer)
+        self.instances[layer.name] = l
+        self.instances_list.append(layer)
+
+        layer.master = self
+
+    def set_subtool(self, subtool):
+        self.subtool = subtool
+
+    def clear(self):
+        self.instances.clear()
+        self.instances_list.clear()
+
+    def layers_it(self, exclude_record=True, backward=False):
+        layers = self.instances_list
+        if backward:
+            layers = reversed(layers)
+
+        for l in layers:
+            if exclude_record and l.mode == ZlmLayerMode.record:
+                continue
+            yield l
+
+    def get_first_layer_by_name(self, name):
+        try:
+            return self.instances[name][0]
+        except:
+            pass
+        return None
+
+    def create_layer(self, name):
+        layer = ZlmLayer(name, 1.0, 0, len(self.instances_list) + 1, self)
+        self.add_layer(layer)
+        for cb in self._cb_on_layer_created:
+            cb(layer)
+        return layer
+
+    def load_from_file(self, file_path):
+        self.clear()
+        subTool = None
+
+        with open(file_path, mode='r') as f:
+            lines = f.readlines()
+            # last line is for subtools
+            for x, line in enumerate(lines[:-1]):
+                layer = ZlmLayer.from_line(line, x+1)
+                self.add_layer(layer)
+            subTool = ZlmSubTool.from_line(lines[-1])
+            self.set_subtool(subTool)
+        for cb in self._cb_on_layer_updated:
+            cb()
+
+
+main_layers = ZlmLayers()
 
 
 def parse_layer_file(file_path):
@@ -141,7 +166,7 @@ def parse_layer_file(file_path):
 
     Returns: (layersList, subtoolName)
     """
-    _zOp.clear()
+    main_layers.clear()
     subTool = None
 
     with open(file_path, mode='r') as f:
@@ -149,9 +174,11 @@ def parse_layer_file(file_path):
         # last line is for subtools
         for x, line in enumerate(lines[:-1]):
             layer = ZlmLayer.from_line(line, x)
+            main_layers.add_layer(layer)
         subTool = ZlmSubTool.from_line(lines[-1])
+        main_layers.set_subtool(subTool)
 
-    return _zOp.instances_list, subTool
+    return main_layers.instances_list, subTool
 
 
 def get_preset_folders():
@@ -243,7 +270,7 @@ def get_layers_as_preset():
         'record': None
     }
 
-    for layer in _zOp.instances_list:
+    for layer in main_layers.instances_list:
         if layer.mode == 1:  # or layer.intensity != 1.0:
             out['record'] = {
                 'name': layer.name,
@@ -263,12 +290,12 @@ def get_layers_as_preset():
 def apply_preset(preset):
     # loop through all layers and apply default value
 
-    for layer in _zOp.instances_list:
+    for layer in main_layers.instances_list:
         layer.intensity = 1.0
         layer.mode = 0
 
     for layer in preset['active']:
-        layers = _zOp.instances.get(layer['name'], None)
+        layers = main_layers.instances.get(layer['name'], None)
         if layers:
             if len(layers) > 1:
                 # check for index in the array of layer with the same name
@@ -287,7 +314,7 @@ def apply_preset(preset):
             cl.intensity = layer['intensity']
 
     if preset['record']:
-        layers = _zOp.instances.get(preset['record']['name'], None)
+        layers = main_layers.instances.get(preset['record']['name'], None)
         if layers:
             if len(layers) > 1:
                 # check for index in the array of layer with the same name
@@ -317,184 +344,3 @@ startupinfo = None
 if os.name == 'nt':
     startupinfo = subprocess.STARTUPINFO()
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-
-def send_to_zbrush():
-    with open(SCRIPT_PATH, mode='w') as f:
-        f.write(SET_LAYER_FUNC)
-        f.write(RECT_FUNC)
-
-        f.write('[IShowActions, 0]')
-        f.write('\n[IFreeze,\n')
-
-        f.write(SUBDIV_STORE_)
-        f.write(SUBDIV_MAX_)
-        f.write('[RoutineCall, zlmDeactivateRec]\n')
-
-        recording_layer = None
-        layerCount = len(_zOp.instances_list) - 1
-        for x in range(layerCount, -1, -1):
-            l = _zOp.instances_list[x]
-            if l.mode == ZlmLayerMode.record:
-                if not recording_layer:
-                    recording_layer = l
-                    continue
-                else:
-                    l, recording_layer = (recording_layer, l)
-
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, l.mode, l.intensity))
-
-        if recording_layer:
-
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
-                     layerCount-recording_layer.index, recording_layer.mode, 1.0))
-
-        f.write(SUBDIV_RESTORE_)
-        f.write(']')
-
-    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
-
-
-def send_intensity(layers=None, intensity=1.0):
-    if layers is None:
-        layers = _zOp.instances_list
-
-    layerCount = len(_zOp.instances_list) - 1
-    with open(SCRIPT_PATH, mode='w') as f:
-        f.write(SET_INTENSITY_FUNC)
-        f.write('[IShowActions, 0]')
-        f.write('\n[IFreeze,\n')
-
-        for layer in layers:
-            f.write('[RoutineCall,zlmIntensity,{},{},{}]\n'.format(layer.name, layerCount-layer.index, intensity))
-
-        f.write(']')
-    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
-
-
-def export_layers(output_folder, output_format='.OBJ', layers=None,
-                  maya_auto_import=False):
-    if layers is None:
-        layers = _zOp.instances_list
-
-    layerCount = len(_zOp.instances_list) - 1
-
-    if maya_auto_import:
-        if getattr(sys, 'frozen', False):
-            maya_import = '[ShellExecute, [StrMerge, "call ", #quote, "{}", #quote, " -i ", '.format(ZLM_PATH)
-            maya_import += '#quote, "{}", #quote]]\n'
-        else:
-            maya_import = '[ShellExecute, "call E:\\zLayerManager\\src\\zlm_env\\Scripts\\activate.bat & call E:\\zLayerManager\\src\\zlm_env\\Scripts\\python36.exe E:\\zLayerManager\\src\\zlm_sender -i {}"]\n'
-
-    with open(SCRIPT_PATH, mode='w') as f:
-        f.write(RECT_FUNC)
-        f.write(SET_LAYER_FUNC)
-        f.write(EXPORT_LAYER_FUNC)
-
-        f.write('[IShowActions, 0]')
-        f.write('\n[IFreeze,\n')
-
-        f.write(SUBDIV_STORE_)
-        f.write(SUBDIV_MAX_)
-        f.write('[RoutineCall, zlmDeactivateRec]\n')
-
-        f.write('[VarSet, quote, [StrFromAsc, 34]]')
-
-        layerCount = len(_zOp.instances_list) - 1
-        # Deactive any active layers
-        for x in range(layerCount, -1, -1):
-            l = _zOp.instances_list[x]
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, 0, 1.0))
-
-        f.write(SUBDIV_ZERO_)
-
-        # export layers
-        for l in layers:
-            # path = '[StrMerge, #zlmOpath,"{}"]'.format(l.name + output_format)
-            path = os.path.join(output_folder, l.name + output_format)
-            f.write('[RoutineCall,zlmExportLayer,"{}",{},"{}"]\n'.format(l.name, layerCount-l.index, path))
-            if maya_auto_import:
-                f.write(maya_import.format(path))
-
-        # restore layer back
-        recording_layer = None
-        for x in range(layerCount, -1, -1):
-            l = _zOp.instances_list[x]
-            if l.mode == ZlmLayerMode.record:
-                if not recording_layer:
-                    recording_layer = l
-                    continue
-                else:
-                    l, recording_layer = (recording_layer, l)
-
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(l.name, layerCount-x, l.mode, l.intensity))
-
-        if recording_layer:
-            f.write(SUBDIV_MAX_)
-            f.write('[RoutineCall,zlmSetLayerMode,"{}",{},{},{}]\n'.format(recording_layer.name, 
-                    layerCount-recording_layer.index, recording_layer.mode, 1.0))
-
-        f.write(SUBDIV_RESTORE_)
-        f.write(']')
-
-    subprocess.call([ZBRUSH_PATH, SCRIPT_PATH])
-
-
-RECT_FUNC = '''[RoutineDef, zlmDeactivateRec,
-    [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
-    // frame current layer
-    [If, [IsEnabled, Tool:Layers:SelectDown],
-        [IPress, Tool:Layers:SelectDown]
-    , /* else */
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
-    ]
-    [If, [IsEnabled, Tool:Layers:SelectUp],
-        [IPress, Tool:Layers:SelectUp]
-        [IPress, Tool:Layers:SelectDown]
-    ]
-
-    [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
-    [VarSet, mode, [IModGet, curLayerPath]]
-
-    [If, #mode == 1,
-        // deactivate Recording
-        [VarSet, wid, [IWidth,curLayerPath]]	
-        [IClick, curLayerPath, wid-10, 5]
-    ] 
-]
-'''
-SET_LAYER_FUNC = '''[RoutineDef, zlmSetLayerMode,
-    [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-    [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
-    [If, mode == 2,[ISet, layerPath, intensity]]
-    [VarSet, curMode, [IModGet, layerPath]]
-    [If, curMode != mode,[VarSet, wid, [IWidth, layerPath]][If, mode == 1,[IClick, layerPath, wid-20, 5]][If, ((mode == 0) || (mode == 2)),[IClick, layerPath, wid-5, 5]]]
-, layerName, index, mode, intensity]
-'''
-
-SET_INTENSITY_FUNC = '''[RoutineDef, zlmIntensity,
-    [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-    [ISet, [StrMerge, "Tool:Layers:", #layerName], intensity]
-, layerName, index, intensity]
-'''
-
-EXPORT_LAYER_FUNC = '''[RoutineDef, zlmExportLayer,
-    [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-    [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
-    [VarSet, wid, [IWidth, layerPath]]
-    [ISet, layerPath, 1.0]
-    [If, [IModGet, layerPath] == 0,[IClick, layerPath, wid-5, 5]]
-    [FileNameSetNext, #savePath]
-    [IKeyPress, 13, [IPress, TOOL:Export:Export ]]
-    [IClick, layerPath, wid-5, 5]
-, layerName /*string*/, index /*number*/, savePath /*string*/]
-'''
-
-
-SUBDIV_STORE_ = '[VarSet, subLevel, [IGet, "Tool:Geometry:SDiv"]]\n'
-
-SUBDIV_ZERO_ = '[ISet, "Tool:Geometry:SDiv", 0, 0]\n'
-
-SUBDIV_RESTORE_ = '[ISet, "Tool:Geometry:SDiv", #subLevel, 0]\n'
-
-SUBDIV_MAX_ = '[ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]\n'

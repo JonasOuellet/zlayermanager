@@ -2,8 +2,10 @@ import re
 
 from PyQt5 import Qt, QtCore
 
-from zlm_core import ZlmLayerMode, ZlmLayer, send_to_zbrush, send_intensity
+from zlm_core import ZlmLayerMode, ZlmLayer, main_layers
 from zlm_ui.filter_widget import is_valid_mode
+from zlm_to_zbrush import send_to_zbrush, send_intensity
+
 
 MINIMUM_INTENSITY_WIDTH = 160
 
@@ -260,18 +262,6 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
             if x < self.columnCount():
                 self.setColumnWidth(x, w)
 
-    def build(self, text, mode):
-        self.itemDict.clear()
-        self.clear()
-
-        if self.main_ui.layers:
-            for layer in self.main_ui.layers:
-                if text in layer.name.lower() and is_valid_mode(layer.mode, mode):
-                    item = ZlmTreeWidgetItem(self, layer)
-                    l = self.itemDict.get(layer.name, [])
-                    l.append(item)
-                    self.itemDict[layer.name] = l
-
     def on_item_mode_changed(self, item, mode):
         column = self.sortColumn()
         if column == 2:
@@ -357,11 +347,13 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
             value = 0.01
         if value > 1.0:
             value = 1.0
-        send_intensity(self._selected_layers, value)
+
         for i in self._selected_items:
             i.intensity_widget.set_intensity(value)
             i.layer.intensity = value
         item.layer.itensity = value
+
+        send_intensity(self._selected_layers)
 
     def on_item_spinbox_changed(self, item, value):
         value = round(value, 2)
@@ -398,6 +390,20 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         else:
             Qt.QTreeWidget.mousePressEvent(self, event)
 
+    def create_layer(self, layer):
+        item = ZlmTreeWidgetItem(self, layer)
+        l = self.itemDict.get(layer.name, [])
+        l.append(item)
+        self.itemDict[layer.name] = l
+
+    def build(self, text, mode):
+        self.itemDict.clear()
+        self.clear()
+
+        for layer in main_layers.instances_list:
+            if text in layer.name.lower() and is_valid_mode(layer.mode, mode):
+                self.create_layer(layer)
+
     def update_layer(self):
         column = self.sortColumn()
         order = self.header().sortIndicatorOrder()
@@ -409,6 +415,12 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         self.setSortingEnabled(True)
         self.sortByColumn(column, order)
+
+    def layer_created(self, layer):
+        self.create_layer(layer)
+
+    def layer_removed(self, index):
+        pass
 
     def get_selected_layers(self):
         return [i.layer for i in self.selectedItems()]

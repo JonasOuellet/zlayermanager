@@ -2,10 +2,13 @@ from PyQt5 import Qt
 
 import zlm_core
 from zlm_settings import ZlmSettings
+from zlm_to_zbrush import export_layers
+
 from zlm_ui.zlm_layertree import ZlmLayerTreeWidget
 from zlm_ui.filter_widget import LayerFilterWidget
 from zlm_ui.preset_widget import ZlmPresetWidget
 from zlm_ui.export_widget import ZlmExportWidget
+from zlm_ui.import_widget import ZlmImportWidget
 
 
 class ZlmLayerWidget(Qt.QWidget):
@@ -24,11 +27,14 @@ class ZlmLayerWidget(Qt.QWidget):
         self.filter_widget.filter_edited.connect(self.tree_widget.build)
         self.preset_widget.preset_activated.connect(self.tree_widget.update_layer)
 
-        self.export_widget = ZlmExportWidget()
+        self.export_widget = ZlmExportWidget(self.main_ui)
         self.export_widget.pb_all.clicked.connect(self.export_all)
         self.export_widget.pb_sel.clicked.connect(self.export_selected)
         self.export_widget.pb_active.clicked.connect(self.export_active)
         self.export_widget.pb_record.clicked.connect(self.export_record)
+        self.export_widget.pb_base.clicked.connect(self.export_base)
+
+        self.import_widget = ZlmImportWidget(self.main_ui)
 
         layout = Qt.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -37,38 +43,42 @@ class ZlmLayerWidget(Qt.QWidget):
         layout.addWidget(self.filter_widget)
         layout.addWidget(self.tree_widget)
         layout.addWidget(self.export_widget)
+        layout.addWidget(self.import_widget)
 
         self.setLayout(layout)
 
+        self.import_widget.set_collapsed(self.main_ui.settings.get('import_collapsed', False))
         self.export_widget.set_collapsed(self.main_ui.settings.get('export_collapsed', False))
         self.preset_widget.set_collapsed(self.main_ui.settings.get('preset_collapsed', False))
         self.preset_widget.set_current_preset_path(self.main_ui.settings.get('preset_path', None))
+
+        zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_created, self.tree_widget.layer_created)
+        zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_removed, self.tree_widget.layer_removed)
+        zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_updated, self.build)
 
     def build(self):
         self.tree_widget.build(self.filter_widget.le_search_bar.text(), self.filter_widget.current_filter)
 
     def export_all(self):
-        settings = ZlmSettings.instance()
-
-        zlm_core.export_layers(settings.get_export_folder(), settings.export_format, maya_auto_import=settings.maya_auto_import)
+        export_layers(subdiv=self.export_widget.get_subdiv())
 
     def export_selected(self):
-        settings = ZlmSettings.instance()
         layers = self.tree_widget.get_selected_layers()
         if layers:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers, maya_auto_import=settings.maya_auto_import)
+            export_layers(layers, subdiv=self.export_widget.get_subdiv())
 
     def export_active(self):
-        settings = ZlmSettings.instance()
         layers = self.tree_widget.get_active_layers()
         if layers:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, layers, maya_auto_import=settings.maya_auto_import)
+            export_layers(layers, subdiv=self.export_widget.get_subdiv())
 
     def export_record(self):
-        settings = ZlmSettings.instance()
         layer = self.tree_widget.get_recording_layer()
         if layer:
-            zlm_core.export_layers(settings.get_export_folder(), settings.export_format, [layer], maya_auto_import=settings.maya_auto_import)
+            export_layers([layer], subdiv=self.export_widget.get_subdiv())
+
+    def export_base(self):
+        export_layers([], base_mesh=True, subdiv=self.export_widget.get_subdiv())
 
     def tree_widget_custom_menu(self, pos):
         menu = Qt.QMenu(self)
@@ -85,6 +95,8 @@ class ZlmLayerWidget(Qt.QWidget):
         zlm_core.send_to_zbrush()
 
     def on_close(self):
+        self.main_ui.settings['import_collapsed'] = self.import_widget.is_collapsed()
         self.main_ui.settings['export_collapsed'] = self.export_widget.is_collapsed()
         self.main_ui.settings['preset_collapsed'] = self.preset_widget.is_collapsed()
         self.main_ui.settings['preset_path'] = self.preset_widget.get_current_preset_path()
+        self.export_widget.on_close()

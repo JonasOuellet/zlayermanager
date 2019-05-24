@@ -1,6 +1,6 @@
-dist
+dist/ZlmData
 src/zlm_env
-src/zscripts/zlmData
+src/zscripts
 **/__pycache__
 **.zsc
 **/*.pyc

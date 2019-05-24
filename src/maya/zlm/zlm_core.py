@@ -28,14 +28,19 @@ def close_port():
 def open_port():
     global _LAST_OPENED_PORT
 
-    settings = ZlmSettings()
-    portStr = ':{}'.format(settings.maya_communication_port)
+    try:
+        settings = ZlmSettings()
+        port = settings.get_port_for_dcc('Maya')
+        portStr = ':{}'.format(port)
 
-    if not cmds.commandPort(portStr, q=True):
-        cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
-        _LAST_OPENED_PORT = settings.maya_communication_port
-    else:
-        print "Zlm port '{}' already opened".format(portStr[1:])
+        if not cmds.commandPort(portStr, q=True):
+            cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
+            _LAST_OPENED_PORT = port
+        else:
+            print "Zlm port '{}' already opened".format(portStr[1:])
+
+    except Exception as e:
+        print e
 
 
 def callback_add(cb_type, callback):

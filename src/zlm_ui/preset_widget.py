@@ -43,7 +43,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         mainLayout.addLayout(layout2)
         mainLayout.addWidget(self.pb_activate)
 
-        self.content_widget.setLayout(mainLayout)
+        self.set_layout(mainLayout)
 
         self.presets = {}
         self._app_index = 0

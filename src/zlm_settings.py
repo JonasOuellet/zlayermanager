@@ -13,6 +13,10 @@ else:
     SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.TXT')
     ZLM_PATH = ''
 
+    # Development path
+    ACTIVATE_SCRIPT = os.path.join(os.path.dirname(__file__), 'zlm_env', 'Scripts', 'activate.bat')
+    PYTHON = 'python36'
+
 
 class ZlmSettings(object):
     _instance = None
@@ -112,3 +116,34 @@ class ZlmSettings(object):
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return folder
+
+    def get_import_folder(self):
+        folder = os.path.join(self.working_folder, 'import')
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return folder
+
+    def get_current_dcc_port(self):
+        try:
+            return self.dcc_settings[self.current_dcc]['port']
+        except:
+            pass
+        return None
+
+    def get_current_dcc_format(self):
+        try:
+            return self.dcc_settings[self.current_dcc]['format']
+        except:
+            pass
+        # default format
+        return '.obj'
+
+    def get_port_for_dcc(self, dcc):
+        try:
+            return self.dcc_settings[dcc]['port']
+        except:
+            raise Exception('Could not find port for software "{}".  Make sure this software is properly set in settings.')
+
+
+def instance():
+    return ZlmSettings.instance()

@@ -3,12 +3,14 @@ from zlm_core import ZlmLayer
 
 class ZCommand(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, cmd_dep=(), *args, **kwargs):
         self._definition = None
         defin = self.definition(*args, **kwargs)
         if defin is not None:
             defin = self.parse_definition(defin)
         self._definition = defin
+
+        self.dependencies = cmd_dep
 
     def definition(self, *args, **kwargs):
         return None
@@ -45,11 +47,32 @@ class ZCommand(object):
         return str(arg)
 
 
+class TextCommand(ZCommand):
+
+    def get_zcode(self, arg):
+        if isinstance(arg, ZCommand):
+            return arg.get()
+
+        return str(arg)
+
+    def call(self, *args, **kwargs):
+        """Return a string that represent the the zscript execution
+        for this command.
+
+        Raises:
+            NotImplementedError: Must be implemented in child classes.
+        """
+        out = ''
+        for arg in args:
+            out += self.get_zcode(arg)
+        return out
+
+
 class ZRoutine(ZCommand):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, cmd_dep=(), *args, **kwargs):
         self.command_name = ""
 
-        ZCommand.__init__(self, *args, **kwargs)
+        ZCommand.__init__(self, cmd_dep=cmd_dep, *args, **kwargs)
 
     def parse_definition(self, zscript):
         out = ""

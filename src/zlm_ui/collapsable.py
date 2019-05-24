@@ -40,3 +40,6 @@ class ZlmCollapsableWidget(Qt.QWidget):
 
     def is_collapsed(self):
         return not self._pb_open.isChecked()
+
+    def set_layout(self, layout):
+        self.content_widget.setLayout(layout)

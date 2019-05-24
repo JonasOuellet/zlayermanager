@@ -7,4 +7,3 @@ PyInstaller==3.4
 PyQt5==5.12.1
 PyQt5-sip==4.19.15
 pywin32-ctypes==0.2.0
-shiboken2==5.12.2
