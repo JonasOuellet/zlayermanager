@@ -42,13 +42,22 @@ class ZScript(object):
         with open(file, mode='w') as f:
             self.write_code(f)
 
+    def _write_dep(self, cmd_name, defined, fp):
+        cmd = _COMMANDS[cmd_name]
+        for dep_cmd_name in cmd.dependencies:
+            self._write_dep(dep_cmd_name, defined, fp)
+
+        if cmd._definition and cmd_name not in defined:
+            fp.write(cmd._definition)
+            fp.write('\n')
+
+        defined.add(cmd_name)
+
     def write_code(self, fp):
         # write command definition if needed
+        definined_cmd = set()
         for cmd_name in self.command_type:
-            definiton = _COMMANDS[cmd_name]._definition
-            if definiton:
-                fp.write(definiton)
-                fp.write('\n')
+            self._write_dep(cmd_name, definined_cmd, fp)
 
         if not self.show_actions:
             fp.write('[IShowActions,0]\n')
