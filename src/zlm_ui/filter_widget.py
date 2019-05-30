@@ -70,7 +70,8 @@ class LayerFilterWidget(Qt.QWidget):
     def setCurrentFilter(self, new_filter, toggled):
         if toggled:
             self.current_filter = self.filter_option.index(new_filter)
-            self.filter_edited.emit(self.le_search_bar.text(), self.current_filter)
+            self.filter_edited.emit(self.le_search_bar.text().lower(),
+                                    self.current_filter)
 
     def _search_bar_changed(self, text):
-        self.filter_edited.emit(text, self.current_filter)
+        self.filter_edited.emit(text.lower(), self.current_filter)

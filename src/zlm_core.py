@@ -5,6 +5,7 @@ import subprocess
 import os
 import sys
 import json
+import re
 
 from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH
 
@@ -39,13 +40,12 @@ class ZlmSubTool(object):
 class ZlmLayer(object):
     def __init__(self, name, intensity, mode, index, master=None):
         super(ZlmLayer, self).__init__()
+        self.master = master
         self._mode = 0
         self.name = name
         self.intensity = intensity
         self.mode = mode
         self.index = index
-
-        self.master = master
 
     @property
     def mode(self):
@@ -56,7 +56,7 @@ class ZlmLayer(object):
         if value == ZlmLayerMode.record:
             if self.master:
                 if self.master.recording_layer:
-                    self.master.recording_layer.mode = ZlmLayerMode.active
+                    self.master.recording_layer._mode = ZlmLayerMode.active
                 self.master.recording_layer = self
         self._mode = value
 
@@ -74,11 +74,15 @@ class ZlmLayer(object):
             return len(self.master.instances_list) - self.index
         return 0
 
+    def __repr__(self):
+        return f"ZlmLayer({self.name}, {self.intensity}, {self._mode}, {self.index})"
+
 
 class ZlmLayers(object):
     cb_layer_created = 0
     cb_layer_removed = 1
     cb_layer_updated = 2
+    cb_layer_renamed = 3
 
     def __init__(self):
         self.instances = {}
@@ -91,6 +95,7 @@ class ZlmLayers(object):
         self._cb_on_layer_created = []
         self._cb_on_layer_removed = []
         self._cb_on_layer_updated = []
+        self._cb_on_layer_renamed = []
 
     def add_callback(self, cb_type, callback):
         if cb_type == 0:
@@ -99,8 +104,10 @@ class ZlmLayers(object):
             self._cb_on_layer_removed.append(callback)
         elif cb_type == 2:
             self._cb_on_layer_updated.append(callback)
+        elif cb_type == 3:
+            self._cb_on_layer_renamed.append(callback)
 
-    def add_layer(self, layer):
+    def _add_layer(self, layer):
         l = self.instances.get(layer.name, [])
         l.append(layer)
         self.instances[layer.name] = l
@@ -132,12 +139,42 @@ class ZlmLayers(object):
             pass
         return None
 
-    def create_layer(self, name):
-        layer = ZlmLayer(name, 1.0, 0, len(self.instances_list) + 1, self)
-        self.add_layer(layer)
+    def create_layer(self, name, mode=ZlmLayerMode.off, intensity=1.0):
+        layer = ZlmLayer(name, intensity, mode, len(self.instances_list) + 1, self)
+        self._add_layer(layer)
         for cb in self._cb_on_layer_created:
             cb(layer)
         return layer
+
+    def remove_layer(self, layer):
+        if self.recording_layer == layer:
+            self.recording_layer = None
+
+        self.instances[layer.name].remove(layer)
+
+        self.instances_list.remove(layer)
+
+        for l in self.instances_list[layer.index-1:]:
+            l.index -= 1
+
+        for cb in self._cb_on_layer_removed:
+            cb(layer)
+        return layer
+
+    def rename_layer(self, layer, new_name):
+        if new_name and new_name != layer.name:
+            old_name = layer.name
+            self.instances[layer.name].remove(layer)
+            new_name = self.validate_layer_name(new_name)
+            layer.name = new_name
+            l = self.instances.get(new_name, [])
+            l.append(layer)
+            self.instances[new_name] = l
+
+            for cb in self._cb_on_layer_renamed:
+                cb(layer, old_name)
+            return True
+        return False
 
     def load_from_file(self, file_path):
         self.clear()
@@ -148,37 +185,49 @@ class ZlmLayers(object):
             # last line is for subtools
             for x, line in enumerate(lines[:-1]):
                 layer = ZlmLayer.from_line(line, x+1)
-                self.add_layer(layer)
+                self._add_layer(layer)
             subTool = ZlmSubTool.from_line(lines[-1])
             self.set_subtool(subTool)
         for cb in self._cb_on_layer_updated:
             cb()
 
+    def validate_layer_name(self, name):
+        name = name.replace(' ', '_')
+        if name not in self.instances:
+            return name
+
+        # add number at the end
+        highest_number = 0
+        for layer in self.instances[name]:
+            match = re.search('(\d+)$', layer.name)
+            if match:
+                number = int(match.group(0))
+                if number > highest_number:
+                    highest_number = number
+        highest_number += 1
+        # replace number with new number
+        match = re.search('(\d+)$', name)
+        if match:
+            name = name[:match.span()[0]]
+        name = f'{name}{highest_number:02d}'
+        return self.validate_layer_name(name)
+
+    def remove_name_duplicate(self):
+        modified_layers = []
+        dup_names = []
+        for key, layers in self.instances.items():
+            if len(layers) > 1:
+                dup_names.append(key)
+
+        for dup_name in dup_names:
+            for layer in list(self.instances[dup_name]):
+                new_name = self.validate_layer_name(layer.name)
+                self.rename_layer(layer, new_name)
+                modified_layers.append(layer)
+        return modified_layers
+
 
 main_layers = ZlmLayers()
-
-
-def parse_layer_file(file_path):
-    """Parse the given layers file and return the list of layer
-
-    Args:
-        file_path (str): The file path
-
-    Returns: (layersList, subtoolName)
-    """
-    main_layers.clear()
-    subTool = None
-
-    with open(file_path, mode='r') as f:
-        lines = f.readlines()
-        # last line is for subtools
-        for x, line in enumerate(lines[:-1]):
-            layer = ZlmLayer.from_line(line, x)
-            main_layers.add_layer(layer)
-        subTool = ZlmSubTool.from_line(lines[-1])
-        main_layers.set_subtool(subTool)
-
-    return main_layers.instances_list, subTool
 
 
 def get_preset_folders():

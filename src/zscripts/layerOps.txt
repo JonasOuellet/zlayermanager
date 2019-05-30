@@ -168,7 +168,7 @@
     [If, [MemGetSize, zlmSubDiv] == 0,
         [MVarDef, zlmSubDiv, 1]
     ]
-    [MVarSet, zlmSubDiv, 0, [[IGet, "Tool:Geometry:SDiv"]]]
+    [MVarSet, zlmSubDiv, 0, [IGet, "Tool:Geometry:SDiv"]]
 ]
 
 [RoutineDef, zlmRestoreSubDiv,
@@ -260,7 +260,7 @@
     [VarSet, wid, [IWidth, layerPath]]
     [ISet, layerPath, 1.0]
 
-    [If, [IModGet, layerPath] == ,
+    [If, [IModGet, layerPath] == 0,
         [IClick, layerPath, wid-5, 5]
     ]
 
@@ -274,3 +274,29 @@
     // [ISet, "Tool:Geometry:SDiv", #subLevel, 0]
 
 , layerName /*string*/, index /*number*/, savePath /*string*/]
+
+
+[RoutineDef, zlmDeleteLayer,
+    [Loop, 1000,
+        [If, [IsEnabled, Tool:Layers:SelectDown],
+            [IPress, Tool:Layers:SelectDown]
+        ,
+        [LoopExit]
+        ]
+    ]
+
+    [Loop, index-1,
+        [IPress, Tool:Layers:SelectUp]
+    ]
+
+    [IPress, Tool:Layers:Delete]
+
+, index]
+
+[IButton, test,,
+    [RoutineCall, zlmFocusLayer, 1]
+]
+
+[IButton, test2,,
+    [RoutineCall, zlmFocusLayer, 140]
+]

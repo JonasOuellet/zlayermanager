@@ -124,7 +124,7 @@ class ZlmMainUI(Qt.QMainWindow):
 
             self.settings_changed.emit()
 
-    def update_layer_count(self, *args,):
+    def update_layer_count(self, *args, **kwargs):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))
 
     def on_port_not_set(self, dcc):

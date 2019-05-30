@@ -162,8 +162,9 @@
     ]
 
     // restore scroll bar position
-    [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
-    
+    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
+        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
+    ]
     ] // IFreeze
 
 , filepath]

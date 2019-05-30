@@ -159,10 +159,7 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
         self.intensity_widget = ZlmIntensity(self)
 
         if self.layer:
-            self.setText(0, str(layer.index))
-            self.setText(1, layer.name)
-            self.mode_widget.setMode(self.layer.mode)
-            self.intensity_widget.set_intensity(self.layer.intensity)
+            self.update()
 
         self.tree_widget.setItemWidget(self, 2, self.mode_widget)
         self.tree_widget.setItemWidget(self, 3, self.intensity_widget)
@@ -174,6 +171,8 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
         self.intensity_widget.spin_box_changed.connect(self.tree_widget.on_item_spinbox_changed)
 
     def update(self):
+        self.setText(0, str(self.layer.index))
+        self.setText(1, self.layer.name)
         self.mode_widget.setMode(self.layer.mode)
         self.intensity_widget.set_intensity(self.layer.intensity)
 
@@ -238,6 +237,9 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self._selected_items = []
         self._selected_layers = []
 
+        self.filter_text = ''
+        self.filter_mode = 0
+
     def on_close(self):
         self.main_ui.settings['layerViewColumn'] = self.getColumnsWidth()
 
@@ -261,6 +263,19 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         for x, w in enumerate(width):
             if x < self.columnCount():
                 self.setColumnWidth(x, w)
+
+    def set_record_layer(self, layer):
+        layer.mode = ZlmLayerMode.record
+        if self.current_item_recording:
+            # current item recording might be deleted if filter was used
+            try:
+                self.current_item_recording.mode_widget.setMode(ZlmLayerMode.active)
+            except:
+                pass
+
+        item = self.item_for_layer(layer)
+        if item:
+            self.current_item_recording = item
 
     def on_item_mode_changed(self, item, mode):
         column = self.sortColumn()
@@ -384,25 +399,37 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
     def mousePressEvent(self, event):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
+        # do nothing if right click button ??
+        if event.button() == Qt.Qt.RightButton:
+            return
         item = self.itemAt(event.pos())
         if item and item.isSelected():
             item.setSelected(False)
         else:
             Qt.QTreeWidget.mousePressEvent(self, event)
 
+    def should_be_visible(self, layer):
+        return self.filter_text in layer.name.lower() and is_valid_mode(layer.mode, self.filter_mode)
+
     def create_layer(self, layer):
-        item = ZlmTreeWidgetItem(self, layer)
-        l = self.itemDict.get(layer.name, [])
-        l.append(item)
-        self.itemDict[layer.name] = l
+        if self.should_be_visible(layer):
+            item = ZlmTreeWidgetItem(self, layer)
+            l = self.itemDict.get(layer.name, [])
+            l.append(item)
+            self.itemDict[layer.name] = l
+
+        if layer.mode == ZlmLayerMode.record:
+            self.set_record_layer(layer)
 
     def build(self, text, mode):
         self.itemDict.clear()
         self.clear()
 
+        self.filter_text = text
+        self.filter_mode = mode
+
         for layer in main_layers.instances_list:
-            if text in layer.name.lower() and is_valid_mode(layer.mode, mode):
-                self.create_layer(layer)
+            self.create_layer(layer)
 
     def update_layer(self):
         column = self.sortColumn()
@@ -419,8 +446,51 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def layer_created(self, layer):
         self.create_layer(layer)
 
-    def layer_removed(self, index):
-        pass
+    def layer_removed(self, layer):
+        item = self.item_for_layer(layer)
+        if item:
+            if self.current_item_recording and self.current_item_recording == item:
+                self.current_item_recording = None
+
+            index = self.indexOfTopLevelItem(item)
+            self.takeTopLevelItem(index)
+
+            self.itemDict[layer.name].remove(item)
+
+        self.update_layer()
+
+    def layer_renamed(self, layer, old_name):
+        item = None
+        items = self.itemDict.get(old_name, None)
+        if items:
+            if len(items) == 1:
+                item = items[0]
+            else:
+                for i in items:
+                    if i.layer == layer:
+                        item = i
+                        break
+        if item:
+            items.remove(item)
+
+            if self.should_be_visible(layer):
+                l = self.itemDict.get(layer.name, [])
+                l.append(item)
+                self.itemDict[layer.name] = l
+
+                column = self.sortColumn()
+                if column == 1:
+                    order = self.header().sortIndicatorOrder()
+                    self.setSortingEnabled(False)
+
+                item.update()
+
+                if column == 1:
+                    self.setSortingEnabled(True)
+                    self.sortByColumn(column, order)
+            else:
+                index = self.indexOfTopLevelItem(item)
+                self.takeTopLevelItem(index)
 
     def get_selected_layers(self):
         return [i.layer for i in self.selectedItems()]
@@ -468,3 +538,38 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
                 self._is_resizing = True
                 self.setColumnWidth(column, oldSize)
                 self._is_resizing = False
+
+    def has_item_selected(self):
+        return len(self.selectedItems()) > 0
+
+    def get_item_under_mouse(self):
+        pos = self.viewport().mapFromGlobal(Qt.QCursor.pos())
+        item = self.itemAt(pos)
+        if item:
+            return item
+        return None
+
+    def get_layer_under_mouse(self):
+        item = self.get_item_under_mouse()
+        if item:
+            return item.layer
+        return None
+
+    def get_selected_layers(self, include_under_mouse=False):
+        sel = [i.layer for i in self.selectedItems()]
+        if include_under_mouse:
+            item = self.get_item_under_mouse()
+            if item and item.layer not in sel:
+                sel.append(item.layer)
+        return sel
+
+    def item_for_layer(self, layer):
+        items = self.itemDict.get(layer.name, None)
+        if items:
+            if len(items) == 1:
+                return items[0]
+            else:
+                for item in items:
+                    if item.layer == layer:
+                        return item
+        return None

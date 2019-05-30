@@ -130,13 +130,80 @@ class CreateLayer(ZLayerRoutine):
             [IPress, "Tool:Layers:Rename"]
 
             // Deactivate record layer
-            [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
-            [VarSet, wid, [IWidth, layerPath]]
-            [IClick, layerPath, wid-10, 5]
+            // [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
+            // [VarSet, wid, [IWidth, layerPath]]
+            // [IClick, layerPath, wid-10, 5]
         , layerName]
         '''
 
     def get_args_from_layer(self, layer):
         return [
             layer.name
+        ]
+
+
+class RenameLayer(ZLayerRoutine):
+    def __init__(self, *args, **kwargs):
+        ZLayerRoutine.__init__(self, ('FocusLayer',), *args, **kwargs)
+
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zrl,
+            [VarSet, dllPath, ""]
+            [MemReadString, zlmMFileUtilPath, dllPath]
+
+            [RoutineCall, zfl, index]
+            [FileExecute, #dllPath, RenameSetNext, #layerName]
+            [IPress, "Tool:Layers:Rename"]
+
+        , index, layerName]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index(),
+            layer.name
+        ]
+
+
+class FocusLayer(ZLayerRoutine):
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zfl,
+            [Loop, 1000,
+                [If, [IsEnabled, Tool:Layers:SelectDown],
+                    [IPress, Tool:Layers:SelectDown]
+                ,
+                [LoopExit]
+                ]
+            ]
+
+            [Loop, index,
+                [IPress, Tool:Layers:SelectUp]
+            ]
+
+        , index]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index()
+        ]
+
+
+class DeleteLayer(ZLayerRoutine):
+    def __init__(self, *args, **kwargs):
+        ZLayerRoutine.__init__(self, ('FocusLayer',), *args, **kwargs)
+
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zdl,
+            [RoutineCall, zfl, index]
+            [IPress, Tool:Layers:Delete]
+        , index]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index()
         ]

@@ -133,6 +133,8 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
         if layer is not None:
             if create_layer:
                 zsc.CreateLayer(layer)
+                # deactivate record
+                # zsc.SetLayerMode(layer)
 
         # Deactive any active layers
         for l in zlm_core.main_layers.layers_it(exclude_record=False,
@@ -148,6 +150,64 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
         zsc.SubdivMax()
 
         _set_layer_state()
+
+        zsc.SubdivRestore()
+    _send_script()
+
+
+def create_layer(layer):
+    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+        # zsc.SubdivStore()
+
+        # zsc.SubdivMax()
+        # zsc.DeactivateRecord()
+
+        zsc.CreateLayer(layer)
+
+    _send_script()
+
+
+def send_deleted_layers(layers):
+    if not isinstance(layers, (list, tuple)):
+        layers = [layers]
+
+    # sort layer by index
+    layers = sorted(layers, key=lambda l: l.index)
+
+    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+        zsc.SubdivStore()
+
+        zsc.SubdivMax()
+        zsc.DeactivateRecord()
+
+        layer_count = len(zlm_core.main_layers.instances_list) + len(layers)
+        for layer in layers:
+            idx = layer_count - layer.index
+            zsc.DeleteLayer(idx)
+            layer_count -= 1
+
+        if zlm_core.main_layers.recording_layer:
+            zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
+
+        zsc.SubdivRestore()
+    _send_script()
+
+
+def send_new_layers_name(layers):
+    if not isinstance(layers, (list, tuple)):
+        layers = [layers]
+
+    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+        zsc.SubdivStore()
+
+        zsc.SubdivMax()
+        zsc.DeactivateRecord()
+
+        for layer in layers:
+            zsc.RenameLayer(layer)
+
+        if zlm_core.main_layers.recording_layer:
+            zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
 
         zsc.SubdivRestore()
     _send_script()
