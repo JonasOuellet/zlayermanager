@@ -211,3 +211,38 @@ def send_new_layers_name(layers):
 
         zsc.SubdivRestore()
     _send_script()
+
+
+def send_duplicated_layers(layers, move_down=False):
+    """Send duplicated layer to zbrush
+
+    Args:
+        layers (list): Must bust a list of [ZlmLayer, ZlmLayer] first layer is the source layer 
+            and second layer is the duplicated one.
+        move_down (bool, optional): Move the layer down to the list ?. Defaults to False.
+    """
+    if not isinstance(layers, (list, tuple)):
+        layers = [layers]
+
+    # sort layer by index
+    layers = sorted(layers, key=lambda l: l[0].index)
+
+    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+        zsc.SubdivStore()
+
+        zsc.SubdivMax()
+        zsc.DeactivateRecord()
+
+        initial_size = len(zlm_core.main_layers.instances_list) - len(layers)
+        for src, dup in layers:
+            zsc.DuplicateLayer(initial_size - src.index, dup.name, move_down)
+            initial_size += 1
+
+        for _, dup in layers:
+            zsc.SetLayerMode(dup)
+
+        if zlm_core.main_layers.recording_layer:
+            zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
+
+        zsc.SubdivRestore()
+    _send_script()

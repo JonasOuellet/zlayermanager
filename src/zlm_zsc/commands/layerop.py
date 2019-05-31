@@ -207,3 +207,38 @@ class DeleteLayer(ZLayerRoutine):
         return [
             layer.zbrush_index()
         ]
+
+
+class DuplicateLayer(ZLayerRoutine):
+    def __init__(self, *args, **kwargs):
+        ZLayerRoutine.__init__(self, ('FocusLayer',), *args, **kwargs)
+
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zdupl,
+            [RoutineCall, zfl, index]
+            [IPress, Tool:Layers:Duplicate]
+            [IPress, Tool:Layers:SelectDown]
+
+            [VarSet, dllPath, ""]
+            [MemReadString, zlmMFileUtilPath, dllPath]
+
+            [FileExecute, #dllPath, RenameSetNext, #name]
+            [IPress, "Tool:Layers:Rename"]
+
+            [IF, mvDown,
+                [Loop, 1000,
+                    [If, [IsEnabled, Tool:Layers:MoveDown],
+                        [IPress, Tool:Layers:MoveDown]
+                    ,
+                        [LoopExit]
+                    ]
+                ]
+            ]
+        , index, name, mvDown]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index()
+        ]

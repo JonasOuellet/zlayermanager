@@ -2,13 +2,16 @@ from PyQt5 import Qt
 
 import zlm_core
 from zlm_settings import ZlmSettings
-from zlm_to_zbrush import export_layers, create_layer, send_to_zbrush, send_deleted_layers, send_new_layers_name
-
+from zlm_to_zbrush import (
+    export_layers, create_layer, send_to_zbrush, send_deleted_layers,
+    send_new_layers_name, send_duplicated_layers
+)
 from zlm_ui.zlm_layertree import ZlmLayerTreeWidget
 from zlm_ui.filter_widget import LayerFilterWidget
 from zlm_ui.preset_widget import ZlmPresetWidget
 from zlm_ui.export_widget import ZlmExportWidget
 from zlm_ui.import_widget import ZlmImportWidget
+from zlm_ui import layer_edit_option as leo
 
 
 class ZlmLayerWidget(Qt.QWidget):
@@ -56,6 +59,7 @@ class ZlmLayerWidget(Qt.QWidget):
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_removed, self.tree_widget.layer_removed)
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_updated, self.build)
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_renamed, self.tree_widget.layer_renamed)
+        zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layers_changed, self.tree_widget.update_layer)
 
     def build(self):
         self.tree_widget.build(self.filter_widget.le_search_bar.text(), self.filter_widget.current_filter)
@@ -91,14 +95,13 @@ class ZlmLayerWidget(Qt.QWidget):
 
         selected_layers = self.tree_widget.get_selected_layers()
         layer_under_mouse = self.tree_widget.get_layer_under_mouse()
-        layers = selected_layers if len(selected_layers) else [layer_under_mouse]
         suff = 's' if len(selected_layers) > 1 else ''
-        mid = 'selected ' if len(selected_layers) else ''
-        if selected_layers or layer_under_mouse:
-            remove_action = Qt.QAction(Qt.QIcon(':/remove.png'), f'Remove {mid}Layer{suff}', self)
-            remove_action.triggered.connect(lambda: self.remove_layer(layers))
+        if selected_layers:
+            remove_action = Qt.QAction(Qt.QIcon(':/remove.png'), f'Delete selected layer{suff}', self)
+            remove_action.triggered.connect(lambda: self.remove_layer(selected_layers))
 
-            dupplicate_action = Qt.QAction(Qt.QIcon(':/duplicate.png'), f'Duplicate {mid}Layer{suff}', self)
+            duplicate_action = Qt.QAction(Qt.QIcon(':/duplicate.png'), f'Duplicate selected layer{suff}', self)
+            duplicate_action.triggered.connect(lambda: self.duplicate_layer(selected_layers))
 
         rename_icon = Qt.QIcon(':/rename.png')
 
@@ -111,15 +114,15 @@ class ZlmLayerWidget(Qt.QWidget):
 
         if selected_layers:
             bulk_rename = Qt.QAction(rename_icon, 'Bulk rename', self)
-            bulk_rename.triggered.connect(self.bulk_rename)
+            bulk_rename.triggered.connect(lambda: self.bulk_rename(selected_layers))
 
         menu.addAction(turn_off_action)
         menu.addSeparator()
         menu.addAction(create_action)
 
-        if selected_layers or layer_under_mouse:
+        if selected_layers:
             menu.addAction(remove_action)
-            menu.addAction(dupplicate_action)
+            menu.addAction(duplicate_action)
 
         menu.addSeparator()
 
@@ -154,19 +157,44 @@ class ZlmLayerWidget(Qt.QWidget):
             layer = zlm_core.main_layers.create_layer(validated_name, zlm_core.ZlmLayerMode.record)
 
             # focus newly created layer
-            try:
-                item = self.tree_widget.itemDict[validated_name][0]
+            self.tree_widget.clearSelection()
+            item = self.tree_widget.item_for_layer(layer)
+            if item:
                 self.tree_widget.scrollToItem(item)
-            except:
-                pass
 
             # send to zbrush:
             create_layer(layer)
 
     def remove_layer(self, layers):
+        result = True
+        if leo.should_ask_before_delete():
+            result = Qt.QMessageBox.warning(self, "Delete Layers", 'This will delete selected layers.  Are you sure?',
+                                            Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
+            result = result == Qt.QMessageBox.StandardButton.Yes
+
+        if result:
+            for layer in layers:
+                zlm_core.main_layers.remove_layer(layer)
+            send_deleted_layers(layers)
+
+    def duplicate_layer(self, layers):
+        dup_layers = []
+        move_dup_down = leo.should_move_dup_down()
         for layer in layers:
-            zlm_core.main_layers.remove_layer(layer)
-        # send_deleted_layers(layers)
+            dup_layers.append(zlm_core.main_layers.duplicate_layer(layer, move_dup_down))
+
+        self.tree_widget.clearSelection()
+        for _, target in dup_layers:
+            item = self.tree_widget.item_for_layer(target)
+            if item:
+                item.setSelected(True)
+
+        # focus newly created layer
+        item = self.tree_widget.item_for_layer(dup_layers[-1][1])
+        if item:
+            self.tree_widget.scrollToItem(item)
+
+        send_duplicated_layers(dup_layers, move_dup_down)
 
     def rename_layer(self, layer):
         dialog = Qt.QInputDialog(self)
@@ -182,7 +210,7 @@ class ZlmLayerWidget(Qt.QWidget):
             if zlm_core.main_layers.rename_layer(layer, text):
                 send_new_layers_name(layer)
 
-    def bulk_rename(self):
+    def bulk_rename(self, layers):
         pass
 
     def remove_name_dup(self):

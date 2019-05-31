@@ -16,6 +16,8 @@
     <file alias="reset.png">img/reset.png</file>
     <file alias="rename.png">img/rename.png</file>
     <file alias="duplicate.png">img/duplicate.png</file>
+    <file alias="eye.png">img/eye.png</file>
+    <file alias="record.png">img/record.png</file>
 </qresource>
 
 </RCC>

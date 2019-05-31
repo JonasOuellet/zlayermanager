@@ -44,6 +44,9 @@ class ZCommand(object):
             text = '"{}"'.format(arg)
             return text
 
+        if isinstance(arg, bool):
+            return str(int(arg))
+
         return str(arg)
 
 

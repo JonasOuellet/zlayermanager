@@ -83,6 +83,7 @@ class ZlmLayers(object):
     cb_layer_removed = 1
     cb_layer_updated = 2
     cb_layer_renamed = 3
+    cb_layers_changed = 4
 
     def __init__(self):
         self.instances = {}
@@ -96,6 +97,7 @@ class ZlmLayers(object):
         self._cb_on_layer_removed = []
         self._cb_on_layer_updated = []
         self._cb_on_layer_renamed = []
+        self._cb_on_layers_changed = []
 
     def add_callback(self, cb_type, callback):
         if cb_type == 0:
@@ -106,12 +108,24 @@ class ZlmLayers(object):
             self._cb_on_layer_updated.append(callback)
         elif cb_type == 3:
             self._cb_on_layer_renamed.append(callback)
+        elif cb_type == 4:
+            self._cb_on_layers_changed.append(callback)
 
-    def _add_layer(self, layer):
+    def _add_layer(self, layer, index=None):
         l = self.instances.get(layer.name, [])
         l.append(layer)
         self.instances[layer.name] = l
-        self.instances_list.append(layer)
+
+        if index is None:
+            self.instances_list.append(layer)
+        else:
+            self.instances_list.insert(index, layer)
+            # increase index of below layers
+            for i in range(index+1, len(self.instances_list)):
+                self.instances_list[i].index += 1
+
+            for cb in self._cb_on_layers_changed:
+                cb()
 
         layer.master = self
 
@@ -175,6 +189,17 @@ class ZlmLayers(object):
                 cb(layer, old_name)
             return True
         return False
+
+    def duplicate_layer(self, layer, move_down=False):
+        new_name = self.validate_layer_name(layer.name + '_dup')
+        index = len(self.instances_list) if move_down else layer.index
+        new_layer = ZlmLayer(new_name, 1.0, 0, index + 1, self)
+        self._add_layer(new_layer, None if move_down else index)
+
+        for cb in self._cb_on_layer_created:
+            cb(new_layer)
+
+        return layer, new_layer
 
     def load_from_file(self, file_path):
         self.clear()

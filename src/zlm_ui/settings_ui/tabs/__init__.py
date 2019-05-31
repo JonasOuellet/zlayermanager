@@ -1,2 +1,3 @@
-import zlm_ui.settings_ui.tabs.core
-import zlm_ui.settings_ui.tabs.dcc
+from zlm_ui.settings_ui.tabs import (
+    core, dcc, layer_edit
+)

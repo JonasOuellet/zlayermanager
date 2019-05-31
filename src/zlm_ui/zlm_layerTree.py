@@ -86,10 +86,10 @@ class ZlmModeWidget(Qt.QWidget):
         self.item = item
 
         layout = Qt.QHBoxLayout()
-        self.pb_on = Qt.QPushButton("On")
+        self.pb_on = Qt.QPushButton(Qt.QIcon(":/eye.png"), "")
         self.pb_on.setCheckable(True)
         self.pb_on.setMaximumSize(QtCore.QSize(32, 32))
-        self.pb_rect = Qt.QPushButton("R")
+        self.pb_rect = Qt.QPushButton(Qt.QIcon(":/record.png"), "")
         self.pb_rect.setCheckable(True)
         self.pb_rect.setMaximumSize(QtCore.QSize(32, 32))
 
@@ -400,11 +400,10 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def mousePressEvent(self, event):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
         # do nothing if right click button ??
-        if event.button() == Qt.Qt.RightButton:
-            return
         item = self.itemAt(event.pos())
         if item and item.isSelected():
-            item.setSelected(False)
+            if event.button() != Qt.Qt.RightButton:
+                item.setSelected(False)
         else:
             Qt.QTreeWidget.mousePressEvent(self, event)
 
