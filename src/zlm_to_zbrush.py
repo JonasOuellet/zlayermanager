@@ -168,7 +168,7 @@ def create_layer(layer):
 
 
 def send_deleted_layers(layers):
-    if not isinstance(layers, (list, tuple)):
+    if isinstance(layers, zlm_core.ZlmLayer):
         layers = [layers]
 
     # sort layer by index
@@ -194,7 +194,7 @@ def send_deleted_layers(layers):
 
 
 def send_new_layers_name(layers):
-    if not isinstance(layers, (list, tuple)):
+    if isinstance(layers, zlm_core.ZlmLayer):
         layers = [layers]
 
     with zsc.ZScript(zlm_settings.SCRIPT_PATH):
@@ -221,7 +221,7 @@ def send_duplicated_layers(layers, move_down=False):
             and second layer is the duplicated one.
         move_down (bool, optional): Move the layer down to the list ?. Defaults to False.
     """
-    if not isinstance(layers, (list, tuple)):
+    if isinstance(layers, zlm_core.ZlmLayer):
         layers = [layers]
 
     # sort layer by index

@@ -32,10 +32,6 @@ class ZlmSettings(object):
             'Maya': {
                 'port': 6009,
                 'format': '.obj'
-            },
-            'Blender': {
-                'port': 6010,
-                'format': '.obj'
             }
         }
 

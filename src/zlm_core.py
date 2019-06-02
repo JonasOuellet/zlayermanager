@@ -9,6 +9,11 @@ import re
 
 from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH
 
+invalid_char_re = re.compile('[^A-Za-z0-9_]')
+valid_name_re = "[A-Za-z0-9_]{0,15}"
+max_name_len = 15
+
+
 ZLM_OP_RENAME = 0
 ZLM_OP_MODE = 1
 ZLM_OP_CREATE = 2
@@ -217,9 +222,9 @@ class ZlmLayers(object):
             cb()
 
     def validate_layer_name(self, name):
-        name = name.replace(' ', '_')
+        _, name = self.remove_invalid_char(name)
         if name not in self.instances:
-            return name
+            return name[:max_name_len]
 
         # add number at the end
         highest_number = 0
@@ -234,6 +239,9 @@ class ZlmLayers(object):
         match = re.search('(\d+)$', name)
         if match:
             name = name[:match.span()[0]]
+        # make sure we dont bust 15 char lenght
+        pad = max(2, len(str(highest_number)))
+        name = name[:max_name_len - pad]
         name = f'{name}{highest_number:02d}'
         return self.validate_layer_name(name)
 
@@ -249,6 +257,21 @@ class ZlmLayers(object):
                 new_name = self.validate_layer_name(layer.name)
                 self.rename_layer(layer, new_name)
                 modified_layers.append(layer)
+        return modified_layers
+
+    def remove_invalid_char(self, name):
+        new_name = invalid_char_re.sub('', name)
+        return name != new_name, new_name
+
+    def fix_up_names(self):
+        modified_layers = set()
+        for layer in self.instances_list:
+            mod, new_name = self.remove_invalid_char(layer.name)
+            if mod and self.rename_layer(layer, new_name):
+                modified_layers.add(layer)
+
+        modified_layers.update(self.remove_name_duplicate())
+
         return modified_layers
 
 

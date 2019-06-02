@@ -12,6 +12,7 @@ from zlm_ui.preset_widget import ZlmPresetWidget
 from zlm_ui.export_widget import ZlmExportWidget
 from zlm_ui.import_widget import ZlmImportWidget
 from zlm_ui import layer_edit_option as leo
+from zlm_ui.rename_dialog import RenameDialog
 
 
 class ZlmLayerWidget(Qt.QWidget):
@@ -87,7 +88,7 @@ class ZlmLayerWidget(Qt.QWidget):
 
     def tree_widget_custom_menu(self, pos):
         menu = Qt.QMenu(self)
-        turn_off_action = Qt.QAction('Turn All Off', self)
+        turn_off_action = Qt.QAction(Qt.QIcon(":/eye.png"), 'Turn All Off', self)
         turn_off_action.triggered.connect(self.turn_all_off)
 
         create_action = Qt.QAction(Qt.QIcon(':/add.png'), 'Create Layer', self)
@@ -105,15 +106,15 @@ class ZlmLayerWidget(Qt.QWidget):
 
         rename_icon = Qt.QIcon(':/rename.png')
 
-        remove_name_dup = Qt.QAction(rename_icon, 'Remove name duplicate', self)
+        remove_name_dup = Qt.QAction(rename_icon, 'Fix up layers name', self)
         remove_name_dup.triggered.connect(self.remove_name_dup)
 
         if layer_under_mouse:
             rename_action = Qt.QAction(rename_icon, 'Rename layer', self)
             rename_action.triggered.connect(lambda: self.rename_layer(layer_under_mouse))
 
-        if selected_layers:
-            bulk_rename = Qt.QAction(rename_icon, 'Bulk rename', self)
+        if len(selected_layers) > 1:
+            bulk_rename = Qt.QAction(rename_icon, f'Rename selected layers', self)
             bulk_rename.triggered.connect(lambda: self.bulk_rename(selected_layers))
 
         menu.addAction(turn_off_action)
@@ -128,7 +129,7 @@ class ZlmLayerWidget(Qt.QWidget):
 
         if layer_under_mouse:
             menu.addAction(rename_action)
-        if selected_layers:
+        if len(selected_layers) > 1:
             menu.addAction(bulk_rename)
 
         menu.addAction(remove_name_dup)
@@ -143,16 +144,8 @@ class ZlmLayerWidget(Qt.QWidget):
 
     def create_layer(self):
         validated_name = zlm_core.main_layers.validate_layer_name('newLayer00')
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
-        dialog.setWindowTitle("Layer Name")
-        dialog.setLabelText("New layer name: ")
-        dialog.setTextValue(validated_name)
-        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
-        lineEdit = dialog.findChild(Qt.QLineEdit)
-        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_-]{0,255}"), dialog))
-        if dialog.exec():
-            text = dialog.textValue()
+        text = self._get_name_("Layer Name", "New layer name: ", validated_name)
+        if text:
             validated_name = zlm_core.main_layers.validate_layer_name(text)
             layer = zlm_core.main_layers.create_layer(validated_name, zlm_core.ZlmLayerMode.record)
 
@@ -197,24 +190,27 @@ class ZlmLayerWidget(Qt.QWidget):
         send_duplicated_layers(dup_layers, move_dup_down)
 
     def rename_layer(self, layer):
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
-        dialog.setWindowTitle("Layer Name")
-        dialog.setLabelText("Layer name: ")
-        dialog.setTextValue(layer.name)
-        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
-        lineEdit = dialog.findChild(Qt.QLineEdit)
-        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_-]{0,255}"), dialog))
-        if dialog.exec():
-            text = dialog.textValue()
+        text = self._get_name_("Layer Name", "Layer name: ", layer.name)
+        if text:
             if zlm_core.main_layers.rename_layer(layer, text):
                 send_new_layers_name(layer)
 
     def bulk_rename(self, layers):
-        pass
+        _, ex_name = zlm_core.main_layers.remove_invalid_char(layers[0].name)
+        dialog = RenameDialog(ex_name, self)
+        if dialog.exec_():
+            names = [l.name for l in layers]
+            new_names = dialog.rename(names)
+            mod_layers = []
+            for layer, new_name in zip(layers, new_names):
+                if zlm_core.main_layers.rename_layer(layer, new_name):
+                    mod_layers.append(layer)
+
+            if mod_layers:
+                send_new_layers_name(mod_layers)
 
     def remove_name_dup(self):
-        layers = zlm_core.main_layers.remove_name_duplicate()
+        layers = zlm_core.main_layers.fix_up_names()
         if layers:
             send_new_layers_name(layers)
 
@@ -224,3 +220,16 @@ class ZlmLayerWidget(Qt.QWidget):
         self.main_ui.settings['preset_collapsed'] = self.preset_widget.is_collapsed()
         self.main_ui.settings['preset_path'] = self.preset_widget.get_current_preset_path()
         self.export_widget.on_close()
+
+    def _get_name_(self, title='Enter Name', label='Name: ', text=''):
+        dialog = Qt.QInputDialog(self)
+        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(label)
+        dialog.setTextValue(text)
+        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
+        lineEdit = dialog.findChild(Qt.QLineEdit)
+        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp(zlm_core.valid_name_re), dialog))
+        if dialog.exec_():
+            return dialog.textValue()
+        return None
