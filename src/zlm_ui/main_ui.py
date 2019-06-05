@@ -11,7 +11,7 @@ from zlm_ui.layer_widget import ZlmLayerWidget
 from zlm_ui.comserver import CommunicationServer
 from zlm_ui.settings_ui import SettingsDialog
 from zlm_to_zbrush import import_base, import_layer
-import zlm_dcc
+import zlm_app
 
 
 class ZlmMainUI(Qt.QMainWindow):
@@ -58,8 +58,8 @@ class ZlmMainUI(Qt.QMainWindow):
         self.central_widget.setLayout(mainLayout)
         self.setCentralWidget(self.central_widget)
 
-        zlm_dcc.on_exception.append(self.on_error)
-        zlm_dcc.on_port_not_set.append(self.on_port_not_set)
+        zlm_app.on_exception.append(self.on_error)
+        zlm_app.on_port_not_set.append(self.on_port_not_set)
 
         for i in range(3):
             zlm_core.main_layers.add_callback(i, self.update_layer_count)
@@ -127,9 +127,9 @@ class ZlmMainUI(Qt.QMainWindow):
     def update_layer_count(self, *args, **kwargs):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))
 
-    def on_port_not_set(self, dcc):
+    def on_port_not_set(self, app):
         Qt.QMessageBox.warning(self, "Port not set", "Communication port not set. Please set it in the settings window.")
 
     def on_error(self, e):
         Qt.QMessageBox.warning(self, 'Could not communicate', 'Could not communicate with "{}".\n'
-                                     'Please make sure port is opened.'.format(ZlmSettings.instance().current_dcc))
+                                     'Please make sure port is opened.'.format(ZlmSettings.instance().current_app))

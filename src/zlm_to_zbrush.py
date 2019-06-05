@@ -60,13 +60,13 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
 
     settings = zlm_settings.instance()
     # check if port if valid.
-    dcc_import = settings.get_current_dcc_port() is not None
+    app_import = settings.get_current_app_port() is not None
 
     out_folder = settings.working_folder
-    out_format = settings.get_current_dcc_format()
+    out_format = settings.get_current_app_format()
 
     quote = zsc.Quote.get()
-    if dcc_import:
+    if app_import:
         if getattr(sys, 'frozen', False):
             imp_cmd = '[ShellExecute,[StrMerge,"call ",{1},"{0}",{1}," -i ",{1},"{{}}",{1}]]'.format(zlm_settings.ZLM_PATH, quote)
         else:
@@ -90,13 +90,13 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
             path = os.path.join(out_folder, zlm_core.main_layers.subtool.name +
                                 out_format)
             zsc.ExportMesh(path)
-            if dcc_import:
+            if app_import:
                 zsc.TextCommand(imp_cmd.format(path))
 
         for l in layers:
             path = os.path.join(out_folder, l.name + out_format)
             zsc.ExportLayer(l, path)
-            if dcc_import:
+            if app_import:
                 zsc.TextCommand(imp_cmd.format(path))
 
         zsc.SubdivMax()

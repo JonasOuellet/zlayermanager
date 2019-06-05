@@ -27,8 +27,8 @@ class ZlmSettings(object):
         self.communication_port = 6008
 
         self.send_after_export = False
-        self.current_dcc = 'Maya'
-        self.dcc_settings = {
+        self.current_app = 'Maya'
+        self.app_settings = {
             'Maya': {
                 'port': 6009,
                 'format': '.obj'
@@ -124,26 +124,26 @@ class ZlmSettings(object):
             os.makedirs(folder)
         return folder
 
-    def get_current_dcc_port(self):
+    def get_current_app_port(self):
         try:
-            return self.dcc_settings[self.current_dcc]['port']
+            return self.app_settings[self.current_app]['port']
         except:
             pass
         return None
 
-    def get_current_dcc_format(self):
+    def get_current_app_format(self):
         try:
-            return self.dcc_settings[self.current_dcc]['format']
+            return self.app_settings[self.current_app]['format']
         except:
             pass
         # default format
         return '.obj'
 
-    def get_port_for_dcc(self, dcc):
+    def get_app_port(self, app):
         try:
-            return self.dcc_settings[dcc]['port']
+            return self.app_settings[app]['port']
         except:
-            raise Exception('Could not find port for software "{}".  Make sure this software is properly set in settings.')
+            raise Exception('Could not find port for application "{}".  Make sure this application is properly set in settings.')
 
 
 def instance():

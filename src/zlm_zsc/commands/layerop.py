@@ -6,25 +6,27 @@ class DeactivateRecord(ZRoutine):
     def definition(self, *args, **kwargs):
         return '''
         [RoutineDef, zdr,
-            [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
-            // frame current layer
-            [If, [IsEnabled, Tool:Layers:SelectDown],
-                [IPress, Tool:Layers:SelectDown]
-            , /* else */
-                [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
-            ]
-            [If, [IsEnabled, Tool:Layers:SelectUp],
-                [IPress, Tool:Layers:SelectUp]
-                [IPress, Tool:Layers:SelectDown]
-            ]
+            [If, [IsEnabled, "Tool:Layers:Layer Intensity"],
+                [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
+                // frame current layer
+                [If, [IsEnabled, Tool:Layers:SelectDown],
+                    [IPress, Tool:Layers:SelectDown]
+                , /* else */
+                    [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
+                ]
+                [If, [IsEnabled, Tool:Layers:SelectUp],
+                    [IPress, Tool:Layers:SelectUp]
+                    [IPress, Tool:Layers:SelectDown]
+                ]
 
-            [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
-            [VarSet, mode, [IModGet, curLayerPath]]
+                [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
+                [VarSet, mode, [IModGet, curLayerPath]]
 
-            [If, #mode == 1,
-                // deactivate Recording
-                [VarSet, wid, [IWidth,curLayerPath]]
-                [IClick, curLayerPath, wid-10, 5]
+                [If, #mode == 1,
+                    // deactivate Recording
+                    [VarSet, wid, [IWidth,curLayerPath]]
+                    [IClick, curLayerPath, wid-10, 5]
+                ]
             ]
         ]
         '''

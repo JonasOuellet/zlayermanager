@@ -1,7 +1,7 @@
 from PyQt5 import Qt
 
 from zlm_ui.collapsable import ZlmCollapsableWidget
-from zlm_dcc import send_dcc_cmd
+from zlm_app import send_app_cmd
 
 
 class ZlmImportWidget(ZlmCollapsableWidget):
@@ -25,8 +25,8 @@ class ZlmImportWidget(ZlmCollapsableWidget):
 
     def export_layers(self):
         command = "import zlm\nzlm.export_selected()"
-        send_dcc_cmd(command)
+        send_app_cmd(command)
 
     def export_base(self):
         command = "import zlm\nzlm.export_base()"
-        send_dcc_cmd(command)
+        send_app_cmd(command)

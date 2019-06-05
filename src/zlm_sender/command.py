@@ -2,7 +2,7 @@ import os
 import sys
 
 from zlm_sender.communicate import Connection, ZlmSettings
-from zlm_dcc import send_dcc_cmd
+from zlm_app import send_app_cmd
 
 
 def open(file_path=None):
@@ -42,6 +42,6 @@ def open(file_path=None):
     conn.close()
 
 
-def dcc_import(file_path):
+def app_import(file_path):
     command = "import zlm;zlm.zlm_import_file('{}')".format(file_path.replace('\\', '/'))
-    send_dcc_cmd(command)
+    send_app_cmd(command)

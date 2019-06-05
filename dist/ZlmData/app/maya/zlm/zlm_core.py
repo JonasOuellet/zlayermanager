@@ -30,7 +30,7 @@ def open_port():
 
     try:
         settings = ZlmSettings()
-        port = settings.get_port_for_dcc('Maya')
+        port = settings.get_app_port('Maya')
         portStr = ':{}'.format(port)
 
         if not cmds.commandPort(portStr, q=True):

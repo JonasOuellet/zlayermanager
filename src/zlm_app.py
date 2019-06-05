@@ -7,12 +7,12 @@ on_port_not_set = []
 on_exception = []
 
 
-def send_dcc_cmd(cmd):
+def send_app_cmd(cmd):
     settings = ZlmSettings.instance()
-    port = settings.get_current_dcc_port()
+    port = settings.get_current_app_port()
     if not port:
         for callback in on_port_not_set:
-            callback(settings.current_dcc)
+            callback(settings.current_app)
         return
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
