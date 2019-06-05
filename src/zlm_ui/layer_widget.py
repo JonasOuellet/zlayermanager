@@ -4,7 +4,7 @@ import zlm_core
 from zlm_settings import ZlmSettings
 from zlm_to_zbrush import (
     export_layers, create_layer, send_to_zbrush, send_deleted_layers,
-    send_new_layers_name, send_duplicated_layers
+    send_new_layers_name, send_duplicated_layers, send_merged_layers
 )
 from zlm_ui.zlm_layertree import ZlmLayerTreeWidget
 from zlm_ui.filter_widget import LayerFilterWidget
@@ -104,6 +104,10 @@ class ZlmLayerWidget(Qt.QWidget):
             duplicate_action = Qt.QAction(Qt.QIcon(':/duplicate.png'), f'Duplicate selected layer{suff}', self)
             duplicate_action.triggered.connect(lambda: self.duplicate_layer(selected_layers))
 
+        if len(selected_layers) > 1:
+            merge_action = Qt.QAction(Qt.QIcon(":/merge.png"), "Merge selected layers", self)
+            merge_action.triggered.connect(lambda: self.merge_layers(selected_layers))
+
         rename_icon = Qt.QIcon(':/rename.png')
 
         remove_name_dup = Qt.QAction(rename_icon, 'Fix up layers name', self)
@@ -124,6 +128,9 @@ class ZlmLayerWidget(Qt.QWidget):
         if selected_layers:
             menu.addAction(remove_action)
             menu.addAction(duplicate_action)
+
+        if len(selected_layers) > 1:
+            menu.addAction(merge_action)
 
         menu.addSeparator()
 
@@ -188,6 +195,10 @@ class ZlmLayerWidget(Qt.QWidget):
             self.tree_widget.scrollToItem(item)
 
         send_duplicated_layers(dup_layers, move_dup_down)
+
+    def merge_layers(self, layers):
+        zlm_core.main_layers.merge_layers(layers)
+        send_merged_layers(layers)
 
     def rename_layer(self, layer):
         text = self._get_name_("Layer Name", "Layer name: ", layer.name)

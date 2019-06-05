@@ -242,3 +242,54 @@ class DuplicateLayer(ZLayerRoutine):
         return [
             layer.zbrush_index()
         ]
+
+
+class MoveLayer(ZLayerRoutine):
+    def __init__(self, *args, **kwargs):
+        ZLayerRoutine.__init__(self, ('FocusLayer',), *args, **kwargs)
+
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zlmv,
+            [RoutineCall, zfl, index]
+
+            [VarSet, up, (targetIndex > index)]
+            [VarSet, loop, ABS((targetIndex - index))]
+
+            [Note, [StrMerge, #index, " - ", #targetIndex, " - ", #up, " - ", #loop]]
+
+            [Loop, #loop,
+                [If, up,
+                    [IPress, Tool:Layers:MoveUp]
+                ,
+                    [IPress, Tool:Layers:MoveDown]
+                ]
+            ]
+        , index, targetIndex]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index()
+        ]
+
+
+class MergeDown(ZLayerRoutine):
+    def __init__(self, *args, **kwargs):
+        ZLayerRoutine.__init__(self, ('FocusLayer',), *args, **kwargs)
+
+    def definition(self, *args, **kwargs):
+        return '''
+        [RoutineDef, zlmm,
+            [RoutineCall, zfl, index]
+
+            [Loop, count,
+                [IPress, Tool:Layers:Merge Down]
+            ]
+        , index, count]
+        '''
+
+    def get_args_from_layer(self, layer):
+        return [
+            layer.zbrush_index()
+        ]

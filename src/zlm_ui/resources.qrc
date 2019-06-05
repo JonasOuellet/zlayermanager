@@ -18,6 +18,7 @@
     <file alias="duplicate.png">img/duplicate.png</file>
     <file alias="eye.png">img/eye.png</file>
     <file alias="record.png">img/record.png</file>
+    <file alias="merge.png">img/merge.png</file>
 </qresource>
 
 </RCC>

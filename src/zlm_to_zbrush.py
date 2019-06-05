@@ -217,7 +217,7 @@ def send_duplicated_layers(layers, move_down=False):
     """Send duplicated layer to zbrush
 
     Args:
-        layers (list): Must bust a list of [ZlmLayer, ZlmLayer] first layer is the source layer 
+        layers (list): Must be a list of [ZlmLayer, ZlmLayer] first layer is the source layer
             and second layer is the duplicated one.
         move_down (bool, optional): Move the layer down to the list ?. Defaults to False.
     """
@@ -240,6 +240,42 @@ def send_duplicated_layers(layers, move_down=False):
 
         for _, dup in layers:
             zsc.SetLayerMode(dup)
+
+        if zlm_core.main_layers.recording_layer:
+            zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
+
+        zsc.SubdivRestore()
+    _send_script()
+
+
+def send_merged_layers(layers):
+    """send merged layers, the layer with the smalled index will be kept and its index 
+    will remain unchanged.
+
+    Args:
+        layers ([ZlmLayer]): list of layer that just been merged.
+    """
+    # sort layer by index
+    layers = sorted(layers, key=lambda l: l.index)
+    tl = layers[0]
+    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+        zsc.SubdivStore()
+
+        zsc.SubdivMax()
+        zsc.DeactivateRecord()
+
+        # minus one because there is the smallest index layer that remain.
+        initial_size = len(zlm_core.main_layers.instances_list) + len(layers) - 1
+        tli = initial_size - tl.index - 1
+        # move all layers underneath the smalled index layer
+        for layer in layers[1:]:
+            index = initial_size - layer.index
+            if index != tli:
+                zsc.MoveLayer(index, tli)
+            tli -= 1
+
+        # merge down
+        zsc.MergeDown(initial_size - tl.index, len(layers) - 1)
 
         if zlm_core.main_layers.recording_layer:
             zsc.SetLayerMode(zlm_core.main_layers.recording_layer)

@@ -240,6 +240,8 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self.filter_text = ''
         self.filter_mode = 0
 
+        self.installEventFilter(self)
+
     def on_close(self):
         self.main_ui.settings['layerViewColumn'] = self.getColumnsWidth()
 
@@ -401,9 +403,9 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
         # do nothing if right click button ??
         item = self.itemAt(event.pos())
-        if item and item.isSelected():
-            if event.button() != Qt.Qt.RightButton:
-                item.setSelected(False)
+        item_selected = len(self.selectedItems())
+        if item and item_selected == 1 and item.isSelected() and event.button() != Qt.Qt.RightButton:
+            item.setSelected(False)
         else:
             Qt.QTreeWidget.mousePressEvent(self, event)
 
@@ -572,3 +574,23 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
                     if item.layer == layer:
                         return item
         return None
+
+    def invert_selection(self):
+        for i in range(self.topLevelItemCount()):
+            item = self.topLevelItem(i)
+            item.setSelected(not item.isSelected())
+
+    def eventFilter(self, widget, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.modifiers() == Qt.Qt.ControlModifier:
+                key = event.key()
+                if key == Qt.Qt.Key_I:
+                    self.invert_selection()
+                    return True
+                if key == Qt.Qt.Key_A:
+                    self.selectAll()
+                    return True
+                if key == Qt.Qt.Key_X:
+                    self.clearSelection()
+                    return True
+        return Qt.QTreeWidget.eventFilter(self, widget, event)

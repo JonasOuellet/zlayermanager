@@ -196,7 +196,18 @@ class ZlmLayers(object):
         return False
 
     def duplicate_layer(self, layer, move_down=False):
-        new_name = self.validate_layer_name(layer.name + '_dup')
+        suf = '_dup'
+        new_name = layer.name
+        needed_len = max_name_len - len(suf)
+        if len(new_name) <= needed_len:
+            new_name += suf
+        else:
+            new_name = new_name[:needed_len]
+            if new_name[-1] == '_' == suf[0]:
+                new_name += suf[1:]
+            else:
+                new_name += suf
+        new_name = self.validate_layer_name(new_name)
         index = len(self.instances_list) if move_down else layer.index
         new_layer = ZlmLayer(new_name, 1.0, 0, index + 1, self)
         self._add_layer(new_layer, None if move_down else index)
@@ -226,23 +237,17 @@ class ZlmLayers(object):
         if name not in self.instances:
             return name[:max_name_len]
 
-        # add number at the end
-        highest_number = 0
-        for layer in self.instances[name]:
-            match = re.search('(\d+)$', layer.name)
-            if match:
-                number = int(match.group(0))
-                if number > highest_number:
-                    highest_number = number
-        highest_number += 1
+        number = 1
         # replace number with new number
         match = re.search('(\d+)$', name)
         if match:
             name = name[:match.span()[0]]
+            number = int(match.group(0)) + 1
+
         # make sure we dont bust 15 char lenght
-        pad = max(2, len(str(highest_number)))
+        pad = max(2, len(str(number)))
         name = name[:max_name_len - pad]
-        name = f'{name}{highest_number:02d}'
+        name = f'{name}{number:02d}'
         return self.validate_layer_name(name)
 
     def remove_name_duplicate(self):
@@ -273,6 +278,14 @@ class ZlmLayers(object):
         modified_layers.update(self.remove_name_duplicate())
 
         return modified_layers
+
+    def merge_layers(self, layers):
+        # start by removing biggest index because we dont want to affect the index
+        sorted_layers = sorted(layers, key=lambda l: l.index, reverse=True)
+        keep_layer = sorted_layers[-1]
+        for l in sorted_layers[:-1]:
+            self.remove_layer(l)
+        return keep_layer
 
 
 main_layers = ZlmLayers()
