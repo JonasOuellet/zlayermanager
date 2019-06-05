@@ -5,7 +5,8 @@
         "src/**/*.zsc": true,
         "**/__pycache__": true,
         "**/*.pyc": true,
-        "src/build": true
+        "src/build": true,
+        "**/*.zsc": true,
     },
     "python.linting.pylintEnabled": false,
     "python.linting.pep8Enabled": true,

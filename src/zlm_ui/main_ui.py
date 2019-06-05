@@ -64,7 +64,7 @@ class ZlmMainUI(Qt.QMainWindow):
         for i in range(3):
             zlm_core.main_layers.add_callback(i, self.update_layer_count)
 
-        if file_path:
+        if file_path and os.path.exists(file_path):
             self.load_layers(file_path)
 
         geo = self.settings.get('geometry', None)

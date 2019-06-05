@@ -17,10 +17,6 @@ class ZlmSettings(object):
             'Maya': {
                 'port': 6009,
                 'format': '.obj'
-            },
-            'Blender': {
-                'port': 6010,
-                'format': '.obj'
             }
         }
 
@@ -73,14 +69,19 @@ class ZlmSettings(object):
             ZlmSettings._instance = ZlmSettings()
         return ZlmSettings._instance
 
+    def _recursive_update(self, _dict, to_add):
+        for k, value in to_add.items():
+            if k not in _dict:
+                _dict[k] = value
+            elif isinstance(value, dict):
+                self._recursive_update(_dict[k], value)
+
     def get(self, key, defaultValue=None):
         if key not in self.bigData:
             self.bigData[key] = defaultValue
 
         if isinstance(defaultValue, dict):
-            for k, value in defaultValue.items():
-                if k not in self.bigData[key]:
-                    self.bigData[key][k] = value
+            self._recursive_update(self.bigData[key], defaultValue)
 
         return self.bigData[key]
 
