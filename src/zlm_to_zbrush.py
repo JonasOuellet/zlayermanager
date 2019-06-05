@@ -145,9 +145,11 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
         if layer is not None:
             zsc.SetLayerMode(layer.name, layer.zbrush_index(), 1, 1.0)
 
-        zsc.UpdateMesh(file_path, vertex_count)
+        # set 1 to delete file after
+        zsc.UpdateMesh(file_path, vertex_count, 1)
 
         zsc.SubdivMax()
+        zsc.DeactivateRecord()
 
         _set_layer_state()
 

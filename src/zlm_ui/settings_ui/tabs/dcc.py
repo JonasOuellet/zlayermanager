@@ -1,5 +1,6 @@
 from PyQt5 import Qt, QtCore
 
+from zlm_settings import ZlmSettings
 from zlm_ui.settings_ui.base_setting_ui import SettingsTabBase, register_setting_tab
 
 
@@ -38,17 +39,21 @@ class DccSettingWidget(SettingsTabBase):
     def __init__(self):
         SettingsTabBase.__init__(self, "External Software")
 
-        self.pb_send_after_export = Qt.QPushButton('Send After Export')
+        self.pb_send_after_export = Qt.QPushButton('Send to dcc')
         self.pb_send_after_export.setCheckable(True)
 
         self.cb_current_dcc = Qt.QComboBox()
 
         self.dcc_table = Qt.QTableWidget()
+        self.dcc_table.itemChanged.connect(self.item_changed)
 
         pb_add = Qt.QPushButton(Qt.QIcon(":/add.png"), '')
+        pb_add.clicked.connect(self.add_dcc)
         pb_rem = Qt.QPushButton(Qt.QIcon(":/remove.png"), '')
+        pb_rem.clicked.connect(self.remove_dcc)
 
         pb_reset = Qt.QPushButton(Qt.QIcon(":/reset.png"), "")
+        pb_reset.clicked.connect(self.reset_settings)
 
         top_layout = Qt.QHBoxLayout()
         top_layout.addWidget(self.pb_send_after_export, 1)
@@ -77,6 +82,7 @@ class DccSettingWidget(SettingsTabBase):
             self.dcc_table.setColumnWidth(i, availabed_width * ratios[i])
 
     def build_table(self, settings):
+        self.dcc_table.blockSignals(True)
         self.dcc_table.clear()
 
         self.dcc_table.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)
@@ -92,19 +98,27 @@ class DccSettingWidget(SettingsTabBase):
         self.dcc_table.setItemDelegateForColumn(2, ExportFormatDelegate())
 
         for i, (key, value) in enumerate(settings.dcc_settings.items()):
-            item = Qt.QTableWidgetItem()
-            item.setData(Qt.Qt.EditRole, value['port'])
-
-            self.dcc_table.setItem(i, 0, Qt.QTableWidgetItem(key))
-            self.dcc_table.setItem(i, 1, item)
-            self.dcc_table.setItem(i, 2, Qt.QTableWidgetItem(value['format']))
+            self._set_item(i, key, value['port'], value['format'])
 
         self.set_column_size()
+        self.dcc_table.blockSignals(False)
+
+        self.disable_widget()
 
     def resizeEvent(self, event):
         self.set_column_size()
 
+    def _set_item(self, i, soft, port, ext):
+        item = Qt.QTableWidgetItem()
+        item.setData(Qt.Qt.EditRole, port)
+
+        self.dcc_table.setItem(i, 0, Qt.QTableWidgetItem(soft))
+        self.dcc_table.setItem(i, 1, item)
+        self.dcc_table.setItem(i, 2, Qt.QTableWidgetItem(ext))
+
     def build_combobox(self, settings):
+        current_index = self.cb_current_dcc.currentIndex()
+        count = self.cb_current_dcc.count()
         current_item = self.cb_current_dcc.currentText()
         if not current_item:
             current_item = settings.current_dcc
@@ -115,10 +129,13 @@ class DccSettingWidget(SettingsTabBase):
 
         self.cb_current_dcc.addItems(items)
 
-        try:
-            self.cb_current_dcc.setCurrentIndex(items.index(current_item))
-        except:
-            pass
+        if count == self.cb_current_dcc.count():
+            self.cb_current_dcc.setCurrentIndex(current_index)
+        else:
+            try:
+                self.cb_current_dcc.setCurrentIndex(items.index(current_item))
+            except:
+                pass
 
     def get_software_data(self, row_index):
         soft_name = self.dcc_table.item(row_index, 0).text()
@@ -138,6 +155,69 @@ class DccSettingWidget(SettingsTabBase):
                 'format': ext
             }
         return out
+
+    def update_cb_dcc(self):
+        setting = ZlmSettings(False)
+        self.save(setting)
+        self.build_combobox(setting)
+
+    def reset_settings(self):
+        self.pb_send_after_export.setChecked(self.DEFAULT_SETTINGS.send_after_export)
+        self.build_table(self.DEFAULT_SETTINGS)
+        self.build_combobox(self.DEFAULT_SETTINGS)
+
+    def add_dcc(self):
+        self.dcc_table.blockSignals(True)
+        count = self.dcc_table.rowCount()
+        port = None
+        name = 'software'
+        index = 0
+        for i in range(count):
+            cp = self.dcc_table.item(i, 1).data(Qt.Qt.EditRole)
+            if port is None:
+                port = cp + 1
+            elif cp == port:
+                port += 1
+
+            if self.dcc_table.item(i, 0).text().lower() == name:
+                index += 1
+                name = "software{:02d}".format(index)
+        if port is None:
+            port = 6009
+        self.dcc_table.setRowCount(count + 1)
+        self._set_item(count, name, port, AVAILABLE_OUTPUT_FORMAT[0])
+
+        self.update_cb_dcc()
+        self.dcc_table.blockSignals(False)
+
+        self.disable_widget()
+
+    def remove_dcc(self):
+        rows = set()
+        for item in self.dcc_table.selectedItems():
+            rows.add(item.row())
+
+        self.dcc_table.blockSignals(True)
+        for row in reversed(list(rows)):
+            self.dcc_table.removeRow(row)
+
+        self.disable_widget()
+        self.dcc_table.blockSignals(False)
+        self.update_cb_dcc()
+        self.cb_current_dcc.clear()
+
+    def item_changed(self, item):
+        if item.column() == 0:
+            self.update_cb_dcc()
+
+    def disable_widget(self):
+        if self.dcc_table.rowCount() == 0:
+            self.pb_send_after_export.setEnabled(False)
+            self.cb_current_dcc.setEnabled(False)
+        else:
+            self.pb_send_after_export.setEnabled(True)
+            self.cb_current_dcc.setEnabled(True)
+
     #
     # Base class method
     #
@@ -160,6 +240,8 @@ class DccSettingWidget(SettingsTabBase):
         settings.current_dcc = self.cb_current_dcc.currentText()
 
         data = self.get_software_table_data(check_error=True)
+        # clear or not before ?
+        settings.dcc_settings.clear()
         settings.dcc_settings.update(data)
 
     def update(self, settings):

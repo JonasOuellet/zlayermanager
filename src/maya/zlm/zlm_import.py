@@ -115,6 +115,7 @@ def import_files(folder, ext):
         except Exception as e:
             print(e)
 
+    clean_folder(folder, ext)
     cmds.progressWindow(progress, e=True, endProgress=True)
 
 

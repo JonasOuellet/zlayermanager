@@ -128,7 +128,7 @@ class ZlmMainUI(Qt.QMainWindow):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))
 
     def on_port_not_set(self, dcc):
-        Qt.QMessageBox.Warning(self, "Port not set", "Communication port not set. Please set it in the settings window.")
+        Qt.QMessageBox.warning(self, "Port not set", "Communication port not set. Please set it in the settings window.")
 
     def on_error(self, e):
         Qt.QMessageBox.warning(self, 'Could not communicate', 'Could not communicate with "{}".\n'

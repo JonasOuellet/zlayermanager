@@ -67,5 +67,12 @@ class UpdateMesh(ZRoutine):
             , /* else */
                 [NoteBar, [StrMerge, "Skipping import - Couldn't find subdivision with ", #vCount, "points."]]
             ]
-        , filepath, vCount]
+
+            [If, deleteAfter,
+                [VarSet, dllPath, ""]
+                [MemReadString, zlmMFileUtilPath, dllPath]
+                [FileExecute, #dllPath, FileDelete, #filepath]
+            ]
+
+        , filepath, vCount, deleteAfter]
         '''

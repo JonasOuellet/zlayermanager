@@ -347,7 +347,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         if value > 1.0:
             value = 1.0
 
-        # If there is an item recording deactivate it for now
+        # If there was an item recording reactivate it
         if self.current_item_recording:
             self.current_item_recording.layer.mode = ZlmLayerMode.record
 
@@ -368,7 +368,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         for i in self._selected_items:
             i.intensity_widget.set_intensity(value)
             i.layer.intensity = value
-        item.layer.itensity = value
+        item.layer.intensity = value
 
         send_intensity(self._selected_layers)
 
