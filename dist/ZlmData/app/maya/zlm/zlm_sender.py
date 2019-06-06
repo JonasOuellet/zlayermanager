@@ -1,6 +1,6 @@
 from multiprocessing.connection import Listener, Client
 
-from zlm.zlm_settings import ZlmSettings
+from zlm_core import ZlmSettings
 
 
 def send_command(cmd_name, settings=None, *args):

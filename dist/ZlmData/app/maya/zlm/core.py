@@ -1,6 +1,6 @@
 from maya import cmds
 
-from zlm.zlm_settings import ZlmSettings
+from zlm_core import ZlmSettings
 
 _LAST_OPENED_PORT = None
 

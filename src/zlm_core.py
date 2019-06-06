@@ -14,11 +14,6 @@ valid_name_re = "[A-Za-z0-9_]{0,15}"
 max_name_len = 15
 
 
-ZLM_OP_RENAME = 0
-ZLM_OP_MODE = 1
-ZLM_OP_CREATE = 2
-
-
 class ZlmLayerMode(IntEnum):
     off = 0
     record = 1
@@ -170,6 +165,10 @@ class ZlmLayers(object):
             self.recording_layer = None
 
         self.instances[layer.name].remove(layer)
+
+        # remove if empty
+        if len(self.instances[layer.name]) == 0:
+            self.instances.pop(layer.name)
 
         self.instances_list.remove(layer)
 

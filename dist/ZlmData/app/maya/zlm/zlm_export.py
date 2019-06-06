@@ -2,11 +2,9 @@ import os
 
 from maya import cmds
 
-from zlm.zlm_settings import ZlmSettings
+from zlm_core import ZlmSettings
 from zlm.zlm_utils import load_obj_plugin
 from zlm import zlm_sender
-
-zlm_sender = reload(zlm_sender)
 
 
 def _export_mesh(obj, settings):

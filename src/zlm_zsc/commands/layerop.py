@@ -258,8 +258,6 @@ class MoveLayer(ZLayerRoutine):
             [VarSet, up, (targetIndex > index)]
             [VarSet, loop, ABS((targetIndex - index))]
 
-            [Note, [StrMerge, #index, " - ", #targetIndex, " - ", #up, " - ", #loop]]
-
             [Loop, #loop,
                 [If, up,
                     [IPress, Tool:Layers:MoveUp]

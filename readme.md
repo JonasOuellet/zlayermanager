@@ -8,20 +8,13 @@ Help working with layers in zBrush with a custom user interface.
 
 Setuping maya to be able to import blendshape directly:
 
-1. Copy zlm maya python package to a maya script folder
-2. Edit `userSetup.py` file to start zlm communication port and import callback function.
 ```python
-import zlm
-# open communication port
-zlm.open_port()
-
-# add default callback when import is requested
-# you can specify any callback (function) that take 1 argument (the file path to import)
-zlm.callback_add(zlm.CBType.import_file, zlm.import_file)
-
-# add default callback when import all is requested
-# import all callback must take two args (folder_path, extension)
-zlm.callback_add(zlm.CBType.import_all, zlm.import_files)
+>>> # add zlm script folder to sys path
+>>> import sys
+>>> sys.path.append(r"{path to dist}\ZlmData\app\maya")
+>>> import zlm
+>>> # open communication port so maya can receive command
+>>> zlm.open_port())
 ```
 
 **Notes:** You can specify any import callback, in this exemple, default import callback are used.  When importing a blendshape, it check if there is a mesh with the same name in the scene, if soo, it will update it vertex position with the new mesh and delete the new mesh.  Oterwise, it will keep the new imported mesh in the scene.

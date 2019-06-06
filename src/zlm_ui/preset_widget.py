@@ -1,7 +1,10 @@
+import re
+
 from PyQt5 import Qt, QtCore
 
 import zlm_core
 from zlm_ui.collapsable import ZlmCollapsableWidget
+import zlm_to_zbrush
 
 
 class ZlmPresetWidget(ZlmCollapsableWidget):
@@ -53,8 +56,6 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         self.build_file_comboBox()
         self.build_preset_combobox()
 
-        self.update_file_btn_state()
-
         self.cb_preset_file.currentIndexChanged.connect(self.preset_file_changed)
 
     def update_presets(self):
@@ -66,7 +67,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
         self.pb_rem_file.setEnabled(enable)
         self.pb_save_preset.setEnabled(enable and enable_2)
-        self.pb_rem_preset.setEnabled(enable)
+        self.pb_rem_preset.setEnabled(enable and enable_2)
         self.pb_add_preset.setEnabled(enable)
 
         self.pb_activate.setEnabled(enable_2)
@@ -91,6 +92,8 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
                 i += 1
         self.cb_preset_file.blockSignals(False)
 
+        self.update_file_btn_state()
+
     def build_preset_combobox(self):
         self.cb_layer_presets.clear()
         index = self.cb_preset_file.currentIndex()
@@ -105,6 +108,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             self.cb_layer_presets.addItems(list(self.presets[key][filename].keys()))
         except:
             pass
+        self.update_file_btn_state()
 
     def get_current_preset_path(self):
         index = self.cb_preset_file.currentIndex()
@@ -154,24 +158,30 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         if preset:
             zlm_core.apply_preset(preset)
             self.preset_activated.emit()
-            zlm_core.send_to_zbrush()
+            zlm_to_zbrush.send_to_zbrush()
 
     def pb_add_file_clicked(self):
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
-        dialog.setWindowTitle("Preset Name")
-        dialog.setLabelText("Preset group name: ")
-        dialog.setTextValue("new_preset_group")
-        # lineEdit = dialog.findChild(Qt.QLineEdit)
-        if dialog.exec():
-            text = dialog.textValue()
-            if zlm_core.validate_new_preset_file(text):
-                zlm_core.create_new_preset_file(text)
-                self.presets['user'][text] = {}
-                self.build_file_comboBox()
-                self.set_current_preset_path(('user', text, ''))
-            else:
-                Qt.QErrorMessage(self).showMessage('Invalid preset group name: "{}"'.format(text), "Invalid Preset Group Name")
+        text = self.ask_for_name("Preset Name", "Preset group name: ", "new_preset_group")
+        if text:
+            name = self.validate_name(text, set(list(self.presets['app'].keys()) + list(self.presets['user'].keys())))
+            zlm_core.create_new_preset_file(name)
+            self.presets['user'][name] = {}
+            self.build_file_comboBox()
+            self.set_current_preset_path(('user', name, ''))
+
+    def validate_name(self, name, _set):
+        if name not in _set:
+            return name
+
+        number = 1
+        # replace number with new number
+        match = re.search('(\d+)$', name)
+        if match:
+            name = name[:match.span()[0]]
+            number = int(match.group(0)) + 1
+
+        name = f'{name}{number:02d}'
+        return self.validate_name(name, _set)
 
     def pb_rem_file_clicked(self):
         key, group, _ = self.get_current_preset_path()
@@ -185,36 +195,25 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
             self.presets[key].pop(group)
             self.build_file_comboBox()
 
-            try:
-                if index >= self.cb_preset_file.count():
-                    index = self.cb_preset_file.count() - 1 
-                self.cb_preset_file.setCurrentIndex(index)
-            except:
+            if index >= self.cb_preset_file.count():
+                index = self.cb_preset_file.count() - 1
+
+            if index < 0:
                 self.build_preset_combobox()
+            else:
+                self.cb_preset_file.setCurrentIndex(index)
 
     def pb_add_preset_clicked(self):
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
-        dialog.setWindowTitle("Preset Name")
-        dialog.setLabelText("Preset name: ")
-        dialog.setTextValue("preset_name")
-        # lineEdit = dialog.findChild(Qt.QLineEdit)
-        if dialog.exec():
-            text = dialog.textValue()
-            if text:
-                key, group, _ = self.get_current_preset_path()
-                if text in self.presets[key][group]:
-                    test = Qt.QMessageBox.warning(self, "Preset already exists",
-                                                  'Preset "{}" already exists and will be overridden. Do you want to continue?'.format(text),
-                                                  Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
+        text = self.ask_for_name("Preset Name", "Preset name: ", "preset_name")
+        if text:
+            key, group, _ = self.get_current_preset_path()
 
-                    if test != Qt.QMessageBox.StandardButton.Yes:
-                        return
+            name = self.validate_name(text, self.presets[key][group].keys())
 
-                preset = zlm_core.get_layers_as_preset()
-                self.presets[key][group][text] = preset
-                zlm_core.save_layers_preset(group, self.presets[key][group])
-                self.set_current_preset_path((key, group, text))
+            preset = zlm_core.get_layers_as_preset()
+            self.presets[key][group][name] = preset
+            zlm_core.save_layers_preset(group, self.presets[key][group])
+            self.set_current_preset_path((key, group, name))
 
     def pb_rem_preset_clicked(self):
         key, group, preset = self.get_current_preset_path()
@@ -247,3 +246,16 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         if test == Qt.QMessageBox.StandardButton.Yes:
             self.presets[key][group][preset] = zlm_core.get_layers_as_preset()
             zlm_core.save_layers_preset(group, self.presets[key][group])
+
+    def ask_for_name(self, title='Enter Name', label='Name: ', text=''):
+        dialog = Qt.QInputDialog(self)
+        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(label)
+        dialog.setTextValue(text)
+        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
+        lineEdit = dialog.findChild(Qt.QLineEdit)
+        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_]"), dialog))
+        if dialog.exec_():
+            return dialog.textValue()
+        return None
