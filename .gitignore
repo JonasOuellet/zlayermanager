@@ -8,3 +8,5 @@ src/zscripts
 src/build
 src/zlm.txt
 zscripts
+docs_build
+docs/_sources

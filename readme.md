@@ -14,7 +14,7 @@ Setuping maya to be able to import blendshape directly:
 >>> sys.path.append(r"{path to dist}\ZlmData\app\maya")
 >>> import zlm
 >>> # open communication port so maya can receive command
->>> zlm.open_port())
+>>> zlm.open_port()
 ```
 
 **Notes:** You can specify any import callback, in this exemple, default import callback are used.  When importing a blendshape, it check if there is a mesh with the same name in the scene, if soo, it will update it vertex position with the new mesh and delete the new mesh.  Oterwise, it will keep the new imported mesh in the scene.
