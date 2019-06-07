@@ -29,7 +29,7 @@ class LayerFilterWidget(Qt.QWidget):
 
         self.le_search_bar = Qt.QLineEdit()
         self.le_search_bar.textEdited.connect(self._search_bar_changed)
-        self.pb_filter = Qt.QPushButton("Filter")
+        self.pb_filter = Qt.QPushButton(Qt.QIcon(":/filter.png"), " ")
 
         self.current_filter = self.main_ui.settings.get('filter', 0)
         self.le_search_bar.setText(self.main_ui.settings.get('filterText', ''))

@@ -61,16 +61,22 @@ class UpdateMesh(ZRoutine):
         [RoutineDef, zim,
             [VarSet, found, 0]
             [RoutineCall, zssdv, vCount, found]
+
+            [VarSet, dllPath, ""]
+            [MemReadString, zlmMFileUtilPath, dllPath]
+
             [If, found,
+                [VarSet, subtoolName, [IGetTitle,Tool:ItemInfo]]
                 [FileNameSetNext, #filepath]
                 [IKeyPress, 13, [IPress, Tool:Import:Import]]
+
+                [FileExecute, #dllPath, RenameSetNext, [StrExtract, #subtoolName, 0, ([StrLength, #subtoolName] - 2)]]
+                [IPress, "Tool:SubTool:Rename"]
             , /* else */
                 [NoteBar, [StrMerge, "Skipping import - Couldn't find subdivision with ", #vCount, "points."]]
             ]
 
             [If, deleteAfter,
-                [VarSet, dllPath, ""]
-                [MemReadString, zlmMFileUtilPath, dllPath]
                 [FileExecute, #dllPath, FileDelete, #filepath]
             ]
 

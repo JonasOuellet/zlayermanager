@@ -13,10 +13,18 @@ def _export_mesh(obj, settings):
         pretty_name = obj.split('|')[-1].split(':')[-1]
         export_path = os.path.join(settings.get_import_folder(), pretty_name + '.obj')
 
+        xform = cmds.xform(obj, q=True, ws=True, m=True)
+        cmds.xform(obj, ws=True, m=[1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, 1, 0,
+                                    0, 0, 0, 1])
+
         cmds.select(obj)
 
         cmds.file(export_path.replace('\\', '/'), force=True, options="groups=0;ptgroups=0;materials=0;smoothing=0;normals=0",
                   typ="OBJexport", es=True)
+
+        cmds.xform(obj, ws=True, m=xform)
 
         return export_path, pretty_name, vert_count
 
