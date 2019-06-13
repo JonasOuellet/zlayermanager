@@ -28,9 +28,20 @@ Although, the tool is free of use, your support is welcome.  Encourage me by doi
     </div>
 
 
+Comment or bug report
+=====================
+
+If you want to send a comment or report a bug you can use the `issue page
+<https://github.com/JonasOuellet/zLayerManager/issues>`_ on github. 
+
+.. raw:: html
+
+    <p>You could also send an email to <a href="mailto:zlayermanager@gmail.com">zlayermanager@gmail.com</a></p>
+
+
 Content
 -------
 .. toctree::
 
    installation
-
+   userguide/index

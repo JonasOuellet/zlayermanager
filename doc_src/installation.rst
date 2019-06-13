@@ -40,6 +40,17 @@ to step 3.
 Click on `open` to open the standalone UI. *Note: You must have a subtool selected to open the UI*
 
 
+Application
+------------
+
+ZLayerManager can be use as a bridge between ZBrush and other application.  It facilitate the process of exporting and importing mesh
+from your favorite 3D software.  
+
+It can be used to quickly update blendshape and see the result in action.
+
+Right now, Zlm only support Maya, but it is possible to develop your own package for the application of your choice.
+
+
 .. toctree::
 
-   application/index
+   application/maya

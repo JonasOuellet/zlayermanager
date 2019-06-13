@@ -35,7 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Application" href="index.html" /> 
+    <link rel="next" title="User Guide" href="../userguide/index.html" />
+    <link rel="prev" title="Installation" href="../installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,13 +83,24 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../installation.html">Installation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../installation.html#download">Download</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../installation.html#install">Install</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="index.html">Application</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install">Install</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../installation.html#application">Application</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Maya</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/settings.html">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../userguide/settings.html#core">Core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../userguide/settings.html#external-application">External Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../userguide/settings.html#layer-edit">Layer edit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/preset.html">Preset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/layerdisplay.html">Layer display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/export.html">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/import.html">Import</a></li>
 </ul>
 </li>
 </ul>
@@ -138,8 +150,6 @@
         
           <li><a href="../installation.html">Installation</a> &raquo;</li>
         
-          <li><a href="index.html">Application</a> &raquo;</li>
-        
       <li>Maya</li>
     
     
@@ -159,7 +169,7 @@
             
   <div class="section" id="maya">
 <h1>Maya<a class="headerlink" href="#maya" title="Permalink to this headline">¶</a></h1>
-<p>To setup <cite>Maya</cite> so ZLayer manager can export and import meshes from it, you have to edit the <cite>userSetup.py</cite> file
+<p>To setup <cite>Maya</cite> so ZLayerManager can export and import meshes from it, you have to edit the <cite>userSetup.py</cite> file
 located in a <cite>scripts</cite> folder under Maya application directory.</p>
 <p>This is usually located here: <strong>C:\Users\{username}\Documents\maya\scripts</strong>.</p>
 <p>If you can’t find this folder you can execute this <strong>mel</strong> code in Maya to retrieve it.</p>
@@ -176,7 +186,7 @@ add it to the <cite>userSetup.py</cite> file. <em>(The file might not exists so 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zlm_maya_app</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">zlm</span>
 <span class="c1"># open communication port so maya can receive command</span>
-<span class="n">zlm</span><span class="o">.</span><span class="n">open_port</span><span class="p">())</span>
+<span class="n">zlm</span><span class="o">.</span><span class="n">open_port</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Restart maya.</p>
@@ -191,8 +201,10 @@ add it to the <cite>userSetup.py</cite> file. <em>(The file might not exists so 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="../userguide/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

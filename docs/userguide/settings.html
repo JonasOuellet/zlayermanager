@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Application &mdash; ZLayerManager 0.1.0 documentation</title>
+  <title>Settings &mdash; ZLayerManager 0.1.0 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Maya" href="maya.html" />
-    <link rel="prev" title="Installation" href="../installation.html" /> 
+    <link rel="next" title="Preset" href="preset.html" />
+    <link rel="prev" title="User Guide" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -81,18 +81,28 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../installation.html">Installation</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../installation.html#download">Download</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../installation.html#install">Install</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Application</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="maya.html">Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#application">Application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../application/maya.html">Maya</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core">Core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-application">External Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layer-edit">Layer edit</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preset.html">Preset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layerdisplay.html">Layer display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="export.html">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import.html">Import</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -138,9 +148,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../installation.html">Installation</a> &raquo;</li>
+          <li><a href="index.html">User Guide</a> &raquo;</li>
         
-      <li>Application</li>
+      <li>Settings</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -157,16 +167,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="application">
-<h1>Application<a class="headerlink" href="#application" title="Permalink to this headline">¶</a></h1>
-<p>ZLayerManager can be use as a bridge between ZBrush and other application.  It facilitate the process of exporting and importing mesh
-from your favorite 3D software.</p>
-<p>It can be used to quickly update blendshape and see the result in action.</p>
-<p>Right now, Zlm only support Maya, but it is possible to develop your own package for the application of your choice.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="maya.html">Maya</a></li>
+  <div class="section" id="settings">
+<h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
+<p>This is the UI where the user will edit all the settings for the tool.  The edited settings are not saved until the users
+<strong>Accept</strong> the change.</p>
+<a class="align-right reference internal image-reference" href="../_images/zlm_settings.png"><img alt="../_images/zlm_settings.png" class="align-right" src="../_images/zlm_settings.png" style="width: 312.0px; height: 412.75px;" /></a>
+<div class="section" id="core">
+<h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<p><strong>File Folder</strong> Where file will be exported.</p>
+</div>
+<div class="section" id="external-application">
+<h2>External Application<a class="headerlink" href="#external-application" title="Permalink to this headline">¶</a></h2>
+<p>This is the settings to configure to use ZLm has a bridge between Zbrush and other 3D softwares.</p>
+<p><strong>Send to app</strong> Will automaticale import the layer export from ZBrush in the <em>Current Application</em></p>
+<p><strong>Current Application</strong>: Select the current application to communicate with.</p>
+<p><strong>Application list</strong>: Application Name, communication port (same port has used in application
+to receive command), preferred file format for export/import.</p>
+<ul class="simple">
+<li><p><strong>+</strong> Add setting for a new application.</p></li>
+<li><p><strong>-</strong> Remove selected application setting.</p></li>
+<li><p><strong>↻</strong> Reset to default value.</p></li>
 </ul>
+</div>
+<div class="section" id="layer-edit">
+<h2>Layer edit<a class="headerlink" href="#layer-edit" title="Permalink to this headline">¶</a></h2>
+<p><strong>Move duplicated layer down</strong> Will move the new layer down the layer list when the user duplicate a layer.</p>
+<div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
+border: 5px groove black; border-radius: 10px;">
+<h3>Warning</h3>This operation may drastically increase the operation time based on the layer count and
+the position of the layer in the list
+</div><p><strong>Ask before delete</strong> The user will be prompt if he really want to delete the layer(s).  Otherwise, delete the layer(s)
+without asking.</p>
 </div>
 </div>
 
@@ -178,10 +209,10 @@ from your favorite 3D software.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="maya.html" class="btn btn-neutral float-right" title="Maya" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="preset.html" class="btn btn-neutral float-right" title="Preset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

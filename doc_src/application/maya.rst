@@ -1,7 +1,7 @@
 Maya
 ====
 
-To setup `Maya` so ZLayer manager can export and import meshes from it, you have to edit the `userSetup.py` file
+To setup `Maya` so ZLayerManager can export and import meshes from it, you have to edit the `userSetup.py` file
 located in a `scripts` folder under Maya application directory. 
 
 This is usually located here: **C:\\Users\\{username}\\Documents\\maya\\scripts**.
