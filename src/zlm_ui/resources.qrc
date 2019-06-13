@@ -20,6 +20,7 @@
     <file alias="record.png">img/record.png</file>
     <file alias="merge.png">img/merge.png</file>
     <file alias="filter.png">img/filter.png</file>
+    <file alias="help.png">img/help.png</file>
 </qresource>
 
 </RCC>

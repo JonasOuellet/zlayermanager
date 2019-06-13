@@ -228,12 +228,17 @@
 [ISubPalette,"Zplugin:zLayerManager"]
 
 [IButton, "Zplugin:zLayerManager:Open", "Open Layer Manager UI or update it if already opened",
-    [VarSet, filePath, ""]
-    [VarSet, exec, ""]
-    [RoutineCall, zlmGetLayerPath, filePath]
-    [RoutineCall, zlmSaveLayerInfo, filePath]
-    [RoutineCall, zlmGetExecutable, exec]
-    [VarSet, quote, [StrFromAsc, 34]]
+    // check if there is a subtool loaded
+    [If, [IExists, "Tool:Layers:Layers Scrollbar"],
+        [VarSet, filePath, ""]
+        [VarSet, exec, ""]
+        [RoutineCall, zlmGetLayerPath, filePath]
+        [RoutineCall, zlmSaveLayerInfo, filePath]
+        [RoutineCall, zlmGetExecutable, exec]
+        [VarSet, quote, [StrFromAsc, 34]]
 
-    [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]
+        [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]    
+    ,
+        [Note, "Zlm: Invalid Subtool"]
+    ]
 ]
