@@ -122,11 +122,6 @@ class ZlmMainUI(Qt.QMainWindow):
     def show_option(self):
         settings_dialog = SettingsDialog(self)
         if settings_dialog.exec():
-            # check if communication port has changed if so restart
-            # communication server
-            if ZlmSettings.instance().communication_port != self.com_server._address[1]:
-                self.com_server.restart()
-
             self.settings_changed.emit()
 
     def open_help_url(self):

@@ -17,28 +17,14 @@ class CoreSettingWidget(SettingsTabBase):
         self.pb_working_browse.clicked.connect(self.browse_working_folder)
         self.pb_working_reset.clicked.connect(self.reset_working_folder)
 
-        self.sb_com_port = Qt.QSpinBox()
-        self.sb_com_port.setRange(1000, 9999)
-
-        self.pb_reset_port = Qt.QPushButton(Qt.QIcon(":/reset.png"), "")
-
-        self.pb_reset_port.clicked.connect(self.reset_port)
-
         work_layout = Qt.QHBoxLayout()
         work_layout.addWidget(Qt.QLabel("File Folder: "), 0)
         work_layout.addWidget(self.le_working_folder, 1)
         work_layout.addWidget(self.pb_working_browse, 0)
         work_layout.addWidget(self.pb_working_reset, 0)
 
-        port_layout = Qt.QHBoxLayout()
-        port_layout.addStretch()
-        port_layout.addWidget(Qt.QLabel("Port: "), 0)
-        port_layout.addWidget(self.sb_com_port, 0)
-        port_layout.addWidget(self.pb_reset_port, 0)
-
         layout = Qt.QVBoxLayout()
         layout.addLayout(work_layout)
-        layout.addLayout(port_layout)
 
         self.set_layout(layout)
 
@@ -72,10 +58,8 @@ class CoreSettingWidget(SettingsTabBase):
 
     def save(self, settings):
         settings.working_folder = self.le_working_folder.text()
-        settings.communication_port = self.sb_com_port.value()
 
     def update(self, settings):
-        self.sb_com_port.setValue(settings.communication_port)
         self.le_working_folder.setText(settings.working_folder)
 
 

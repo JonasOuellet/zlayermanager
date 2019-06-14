@@ -145,15 +145,20 @@ class AppSettingWidget(SettingsTabBase):
 
     def get_app_table_data(self, check_error=False):
         out = {}
+        ports = set()
         for i in range(self.app_table.rowCount()):
             soft, port, ext = self.get_app_data(i)
             if check_error:
                 if soft in out:
                     raise Exception('Application "{}" is dupplicated.'.format(soft))
+                if port in ports:
+                    raise Exception('Port "{}" used more than one time.'.format(port))
+                ports.add(port)
             out[soft] = {
                 'port': port,
                 'format': ext
             }
+
         return out
 
     def update_cb_app(self):
@@ -230,9 +235,6 @@ class AppSettingWidget(SettingsTabBase):
 
     def validate(self, settings):
         # make sure that no port is the same as default com port
-        for soft, value in settings.app_settings.items():
-            if value['port'] == settings.communication_port:
-                return False, 'Error "{}" port cannot be the same as core port "{}".'.format(soft, settings.communication_port)
         return True, ""
 
     def save(self, settings):

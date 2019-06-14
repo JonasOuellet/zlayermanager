@@ -9,7 +9,6 @@ class ZlmSettings(object):
 
     def __init__(self, auto_load=True):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
-        self.communication_port = 6008
 
         self.send_after_export = False
         self.current_app = 'Maya'
