@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ZLayerManager &mdash; ZLayerManager 0.1.0 documentation</title>
+  <title>Installation &mdash; ZLayerManager 0.1.0 documentation</title>
   
 
   
@@ -35,7 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" /> 
+    <link rel="next" title="Maya" href="application/maya.html" />
+    <link rel="prev" title="ZLayerManager" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -49,7 +50,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> ZLayerManager
+            <a href="index.html" class="icon icon-home"> ZLayerManager
           
 
           
@@ -79,11 +80,11 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#download">Download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#application">Application</a><ul>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#application">Application</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="application/maya.html">Maya</a></li>
 </ul>
 </li>
@@ -116,7 +117,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">ZLayerManager</a>
+          <a href="index.html">ZLayerManager</a>
         
       </nav>
 
@@ -145,9 +146,9 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>ZLayerManager</li>
+      <li>Installation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,48 +165,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="zlayermanager">
-<h1>ZLayerManager<a class="headerlink" href="#zlayermanager" title="Permalink to this headline">¶</a></h1>
-<p>ZLayerManager <em>(Zlm)</em> is a ZBrush tool to aid users work with multiple layers in a scene. Zlm is a standalone interface
-that keep track of layer state and make basic layer operation easier (activate, merge, duplicate, rename etc).  It can also serve
-as a bridge with other application.</p>
-<p>ZLayerManager can be used for facial blendshape sculpting with over 100 layers or for a simple scene sculpt with a dozen of layers.</p>
-<p>This is an open source project and all the code is available on <a class="reference external" href="https://github.com/JonasOuellet/zLayerManager">github</a>.</p>
-<p>Although, the tool is free of use, your support is welcome.  Encourage me by doing a <a class="reference external" href="#donation">donation</a>.</p>
-<!-- https://jameshfisher.com/2017/08/30/how-do-i-make-a-full-width-iframe/ -->
-<div style="position:relative;padding-top:56.25%;margin-bottom:60px">
-    <iframe src="https://player.vimeo.com/video/340784913" frameborder="0" allowfullscreen
-        style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
-</div></div>
-<div class="section" id="comment-or-bug-report">
-<h1>Comment or bug report<a class="headerlink" href="#comment-or-bug-report" title="Permalink to this headline">¶</a></h1>
-<p>If you want to send a comment or report a bug you can use the <a class="reference external" href="https://github.com/JonasOuellet/zLayerManager/issues">issue page</a> on github.</p>
-<p>You could also send an email to <a href="mailto:zlayermanager@gmail.com">zlayermanager@gmail.com</a></p><div class="section" id="content">
-<h2>Content<a class="headerlink" href="#content" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Zlm is only available for windows for now. However, if you are a more advance user you can build it from
+source, see how on the project <a class="reference external" href="https://github.com/JonasOuellet/zLayerManager">github</a>.</p>
+<div class="section" id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<p>You can download the latest version <a class="reference external" href="https://www37.zippyshare.com/d/jEVxvUFP/50254/ZLayerManager.zip">here</a>.</p>
+</div>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<p>Once the <cite>ZLayerManager.zip</cite> is downloaded:</p>
+<ol class="arabic simple">
+<li><p>Navigate to your Zbrush plugin folder (it should be something like <em>C:\Program Files\Pixologic\ZBrush 2018\ZStartup\ZPlugs64</em>).</p></li>
+</ol>
+<p>2. <strong>If you have already installed a version of ZLayerManager before</strong>, make sure to follow these steps, otherwise you can go
+to step 3.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Close Zbrush</p></li>
+<li><p>Search of these files and delete them</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ZlmData</p></li>
+<li><p>zLayerManager.txt</p></li>
+<li><p>zLayerManager.zsc</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Extract the content of <cite>ZLayerManager.zip</cite> in the current <cite>ZPlugs64</cite> folder. (You should now see a new file <cite>zLayerManager.txt</cite> and a new folder <cite>ZlmData</cite>).</p></li>
+<li><p>Open Zbrush</p></li>
+<li><p>Open the <cite>Zscript</cite> palette and click on <cite>Load</cite></p></li>
+<li><p>Browse to the previously extracted <cite>zLayerManager.txt</cite> file.</p></li>
+<li><p>You should now see the <cite>zLayerManager</cite> menu at the bottom of the <cite>Zplugin</cite> palette.</p></li>
+<li><p>ZLayerManager is now ready to use !</p></li>
+</ol>
+<p>Click on <cite>open</cite> to open the standalone UI. <em>Note: You must have a subtool selected to open the UI</em></p>
+</div>
+<div class="section" id="application">
+<h2>Application<a class="headerlink" href="#application" title="Permalink to this headline">¶</a></h2>
+<p>ZLayerManager can be use as a bridge between ZBrush and other application.  It facilitate the process of exporting and importing mesh
+from your favorite 3D software.</p>
+<p>It can be used to quickly update blendshape and see the result in action.</p>
+<p>Right now, Zlm only support Maya, but it is possible to develop your own package for the application of your choice.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#download">Download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#application">Application</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="application/maya.html">Maya</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="userguide/index.html">User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="userguide/settings.html">Settings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="userguide/settings.html#core">Core</a></li>
-<li class="toctree-l3"><a class="reference internal" href="userguide/settings.html#external-application">External Application</a></li>
-<li class="toctree-l3"><a class="reference internal" href="userguide/settings.html#layer-edit">Layer edit</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="userguide/preset.html">Preset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="userguide/layerdisplay.html">Layer display</a></li>
-<li class="toctree-l2"><a class="reference internal" href="userguide/export.html">Export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="userguide/import.html">Import</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="application/maya.html">Maya</a></li>
 </ul>
 </div>
 </div>
@@ -219,8 +227,10 @@ as a bridge with other application.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="application/maya.html" class="btn btn-neutral float-right" title="Maya" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="ZLayerManager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

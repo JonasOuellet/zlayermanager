@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Preset &mdash; ZLayerManager 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Layer display" href="layerdisplay.html" />
+    <link rel="prev" title="Settings" href="settings.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ZLayerManager
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#download">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#application">Application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../application/maya.html">Maya</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="settings.html#core">Core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="settings.html#external-application">External Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="settings.html#layer-edit">Layer edit</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Preset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layerdisplay.html">Layer display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="export.html">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="import.html">Import</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ZLayerManager</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+      <li>Preset</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="preset">
+<h1>Preset<a class="headerlink" href="#preset" title="Permalink to this headline">¶</a></h1>
+<p>Preset can be used if you want to activate multiple layers at the same time and set a specific layer to record.</p>
+<p>It can be useful when you are sculpting facial blenshape and you have additive blenshape where as a layer need other layer
+activated deform correctly.</p>
+<p>There are two type of layer preset:</p>
+<ul class="simple">
+<li><p><strong>Read-only</strong>: Located in <em>ZlmData\presets</em> under the Zbrush startup plug folder, this type of presets can’t be edited by the user.  This is probably where you want to put a presets file that you want to share with other users.</p></li>
+<li><p><strong>Editable</strong>: Located in <em>C:\Users\{username}\zLayerManager\presets</em>.  This is the default preset type and this is where the preset file will be saved when you create a new preset.</p></li>
+</ul>
+<p>In the first row, there is a drop down list that list all the available preset file, a <strong>+</strong> button to create and a <strong>-</strong> to remove a
+preset file.</p>
+<p>In second row:</p>
+<ul class="simple">
+<li><p>A list of off the available preset name</p></li>
+<li><p>Save button, this will override the current preset with the actual layer configuration (it will remember which layer is activated and recoding so you can apply this preset later).</p></li>
+<li><p>Add button, this will create a new preset with the actual layer configuration.</p></li>
+<li><p>Remove button, this will remove the current preset.</p></li>
+</ul>
+<p>Lastly, there is the most important of all the <strong>activate</strong> button to activate the current preset.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="layerdisplay.html" class="btn btn-neutral float-right" title="Layer display" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="settings.html" class="btn btn-neutral float-left" title="Settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Jonathan Ouellet
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    <div style="display: flex;justify-content: flex-end; margin-top: 20px;" id="donation">
+        <span>Buy me a beer :)</span>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+        <input type="hidden" name="cmd" value="_donations" />
+        <input type="hidden" name="business" value="ASJZUJAP8ZWB2" />
+        <input type="hidden" name="currency_code" value="CAD" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
+        </form>
+        </div>
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
