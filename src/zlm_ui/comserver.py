@@ -3,7 +3,7 @@ from multiprocessing.connection import Listener, Client
 
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 
-from zlm_settings import ZlmSettings
+from zlm_sender.communicate import set_port, delete_port
 
 
 SECRET = bytes('secret', 'utf-8')
@@ -29,12 +29,17 @@ class CommunicationDeamon(QThread):
 
             self.commandReceived.emit(msg)
 
+    def get_port(self):
+        return self.listener.address[1]
+
+    def get_address(self):
+        return self.listener.address
+
 
 class CommunicationServer(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._deamon = None
-        self.settings = ZlmSettings.instance()
 
         self._address = None
         self._command_dict = {}
@@ -47,8 +52,12 @@ class CommunicationServer(QObject):
 
     def start(self):
         if not self.isRunning():
-            self._address = ('localhost', self.settings.communication_port)
+            self._address = ('localhost', 0)
             self._deamon = CommunicationDeamon(self._address)
+            # get the port and save it to setting file.
+            self._address = self._deamon.get_address()
+            set_port(self._address[1])
+
             self._deamon.commandReceived.connect(self._oncommand)
             self._deamon.start()
         else:
@@ -59,6 +68,7 @@ class CommunicationServer(QObject):
         client.send(['stop'])
         client.close()
 
+        delete_port()
         # wait for thread to finish
         while self._deamon.isRunning():
             time.sleep(0.001)

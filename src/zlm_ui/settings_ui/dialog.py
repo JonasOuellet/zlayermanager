@@ -95,6 +95,7 @@ class SettingsDialog(Qt.QDialog):
         for tab in self.settings_tabs:
             tab.save(settings)
 
+        settings.save_to_file()
         self.accept()
 
     def discard_settings(self):

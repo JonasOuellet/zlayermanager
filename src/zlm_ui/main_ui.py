@@ -1,5 +1,6 @@
 import sys
 import os
+import webbrowser
 
 from PyQt5 import Qt, QtCore
 
@@ -41,6 +42,9 @@ class ZlmMainUI(Qt.QMainWindow):
         pb_option = Qt.QPushButton(Qt.QIcon(':/gear.png'), '')
         pb_option.clicked.connect(self.show_option)
 
+        pb_help = Qt.QPushButton(Qt.QIcon(':/help.png'), '')
+        pb_help.clicked.connect(self.open_help_url)
+
         topLayout = Qt.QHBoxLayout()
         topLayout.addWidget(self.lbl_subtool)
         topLayout.addStretch()
@@ -48,6 +52,7 @@ class ZlmMainUI(Qt.QMainWindow):
         topLayout.addWidget(Qt.QLabel("Layers"), 0, Qt.Qt.AlignRight)
         topLayout.addSpacing(20)
         topLayout.addWidget(pb_option)
+        topLayout.addWidget(pb_help)
 
         mainLayout = Qt.QVBoxLayout()
 
@@ -117,12 +122,10 @@ class ZlmMainUI(Qt.QMainWindow):
     def show_option(self):
         settings_dialog = SettingsDialog(self)
         if settings_dialog.exec():
-            # check if communication port has changed if so restart
-            # communication server
-            if ZlmSettings.instance().communication_port != self.com_server._address[1]:
-                self.com_server.restart()
-
             self.settings_changed.emit()
+
+    def open_help_url(self):
+        webbrowser.open("https://jonasouellet.github.io/zlayermanager/userguide/index.html")
 
     def update_layer_count(self, *args, **kwargs):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))

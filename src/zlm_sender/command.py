@@ -1,7 +1,7 @@
 import os
 import sys
 
-from zlm_sender.communicate import Connection, ZlmSettings
+from zlm_sender.communicate import Connection
 from zlm_app import send_app_cmd
 
 

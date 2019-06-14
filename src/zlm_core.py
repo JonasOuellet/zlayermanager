@@ -181,8 +181,12 @@ class ZlmLayers(object):
 
     def rename_layer(self, layer, new_name):
         if new_name and new_name != layer.name:
-            old_name = layer.name
             self.instances[layer.name].remove(layer)
+            # remove if empty
+            if len(self.instances[layer.name]) == 0:
+                self.instances.pop(layer.name)
+
+            old_name = layer.name
             new_name = self.validate_layer_name(new_name)
             layer.name = new_name
             l = self.instances.get(new_name, [])
