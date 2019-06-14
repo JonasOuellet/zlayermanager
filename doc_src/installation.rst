@@ -24,7 +24,7 @@ Once the `ZLayerManager.zip` is downloaded:
 to step 3.
 
     #. Close Zbrush
-    #. Search of these files and delete them
+    #. Search for these files and delete them
 
         * ZlmData
         * zLayerManager.txt
@@ -37,7 +37,15 @@ to step 3.
 7. You should now see the `zLayerManager` menu at the bottom of the `Zplugin` palette.
 8. ZLayerManager is now ready to use !
 
-Click on `open` to open the standalone UI. *Note: You must have a subtool selected to open the UI*
+Click on `open` to open the standalone UI.
+
+.. raw:: html
+
+    <div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
+    border: 5px groove black; border-radius: 10px;">
+    <h3>Warning</h3>You must have a subtool selected to open the UI
+    </div>
+
 
 
 Application

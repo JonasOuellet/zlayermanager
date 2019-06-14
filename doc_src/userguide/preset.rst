@@ -8,11 +8,11 @@ activated deform correctly.
 
 There are two type of layer preset:
 
-* **Read-only**: Located in *ZlmData\\presets* under the Zbrush startup plug folder, this type of presets can't be edited by the user.  This is probably where you want to put a presets file that you want to share with other users.
+* **Read-only**: Located in *ZlmData\\presets* under the Zbrush startup plug folder, this type of preset can't be edited by the user.  This is probably where you want to put a preset file that you want to share with other users.
 
 * **Editable**: Located in *C:\\Users\\{username}\\zLayerManager\\presets*.  This is the default preset type and this is where the preset file will be saved when you create a new preset.
 
-In the first row, there is a drop down list that list all the available preset file, a **+** button to create and a **-** to remove a
+In the first row, there is a drop down list that show all the available preset file, a **+** button to create and a **-** to remove a
 preset file.
 
 In second row:

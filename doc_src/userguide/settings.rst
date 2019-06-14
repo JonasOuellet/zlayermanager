@@ -11,19 +11,19 @@ This is the UI where the user will edit all the settings for the tool.  The edit
 Core
 ----
 
-**File Folder** Where file will be exported.
+**File Folder:** Where files will be exported.
 
 
 External Application
 --------------------
 
-This is the settings to configure to use ZLm has a bridge between Zbrush and other 3D softwares.
+These settings must be configured to be able to use ZLm has a bridge between Zbrush and other 3D softwares.
 
-**Send to app** Will automaticale import the layer export from ZBrush in the *Current Application*
+**Send to app:** Will automaticale import the layer export from ZBrush in the *Current Application*
 
-**Current Application**: Select the current application to communicate with.
+**Current Application:** Select the current application to communicate with.
 
-**Application list**: Application Name, communication port (same port has used in application
+**Application list:** Application Name, communication port (same port has used in application
 to receive command), preferred file format for export/import.
 
 * **+** Add setting for a new application.
