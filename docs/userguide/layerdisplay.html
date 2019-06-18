@@ -98,7 +98,12 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="preset.html">Preset</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Layer display</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Layer display</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edition-context-menu">Edition context menu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rename">Rename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hot-keys">Hot Keys</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="export.html">Export</a></li>
 <li class="toctree-l2"><a class="reference internal" href="import.html">Import</a></li>
 </ul>
@@ -169,6 +174,41 @@
             
   <div class="section" id="layer-display">
 <h1>Layer display<a class="headerlink" href="#layer-display" title="Permalink to this headline">¶</a></h1>
+<p>This is where the layers are displayed and this is where most of the layer edition operation take place.</p>
+<ul class="simple">
+<li><p><strong>Activate/deactive</strong> a layer by clicking on the <strong>eye</strong> button.</p></li>
+<li><p><strong>Record</strong> as layer by clicking on the <strong>REC</strong> button</p></li>
+<li><p><strong>Change intensity</strong> by dragging the slider</p></li>
+</ul>
+<p>The user can filter layers by name or by mode (Deactivated, Activated, Recording) with the <strong>funnel</strong> button.</p>
+<div class="section" id="edition-context-menu">
+<h2>Edition context menu<a class="headerlink" href="#edition-context-menu" title="Permalink to this headline">¶</a></h2>
+<a class="align-right reference internal image-reference" href="../_images/contextmenu.png"><img alt="../_images/contextmenu.png" class="align-right" src="../_images/contextmenu.png" style="width: 260.8px; height: 288.0px;" /></a>
+<p>Right clicking in the view open menu with additional operation:</p>
+<ul class="simple">
+<li><p><strong>Rename layer</strong> rename the selected layer if there is only one selected otherwise rename the layer under the mouse cursor.</p></li>
+<li><p><strong>Rename selected layers</strong> Open <a class="reference internal" href="#rename">Rename</a> dialog.</p></li>
+<li><p><strong>Fix up layers name</strong> This option will remove any layer name duplicates and remove any fancy characters (&amp;*-%^) that can be used in Zbrush when naming the layer but that is not accepted in other software or for a file name.</p></li>
+</ul>
+<p><em>The rest of the operations are pretty self explanatory</em></p>
+</div>
+<div class="section" id="rename">
+<h2>Rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h2>
+<img alt="../_images/rename.png" class="align-right" src="../_images/rename.png" />
+<p>User has the posibility to rename multiple layer at the same time.  This window is avaible in the <a class="reference internal" href="#edition-context-menu">Edition context menu</a> when the user have
+two or more layers selected.</p>
+<div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
+border: 5px groove black; border-radius: 10px; display: inline-block;">
+<h3>Warning</h3>Layer can only have a maximum of 15 characters so the resulting name might be stripped down.
+</div></div>
+<div class="section" id="hot-keys">
+<h2>Hot Keys<a class="headerlink" href="#hot-keys" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Ctrl+A</strong> Select all layers currently displayed.</p></li>
+<li><p><strong>Ctrl+I</strong> Inverse selection</p></li>
+<li><p><strong>Ctrl+X</strong> Clear selection</p></li>
+</ul>
+</div>
 </div>
 
 
