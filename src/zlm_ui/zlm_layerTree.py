@@ -226,6 +226,8 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self.setHeaderLabels(column_names)
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
 
+        self.header().setSectionResizeMode(2, Qt.QHeaderView.ResizeToContents)
+
         # column resizing
         self._is_resizing = False
         self.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)

@@ -22,7 +22,8 @@ class ZlmMainUI(Qt.QMainWindow):
     settings_changed = QtCore.pyqtSignal()
 
     default_settings = {
-        'geometry': None
+        'geometry': None,
+        'always_on_top': False
     }
 
     def __init__(self, file_path=None):
@@ -32,7 +33,9 @@ class ZlmMainUI(Qt.QMainWindow):
         self.setWindowTitle("ZLayerManager")
         self._apply_custom_stylesheet()
         self.setWindowIcon(Qt.QIcon(':/zbrush.png'))
-        # self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+
+        # Qt.Qt.WindowFlags
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, self.settings.get("always_on_top", False))
 
         self.tw_widget = ZlmLayerWidget(self)
         self.lbl_subtool = Qt.QLabel("SubTool: ")
@@ -122,6 +125,14 @@ class ZlmMainUI(Qt.QMainWindow):
     def show_option(self):
         settings_dialog = SettingsDialog(self)
         if settings_dialog.exec():
+            always_on_top = self.settings.get("always_on_top", False)
+            flags = self.windowFlags()
+            on_top = flags & QtCore.Qt.WindowStaysOnTopHint == QtCore.Qt.WindowStaysOnTopHint 
+            print(on_top, always_on_top)
+            if on_top != always_on_top:
+                self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, always_on_top)
+                self.show()
+
             self.settings_changed.emit()
 
     def open_help_url(self):

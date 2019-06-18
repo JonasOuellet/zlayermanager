@@ -159,12 +159,10 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
 
 def create_layer(layer):
     with zsc.ZScript(zlm_settings.SCRIPT_PATH):
-        # zsc.SubdivStore()
-
-        # zsc.SubdivMax()
-        # zsc.DeactivateRecord()
-
+        zsc.SubdivStore()
+        zsc.SubdivMax()
         zsc.CreateLayer(layer)
+        zsc.SubdivRestore()
 
     _send_script()
 

@@ -2,9 +2,8 @@ import os
 
 from maya import cmds
 
-from zlm_core import ZlmSettings
+from zlm_core import ZlmSettings, communication
 from zlm.zlm_utils import load_obj_plugin
-from zlm import zlm_sender
 
 
 def _export_mesh(obj, settings):
@@ -45,7 +44,7 @@ def _export(objs, base=False):
             if base:
                 args[0] = 'i_base'
                 args.pop(3)
-            zlm_sender.send_command(*args)
+            communication.send_command(*args)
 
         except Exception as e:
             print "Error when exporting mesh: {}. {}".format(obj, str(e))

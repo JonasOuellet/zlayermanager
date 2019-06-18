@@ -17,14 +17,22 @@ class CoreSettingWidget(SettingsTabBase):
         self.pb_working_browse.clicked.connect(self.browse_working_folder)
         self.pb_working_reset.clicked.connect(self.reset_working_folder)
 
+        self.pb_always_on_top = Qt.QPushButton("Window always on top")
+        self.pb_always_on_top.setCheckable(True)
+
         work_layout = Qt.QHBoxLayout()
         work_layout.addWidget(Qt.QLabel("File Folder: "), 0)
         work_layout.addWidget(self.le_working_folder, 1)
         work_layout.addWidget(self.pb_working_browse, 0)
         work_layout.addWidget(self.pb_working_reset, 0)
 
+        bottom_layout = Qt.QHBoxLayout()
+        bottom_layout.addWidget(self.pb_always_on_top)
+        bottom_layout.addStretch()
+
         layout = Qt.QVBoxLayout()
         layout.addLayout(work_layout)
+        layout.addLayout(bottom_layout)
 
         self.set_layout(layout)
 
@@ -37,9 +45,6 @@ class CoreSettingWidget(SettingsTabBase):
 
     def reset_working_folder(self):
         self.le_working_folder.setText(self.DEFAULT_SETTINGS.working_folder)
-
-    def reset_port(self):
-        self.sb_com_port.setValue(self.DEFAULT_SETTINGS.communication_port)
 
     #
     # Base class method
@@ -58,9 +63,16 @@ class CoreSettingWidget(SettingsTabBase):
 
     def save(self, settings):
         settings.working_folder = self.le_working_folder.text()
+        try:
+            settings['ui']['always_on_top'] = self.pb_always_on_top.isChecked()
+        except:
+            pass
 
     def update(self, settings):
         self.le_working_folder.setText(settings.working_folder)
-
+        try:
+            self.pb_always_on_top.setChecked(settings['ui']['always_on_top'])
+        except:
+            self.pb_always_on_top.setChecked(False)
 
 register_setting_tab(CoreSettingWidget)
