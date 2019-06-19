@@ -23,7 +23,7 @@ Once the `ZLayerManager.zip` is downloaded:
 2. **If you have already installed a version of ZLayerManager before**, make sure to follow these steps, otherwise you can go 
 to step 3.
 
-    #. Close Zbrush
+    #. Close Zbrush and Zlm
     #. Search for these files and delete them
 
         * ZlmData

@@ -59,6 +59,10 @@
           
             
             
+              <div class="version">
+                0.1
+              </div>
+            
           
 
           
@@ -81,22 +85,9 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#download">Download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#application">Application</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../application/maya.html">Maya</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="settings.html#core">Core</a></li>
-<li class="toctree-l3"><a class="reference internal" href="settings.html#external-application">External Application</a></li>
-<li class="toctree-l3"><a class="reference internal" href="settings.html#layer-edit">Layer edit</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="preset.html">Preset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="layerdisplay.html">Layer display</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Export</a></li>
@@ -169,6 +160,18 @@
             
   <div class="section" id="export">
 <h1>Export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h1>
+<p>This is used to export layer from Zbrush.</p>
+<p>If an <strong>External Application</strong> is set up and <strong>Send to app</strong> is checked, exported layer(s) will be automatically imported
+in your 3D software.</p>
+<p>You don’t need to have an <strong>External Application</strong> set up to use export functions.  If you don’t
+have one set up and/or you don’t have <strong>Send to app</strong> checked, it will only export to the specified <strong>File folder</strong>.</p>
+<p><strong>All:</strong> Export all layers.</p>
+<p><strong>Selected:</strong> Export selected layer(s).</p>
+<p><strong>Active:</strong> Export active layer(s).</p>
+<p><strong>Record:</strong> Export layer that is currently recording.</p>
+<p><strong>Base Mesh:</strong> Export base subtool (with no layer active).</p>
+<p><strong>Subdivision:</strong> Export <em>mesh</em> with the specified subdivision level. By default, the subdivision is 1. <strong>Warning:</strong> using
+a too high subdivision level might extremely slow the process.</p>
 </div>
 
 
@@ -199,13 +202,13 @@
     <div style="display: flex;justify-content: flex-end; margin-top: 20px;" id="donation">
         <span>Buy me a beer :)</span>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-        <input type="hidden" name="cmd" value="_donations" />
-        <input type="hidden" name="business" value="ASJZUJAP8ZWB2" />
-        <input type="hidden" name="currency_code" value="CAD" />
-        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-        <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
+            <input type="hidden" name="cmd" value="_donations" />
+            <input type="hidden" name="business" value="ASJZUJAP8ZWB2" />
+            <input type="hidden" name="currency_code" value="USD" />
+            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+            <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
         </form>
-        </div>
+    </div>
 
 
 </footer>

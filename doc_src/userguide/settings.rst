@@ -19,7 +19,7 @@ External Application
 
 These settings must be configured to be able to use ZLm has a bridge between Zbrush and other 3D softwares.
 
-**Send to app:** Will automaticale import the layer export from ZBrush in the *Current Application*
+**Send to app:** Will automaticale import the layer exported from ZBrush in the *Current Application*
 
 **Current Application:** Select the current application to communicate with.
 
