@@ -13,6 +13,60 @@ from zlm_ui.comserver import CommunicationServer
 from zlm_ui.settings_ui import SettingsDialog
 from zlm_to_zbrush import import_base, import_layer
 import zlm_app
+import version
+
+
+class VersionThread(QtCore.QThread):
+    completed = QtCore.pyqtSignal(bool)
+
+    def __init__(self, wait_time=500):
+        QtCore.QThread.__init__(self)
+
+        self.wait_time = wait_time
+
+    def run(self, *args, **kwargs):
+        self.msleep(self.wait_time)
+        valid = True
+        try:
+            valid = version.is_version_valid()
+        except:
+            pass
+
+        self.completed.emit(valid)
+
+
+class VersionDialog(Qt.QDialog):
+
+    def __init__(self, parent):
+        Qt.QDialog.__init__(self, parent, QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+
+        self.setWindowTitle("New version available")
+
+        self.cb_check_for_update = Qt.QPushButton("Always check for updates.")
+        self.cb_check_for_update.setCheckable(True)
+        self.cb_check_for_update.setChecked(ZlmSettings.instance().check_for_updates)
+
+        pb_download = Qt.QPushButton("Download")
+        pb_download.clicked.connect(self.accept)
+
+        pb_cancel = Qt.QPushButton("Cancel")
+        pb_cancel.clicked.connect(self.reject)
+
+        label = Qt.QLabel("A new version is available. Would you like to download it?")
+        label.setWordWrap(True)
+
+        layout = Qt.QGridLayout()
+
+        layout.addWidget(label, 0, 0, 1, 2)
+        layout.addWidget(self.cb_check_for_update, 1, 0, 1, 2)
+        layout.addItem(Qt.QSpacerItem(0, 10, Qt.QSizePolicy.Preferred, Qt.QSizePolicy.Fixed), 2, 0, 1, 2)
+        layout.addWidget(pb_download, 3, 0, 1, 1)
+        layout.addWidget(pb_cancel, 3, 1, 1, 1)
+
+        self.setLayout(layout)
+
+    def stop_looking_for_update(self):
+        return not self.cb_check_for_update.isChecked()
 
 
 class ZlmMainUI(Qt.QMainWindow):
@@ -30,7 +84,7 @@ class ZlmMainUI(Qt.QMainWindow):
         Qt.QMainWindow.__init__(self)
         self.settings = ZlmSettings.instance().get('ui', self.default_settings)
 
-        self.setWindowTitle("ZLayerManager")
+        self.setWindowTitle("ZLayerManager v{}".format(version.current_version))
         self._apply_custom_stylesheet()
         self.setWindowIcon(Qt.QIcon(':/zbrush.png'))
 
@@ -86,10 +140,40 @@ class ZlmMainUI(Qt.QMainWindow):
         self.com_server.add_callback('i_base', import_base)
         self.com_server.start()
 
+        self._firstTime = True
+        self._version_thread = None
+
     def showEvent(self, event):
         self.showing.emit()
 
+        if self._firstTime:
+            self._firstTime = False
+
+            if ZlmSettings.instance().check_for_updates:
+                self.check_for_updates()
+
+    def check_for_updates(self):
+        if self._version_thread is None:
+            self._version_thread = VersionThread()
+            self._version_thread.start()
+            self._version_thread.completed.connect(self.on_valid_version)
+
+    def on_valid_version(self, valid):
+        if not valid:
+            dialog = VersionDialog(self)
+            if dialog.exec_():
+                webbrowser.open("https://jonasouellet.github.io/zlayermanager/installation.html")
+
+            if dialog.stop_looking_for_update():
+                ZlmSettings.instance().check_for_updates = False
+
+        self._version_thread = None
+
     def closeEvent(self, event):
+        if self._version_thread and self._version_thread.isRunning():
+            self._version_thread.terminate()
+            self._version_thread.wait()
+
         self.com_server.stop()
         self.closing.emit()
 
@@ -124,14 +208,17 @@ class ZlmMainUI(Qt.QMainWindow):
 
     def show_option(self):
         settings_dialog = SettingsDialog(self)
+        was_check_updates = ZlmSettings.instance().check_for_updates
         if settings_dialog.exec():
             always_on_top = self.settings.get("always_on_top", False)
             flags = self.windowFlags()
-            on_top = flags & QtCore.Qt.WindowStaysOnTopHint == QtCore.Qt.WindowStaysOnTopHint 
-            print(on_top, always_on_top)
+            on_top = flags & QtCore.Qt.WindowStaysOnTopHint == QtCore.Qt.WindowStaysOnTopHint
             if on_top != always_on_top:
                 self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, always_on_top)
                 self.show()
+
+            if not was_check_updates and ZlmSettings.instance().check_for_updates:
+                self.check_for_updates()
 
             self.settings_changed.emit()
 

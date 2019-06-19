@@ -25,6 +25,8 @@ class ZlmSettings(object):
     def __init__(self, auto_load=True):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
 
+        self.check_for_updates = True
+
         self.send_after_export = False
         self.current_app = 'Maya'
         self.app_settings = {

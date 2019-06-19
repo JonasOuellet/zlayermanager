@@ -20,6 +20,9 @@ class CoreSettingWidget(SettingsTabBase):
         self.pb_always_on_top = Qt.QPushButton("Window always on top")
         self.pb_always_on_top.setCheckable(True)
 
+        self.pb_check_for_updates = Qt.QPushButton("Check for updates")
+        self.pb_check_for_updates.setCheckable(True)
+
         work_layout = Qt.QHBoxLayout()
         work_layout.addWidget(Qt.QLabel("File Folder: "), 0)
         work_layout.addWidget(self.le_working_folder, 1)
@@ -28,6 +31,7 @@ class CoreSettingWidget(SettingsTabBase):
 
         bottom_layout = Qt.QHBoxLayout()
         bottom_layout.addWidget(self.pb_always_on_top)
+        bottom_layout.addWidget(self.pb_check_for_updates)
         bottom_layout.addStretch()
 
         layout = Qt.QVBoxLayout()
@@ -68,11 +72,15 @@ class CoreSettingWidget(SettingsTabBase):
         except:
             pass
 
+        settings.check_for_updates = self.pb_check_for_updates.isChecked()
+
     def update(self, settings):
         self.le_working_folder.setText(settings.working_folder)
         try:
             self.pb_always_on_top.setChecked(settings['ui']['always_on_top'])
         except:
             self.pb_always_on_top.setChecked(False)
+
+        self.pb_check_for_updates.setChecked(settings.check_for_updates)
 
 register_setting_tab(CoreSettingWidget)
