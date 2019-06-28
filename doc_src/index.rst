@@ -15,12 +15,12 @@ ZLayerManager can be used for facial blendshape sculpting with over 100 layers o
 This is an open source project and all the code is available on `github
 <https://github.com/JonasOuellet/zLayerManager>`_.  
 
-Although, the tool is free of use, your support is welcome.  Encourage me by doing a `donation
+Although, the tool is free of use, your support is welcome.  Support me by doing a `donation
 <#donation>`_.
 
 .. raw:: html
 
-    <div style="margin: 20px 0 20px 0; text-align: right;">
+    <div style="margin: 40px 0 10px 0; text-align: right;">
         <a href="installation.html" style="background-color: DodgerBlue; border: none; color: white; padding: 12px 30px; cursor: pointer; font-size: 20px;">Download</a>
     </div>
 
