@@ -1,7 +1,7 @@
 Installation
 ============
 
-Zlm is only available for windows for now. However, if you are a more advance user you can build it from
+Zlm is **only available for windows** for now. However, if you are a more advance user you can build it from
 source, see how on the project `github
 <https://github.com/JonasOuellet/zLayerManager>`_. 
 
@@ -10,7 +10,7 @@ Download
 --------
 
 You can download the latest version `here
-<https://www37.zippyshare.com/d/jEVxvUFP/50254/ZLayerManager.zip>`_.
+<https://www36.zippyshare.com/d/3Ugmh2Ml/8500/zlayermanager.zip>`_.
 
 
 Install

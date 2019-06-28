@@ -18,12 +18,31 @@ This is an open source project and all the code is available on `github
 Although, the tool is free of use, your support is welcome.  Encourage me by doing a `donation
 <#donation>`_.
 
+.. raw:: html
+
+    <div style="margin: 20px 0 20px 0; text-align: right;">
+        <a href="installation.html" style="background-color: DodgerBlue; border: none; color: white; padding: 12px 30px; cursor: pointer; font-size: 20px;">Download</a>
+    </div>
+
+
+Basic Operations
+================
 
 .. raw:: html
 
     <!-- https://jameshfisher.com/2017/08/30/how-do-i-make-a-full-width-iframe/ -->
     <div style="position:relative;padding-top:56.25%;margin-bottom:60px">
         <iframe src="https://player.vimeo.com/video/340784913" frameborder="0" allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+    </div>
+
+Bridge with Maya
+================
+
+.. raw:: html
+
+    <div style="position:relative;padding-top:56.25%;margin-bottom:60px">
+        <iframe src="https://player.vimeo.com/video/343273883" frameborder="0" allowfullscreen
             style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
     </div>
 

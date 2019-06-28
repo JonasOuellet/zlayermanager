@@ -13,6 +13,10 @@ Core
 
 **File Folder:** Where files will be exported.
 
+**Window always on top:** Set Zlm window to be on top of other windows.
+
+**Check for update:** Check for any updates when the tool launch.
+
 
 External Application
 --------------------
@@ -39,7 +43,7 @@ Layer edit
 
     <div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
     border: 5px groove black; border-radius: 10px;">
-    <h3>Warning</h3>This operation may drastically increase the operation time based on the layer count and
+    <h3>Warning</h3>This operation may drastically increase the duplication time based on the layer count and
     the position of the layer in the list
     </div>
 
