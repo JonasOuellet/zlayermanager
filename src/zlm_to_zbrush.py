@@ -60,9 +60,9 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
 
     settings = zlm_settings.instance()
     # check if port if valid.
-    app_import = settings.get_current_app_port() is not None
+    app_import = settings.get_current_app_port() is not None and settings.send_after_export
 
-    out_folder = settings.working_folder
+    out_folder = settings.get_export_folder()
     out_format = settings.get_current_app_format()
 
     quote = zsc.Quote.get()

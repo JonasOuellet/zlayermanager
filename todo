@@ -3,3 +3,9 @@
 - Auto update
 - Bugs reporter
 - system hook
+
+
+
+- BUGS:
+    - When importing a new layer then set it to record, it also activate the layer before
+    

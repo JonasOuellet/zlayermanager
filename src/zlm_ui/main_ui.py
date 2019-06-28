@@ -162,7 +162,10 @@ class ZlmMainUI(Qt.QMainWindow):
         if not valid:
             dialog = VersionDialog(self)
             if dialog.exec_():
-                webbrowser.open("https://jonasouellet.github.io/zlayermanager/installation.html")
+                try:
+                    webbrowser.open("https://jonasouellet.github.io/zlayermanager/installation.html")
+                except:
+                    pass
 
             if dialog.stop_looking_for_update():
                 ZlmSettings.instance().check_for_updates = False
@@ -223,7 +226,10 @@ class ZlmMainUI(Qt.QMainWindow):
             self.settings_changed.emit()
 
     def open_help_url(self):
-        webbrowser.open("https://jonasouellet.github.io/zlayermanager/userguide/index.html")
+        try:
+            webbrowser.open("https://jonasouellet.github.io/zlayermanager/userguide/index.html")
+        except:
+            pass
 
     def update_layer_count(self, *args, **kwargs):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))

@@ -67,7 +67,7 @@ class SettingsDialog(Qt.QDialog):
             except:
                 pass
 
-    def closeEvent(self, event):
+    def save_state(self):
         for tab in self.settings_tabs:
             tab.on_close()
             self.settings['tabs'][tab.name]['collapsed'] = tab.is_collapsed()
@@ -76,6 +76,8 @@ class SettingsDialog(Qt.QDialog):
         self.settings['geometry'] = [geo.x(), geo.y(), geo.width(), geo.height()]
 
     def accept_settings(self):
+        self.save_state()
+
         settings = zlm_settings.ZlmSettings.instance()
         settings_tmp = copy.deepcopy(settings)
         for tab in self.settings_tabs:
@@ -104,3 +106,7 @@ class SettingsDialog(Qt.QDialog):
     def showEvent(self, event):
         for tab in self.settings_tabs:
             tab.on_show()
+
+    def reject(self):
+        self.save_state()
+        Qt.QDialog.reject(self)
