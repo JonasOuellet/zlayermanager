@@ -10,7 +10,7 @@ Download
 --------
 
 You can download the latest version `here
-<https://www36.zippyshare.com/d/3Ugmh2Ml/8500/zlayermanager.zip>`_.
+<https://github.com/JonasOuellet/zlayermanager/releases>`_.
 
 
 Install
@@ -39,12 +39,14 @@ to step 3.
 
 Click on `open` to open the standalone UI.
 
-.. raw:: html
+.. warning::
+    - If this is the first time you use the tool and it freeze ZBrush when opening it, the os is preventing you from using the tool, you have to open it manually and say that you trust the tool.
+      
+      - Close Zbrush
+      - Navigate to ZlmData\zlm_ui.exe and open it.
+      - Awnser trust and open anyway.
 
-    <div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
-    border: 5px groove black; border-radius: 10px;">
-    <h3>Warning</h3>You must have a subtool selected to open the UI
-    </div>
+    - You must have a subtool selected to open the UI
 
 
 

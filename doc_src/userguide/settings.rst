@@ -39,13 +39,9 @@ Layer edit
 
 **Move duplicated layer down:** Will move the new layer down the layer list when the user duplicate a layer.
 
-.. raw:: html
-
-    <div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
-    border: 5px groove black; border-radius: 10px;">
-    <h3>Warning</h3>This operation may drastically increase the duplication time based on the layer count and
+.. warning::
+    This operation may drastically increase the duplication time based on the layer count and
     the position of the layer in the list
-    </div>
 
 
 **Ask before delete:** The user will be prompt if he really want to delete the layer(s).  Otherwise, delete the layer(s)

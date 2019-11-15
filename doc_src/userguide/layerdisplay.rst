@@ -29,18 +29,13 @@ Right clicking in the view open menu with additional operation:
 Rename
 ------
 
-.. image:: ../_static/rename.png
-    :class: align-right
-
 User has the posibility to rename multiple layer at the same time.  This window is avaible in the `Edition context menu`_ when the user have
 two or more layers selected.
 
-.. raw:: html
+.. image:: ../_static/rename.png
 
-    <div style="padding: 15px; margin-left:40px; margin-bottom: 30px; background-color: rgb(255, 253, 209);
-    border: 5px groove black; border-radius: 10px; display: inline-block;">
-    <h3>Warning</h3>Layer can only have a maximum of <b>15 characters</b> so the resulting name might be stripped down.
-    </div>
+.. warning::
+    Layer can only have a maximum of **15 characters** so the resulting name might be stripped down.
 
 
 Hot Keys

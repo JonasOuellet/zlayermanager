@@ -66,6 +66,13 @@ Enter `deactivate` in the console.
 
 ## Build
 
+If you are on windows 10 make sure you have windows devkit 10 installed.
+
+If not you can download it [here.](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)
+
+You might also need to change `pathex` value in zlm.spc and zlm_ui.spec to match your location of windows sdk library.
+
+
 To build you have to navigate to `src` folder and activate the virtual environment.
 
 #### Building zlm.exe
