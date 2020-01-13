@@ -48,10 +48,10 @@ def import_obj(file_path):
         cmds.delete(import_name)
     else:
         # clean object set
-        shapes = cmds.listRelatives(import_name, shapes=True)
+        shapes = cmds.listRelatives(import_name, shapes=True, fullPath=True)
         if shapes:
             for shape in shapes:
-                objGroup = cmds.listConnections(shapes, type='objectSet', exactType=True, destination=False)
+                objGroup = cmds.listConnections(shape, type='objectSet', exactType=True, destination=False)
                 if objGroup:
                     cmds.delete(objGroup)
 
@@ -78,7 +78,8 @@ def import_file(file_path):
             import_obj(file_path)
 
         print 'zlm - Import Successfull.'
-    except:
+    except Exception as e:
+        print e
         raise
     finally:
         cmds.select(sel)

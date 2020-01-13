@@ -65,9 +65,11 @@ def callback_rem(cb_type, callback):
 
 def callback_clr(cb_type):
     if cb_type == CBType.import_file:
-        _IMPORT_FILE_CALLBACKS.clear()
+        # _IMPORT_FILE_CALLBACKS.clear()  # only in python 3.x +
+        del _IMPORT_FILE_CALLBACKS[:]
     elif cb_type == CBType.import_all:
-        _IMPORT_ALL_CALLBACKS.clear()
+        # _IMPORT_ALL_CALLBACKS.clear()  # only in python 3.x +
+        del _IMPORT_ALL_CALLBACKS[:]
 
 
 def zlm_import_file(file_path):
