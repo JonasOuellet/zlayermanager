@@ -40,7 +40,7 @@ def _export(objs, base=False):
         try:
             path, name, v_count = _export_mesh(obj, settings)
 
-            args = ['i_layer', settings, path, name, v_count]
+            args = ['i_layer', path, name, v_count]
             if base:
                 args[0] = 'i_base'
                 args.pop(3)

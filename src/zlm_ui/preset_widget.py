@@ -52,11 +52,14 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         self._app_index = 0
         self._user_index = 0
 
+        self.build_presets()
+
+        self.cb_preset_file.currentIndexChanged.connect(self.preset_file_changed)
+
+    def build_presets(self):
         self.update_presets()
         self.build_file_comboBox()
         self.build_preset_combobox()
-
-        self.cb_preset_file.currentIndexChanged.connect(self.preset_file_changed)
 
     def update_presets(self):
         self.presets = zlm_core.load_presets()
@@ -155,8 +158,12 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
     def on_preset_activated(self):
         preset = self.get_current_preset()
-        if preset:
-            zlm_core.apply_preset(preset)
+        if preset is not None:
+            # to avoid any error in preset file.
+            try:
+                zlm_core.apply_preset(preset)
+            except:
+                pass
             self.preset_activated.emit()
             zlm_to_zbrush.send_to_zbrush()
 
@@ -245,7 +252,12 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
         if test == Qt.QMessageBox.StandardButton.Yes:
             self.presets[key][group][preset] = zlm_core.get_layers_as_preset()
-            zlm_core.save_layers_preset(group, self.presets[key][group])
+
+            try:
+                zlm_core.save_layers_preset(group, self.presets[key][group])
+            except:
+                # catch exception if cannot write to file.
+                pass
 
     def ask_for_name(self, title='Enter Name', label='Name: ', text=''):
         dialog = Qt.QInputDialog(self)

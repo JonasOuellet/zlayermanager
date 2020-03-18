@@ -7,7 +7,7 @@ import sys
 import json
 import re
 
-from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH
+from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH, ZlmSettings
 
 invalid_char_re = re.compile('[^A-Za-z0-9_]')
 valid_name_re = "[A-Za-z0-9_]{0,15}"
@@ -301,7 +301,7 @@ def get_preset_folders():
     """
 
     out = {
-        'app': None,
+        'app': [],
         'user': None
     }
 
@@ -313,7 +313,11 @@ def get_preset_folders():
     directory = os.path.join(os.path.dirname(root), 'presets')
     if not os.path.isdir(directory):
         os.makedirs(directory)
-    out['app'] = directory
+    out['app'].append(directory)
+
+    for directory in ZlmSettings.instance().additionnal_preset_dir:
+        if os.path.isdir(directory):
+            out['app'].append(directory)
 
     directory = os.path.expanduser(os.path.join('~', 'zLayerManager', 'presets'))
     if not os.path.isdir(directory):
@@ -328,7 +332,16 @@ def get_preset_file():
     out = {}
     for key, value in folders.items():
         if value:
-            out[key] = tuple(os.path.join(value, f) for f in os.listdir(value) if '.json' in f)
+            try:
+                if not isinstance(value, list):
+                    value = [value]
+                
+                files = []
+                for d in value:
+                    files.extend(os.path.join(d, f) for f in os.listdir(d) if '.json' in f)
+                out[key] = tuple(files)
+            except Exception as e:
+                pass
         else:
             out[key] = ()
     return out
@@ -373,7 +386,11 @@ def load_presets():
         for f in value:
             filename = os.path.basename(f).split('.')[0]
             with open(f, mode='r') as filobj:
-                out[key][filename] = json.load(filobj)
+                # avoid any error with json.
+                try:
+                    out[key][filename] = json.load(filobj)
+                except:
+                    pass
     return out
 
 
@@ -406,43 +423,59 @@ def apply_preset(preset):
     for layer in main_layers.instances_list:
         layer.intensity = 1.0
         layer.mode = 0
+    main_layers.recording_layer = None
 
-    for layer in preset['active']:
-        layers = main_layers.instances.get(layer['name'], None)
+    for layer in preset.get('active', []):
+
+        name = layer.get('name', None)
+        if name is None:
+            break
+
+        layers = main_layers.instances.get(name, None)
         if layers:
+            cl = None
             if len(layers) > 1:
-                # check for index in the array of layer with the same name
-                for l in layers:
-                    if l.index == layer['index']:
-                        cl = l
-                        break
-                else:
-                    # Maybe just skip ?
-                    # cl = layers[0]
-                    continue
+                index = layer.get('index', None)
+                if index is not None:
+                    # check for index in the array of layer with the same name
+                    for l in layers:
+                        if l.index == index:
+                            cl = l
+                            break
+                    # layer not found, do nothing.
             else:
                 cl = layers[0]
 
-            cl.mode = 2
-            cl.intensity = layer['intensity']
+            if cl:
+                cl.mode = 2
+                cl.intensity = layer.get('intensity', 1.0)
 
-    if preset['record']:
-        layers = main_layers.instances.get(preset['record']['name'], None)
-        if layers:
-            if len(layers) > 1:
-                # check for index in the array of layer with the same name
-                for l in layers:
-                    if l.index == layer['index']:
-                        cl = l
-                        break
+    record = preset.get('record', None)
+    if record:
+        name = record.get('name', None)
+
+        if name is not None:
+            layers = main_layers.instances.get(name, None)
+
+            if layers:
+                cl = None
+                if len(layers) > 1:
+                    index = layer.get('index', None)
+                    if index is not None:
+                        # check for index in the array of layer with the same name
+                        for l in layers:
+                            if l.index == index:
+                                cl = l
+                                break
+                        # layer not found, do nothing.
                 else:
-                    # Maybe just skip ?
-                    # cl = layers[0]
-                    return
-            else:
-                cl = layers[0]
+                    cl = layers[0]
 
-            cl.mode = 1
+                if cl:
+                    cl.mode = 1
+                    cl.intensity = 1.0
+
+                    main_layers.recording_layer = cl
 
 
 def save_layers_preset(name, data):
@@ -452,8 +485,3 @@ def save_layers_preset(name, data):
     with open(filepath, mode='w') as f:
         json.dump(data, f, indent=4)
 
-
-startupinfo = None
-if os.name == 'nt':
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW

@@ -56,6 +56,8 @@ class ZlmLayerWidget(Qt.QWidget):
         self.preset_widget.set_collapsed(self.main_ui.settings.get('preset_collapsed', False))
         self.preset_widget.set_current_preset_path(self.main_ui.settings.get('preset_path', None))
 
+        self.main_ui.settings_changed.connect(self.preset_widget.build_presets)
+
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_created, self.tree_widget.layer_created)
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_removed, self.tree_widget.layer_removed)
         zlm_core.main_layers.add_callback(zlm_core.ZlmLayers.cb_layer_updated, self.build)

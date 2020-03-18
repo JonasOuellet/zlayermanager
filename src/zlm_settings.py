@@ -9,7 +9,7 @@ if getattr(sys, 'frozen', False):
     SCRIPT_PATH = os.path.abspath(os.path.join(os.path.dirname(sys.executable), 'zlm.TXT'))
     ZLM_PATH = os.path.abspath(os.path.join(os.path.dirname(sys.executable), 'zlm.exe'))
 else:
-    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2018 FL\ZBrush.exe"
+    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2020 FL\ZBrush.exe"
     SCRIPT_PATH = os.path.join(os.path.dirname(__file__), 'zlm.TXT')
     ZLM_PATH = ''
 
@@ -35,6 +35,8 @@ class ZlmSettings(object):
                 'format': '.obj'
             }
         }
+
+        self.additionnal_preset_dir = []
 
         self.bigData = {}
 

@@ -21,10 +21,7 @@ def _get_port():
         raise Exception("Cannot find port.")
 
 
-def send_command(cmd_name, settings=None, *args):
-    if settings is None:
-        settings = ZlmSettings()
-
+def send_command(cmd_name, *args):
     cmd_args = [cmd_name]
     cmd_args.extend(args)
 

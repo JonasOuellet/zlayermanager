@@ -404,6 +404,8 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def mousePressEvent(self, event):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
         # do nothing if right click button ??
+        if event.button() == Qt.Qt.RightButton:
+            return
         item = self.itemAt(event.pos())
         item_selected = len(self.selectedItems())
         if item and item_selected == 1 and item.isSelected() and event.button() != Qt.Qt.RightButton:
@@ -438,10 +440,14 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         column = self.sortColumn()
         order = self.header().sortIndicatorOrder()
 
+        self.current_item_recording = None
         self.setSortingEnabled(False)
         for key, layers in self.itemDict.items():
             for item in layers:
                 item.update()
+                
+                if item.layer.mode == ZlmLayerMode.record:
+                    self.current_item_recording = item
 
         self.setSortingEnabled(True)
         self.sortByColumn(column, order)
