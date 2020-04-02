@@ -11,7 +11,7 @@ from zlm_ui import resources_rc
 from zlm_ui.layer_widget import ZlmLayerWidget
 from zlm_ui.comserver import CommunicationServer
 from zlm_ui.settings_ui import SettingsDialog
-from zlm_to_zbrush import import_base, import_layer
+from zlm_to_zbrush import import_base, import_layer, send_to_zbrush, send_update_request
 import zlm_app
 import version
 
@@ -138,6 +138,8 @@ class ZlmMainUI(Qt.QMainWindow):
         self.com_server.add_callback('update', self.load_layers)
         self.com_server.add_callback('i_layer', import_layer)
         self.com_server.add_callback('i_base', import_base)
+        self.com_server.add_callback('update_from_zbrush', send_update_request)
+        self.com_server.add_callback('update_zbrush', send_to_zbrush)
         self.com_server.start()
 
         self._firstTime = True

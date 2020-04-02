@@ -97,6 +97,11 @@ class ZlmLayerWidget(Qt.QWidget):
         create_action.triggered.connect(self.create_layer)
 
         selected_layers = self.tree_widget.get_selected_layers()
+
+        if selected_layers:
+            clear_selection_action = Qt.QAction(Qt.QIcon(":/clear.png"), 'Clear Selection', self)
+            clear_selection_action.triggered.connect(self.tree_widget.clearSelection)
+
         layer_under_mouse = self.tree_widget.get_layer_under_mouse()
         suff = 's' if len(selected_layers) > 1 else ''
         if selected_layers:
@@ -124,6 +129,11 @@ class ZlmLayerWidget(Qt.QWidget):
             bulk_rename.triggered.connect(lambda: self.bulk_rename(selected_layers))
 
         menu.addAction(turn_off_action)
+
+        if selected_layers:
+            menu.addSeparator()
+            menu.addAction(clear_selection_action)
+
         menu.addSeparator()
         menu.addAction(create_action)
 

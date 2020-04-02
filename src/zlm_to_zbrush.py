@@ -33,6 +33,9 @@ def _set_layer_state():
 def send_to_zbrush():
     with zsc.ZScript(zlm_settings.SCRIPT_PATH):
         zsc.SubdivStore()
+
+        # always preferable to go to subdiv (i think)
+        # maybe it would only be needed to go to subdiv max is we have a layer recording
         zsc.SubdivMax()
 
         zsc.DeactivateRecord()
@@ -82,7 +85,7 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
         # Deactive any active layers
         for l in zlm_core.main_layers.layers_it(exclude_record=False,
                                                 backward=True):
-            zsc.SetLayerMode(l.name, l.zbrush_index(), 0, 1.0)
+            zsc.SetLayerMode(l.zbrush_index(), 0, 1.0)
 
         zsc.SubdivSet(subdiv)
 
@@ -139,11 +142,11 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
         # Deactive any active layers
         for l in zlm_core.main_layers.layers_it(exclude_record=False,
                                                 backward=True):
-            zsc.SetLayerMode(l.name, l.zbrush_index(), 0, 1.0)
+            zsc.SetLayerMode(l.zbrush_index(), 0, 1.0)
 
         # if layer is specified set this layer mode to record:
         if layer is not None:
-            zsc.SetLayerMode(layer.name, layer.zbrush_index(), 1, 1.0)
+            zsc.SetLayerMode(layer.zbrush_index(), 1, 1.0)
 
         # set 1 to delete file after
         zsc.UpdateMesh(file_path, vertex_count, 1)
@@ -282,3 +285,9 @@ def send_merged_layers(layers):
 
         zsc.SubdivRestore()
     _send_script()
+
+
+def send_update_request():
+    
+    subprocess.call([zlm_settings.ZBRUSH_PATH, zlm_settings.SCRIPT_PATH],
+                    startupinfo=startupinfo)

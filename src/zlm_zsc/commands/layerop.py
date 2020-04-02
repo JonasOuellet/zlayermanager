@@ -6,27 +6,19 @@ class DeactivateRecord(ZRoutine):
     def definition(self, *args, **kwargs):
         return '''
         [RoutineDef, zdr,
-            [If, [IsEnabled, "Tool:Layers:Layer Intensity"],
-                [VarSet, curLayerName, [IGetTitle, "Tool:Layers:Layer Intensity"]]
-                // frame current layer
-                [If, [IsEnabled, Tool:Layers:SelectDown],
-                    [IPress, Tool:Layers:SelectDown]
-                , /* else */
-                    [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
-                ]
-                [If, [IsEnabled, Tool:Layers:SelectUp],
-                    [IPress, Tool:Layers:SelectUp]
-                    [IPress, Tool:Layers:SelectDown]
-                ]
+            [If, [IsDisabled, 351],
+                [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
+            ]
 
-                [VarSet, curLayerPath, [StrMerge, "Tool:Layers:", #curLayerName]]
-                [VarSet, mode, [IModGet, curLayerPath]]
+            // frame current layer if recording
+            [If, [IsDisabled, "Tool:Layers:SelectUp"],
+                [ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
 
-                [If, #mode == 1,
-                    // deactivate Recording
-                    [VarSet, wid, [IWidth,curLayerPath]]
-                    [IClick, curLayerPath, wid-10, 5]
-                ]
+            , /* else */
+                [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
+                [IPress, "Tool:Layers:SelectUp"]
+                [ISet, "Tool:Layers:Layers Scrollbar", 0, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] - 1]
+                [IPress, "Tool:Layers:SelectDown"]
             ]
         ]
         '''
@@ -38,31 +30,29 @@ class SetLayerMode(ZLayerRoutine):
         return '''
         [RoutineDef, zslm,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-            [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
 
             [If, mode == 2,
-                [ISet, layerPath, intensity]
+                [ISet, 351, intensity]
             ]
 
-            [VarSet, curMode, [IModGet, layerPath]]
+            [VarSet, curMode, [IModGet, 351]]
 
             [If, curMode != mode,
-                [VarSet, wid, [IWidth, layerPath]]
+                [VarSet, wid, [IWidth, 351]]
                 [If, mode == 1,
-                    [IClick, layerPath, wid-20, 5]
+                    [IClick, 351, wid-20, 5]
                 ,
                     [If, curMode == 1,
-                        [IClick, layerPath, wid-10, 5]
+                        [IClick, 351, wid-10, 5]
                     ]
-                    [IClick, layerPath, wid-5, 5]
+                    [IClick, 351, wid-5, 5]
                 ]
             ]
-        , layerName, index, mode, intensity]
+        , index, mode, intensity]
         '''
 
     def get_args_from_layer(self, layer):
         return [
-            layer.name,
             layer.zbrush_index(),
             layer.mode,
             layer.intensity
@@ -75,13 +65,12 @@ class SetIntensity(ZLayerRoutine):
         return '''
         [RoutineDef, zi,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-            [ISet, [StrMerge, "Tool:Layers:", #layerName], intensity]
-        , layerName, index, intensity]
+            [ISet, 351, intensity]
+        , index, intensity]
         '''
 
     def get_args_from_layer(self, layer):
         return [
-            layer.name,
             layer.zbrush_index(),
             layer.intensity
         ]
@@ -93,14 +82,13 @@ class ExportLayer(ZLayerRoutine):
         return '''
         [RoutineDef, zel,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-            [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
 
             // Activate
-            [VarSet, wid, [IWidth, layerPath]]
-            [ISet, layerPath, 1.0]
+            [VarSet, wid, [IWidth, 351]]
+            [ISet, 351, 1.0]
 
-            [If, [IModGet, layerPath] == 0,
-                [IClick, layerPath, wid-5, 5]
+            [If, [IModGet, 351] == 0,
+                [IClick, 351, wid-5, 5]
             ]
 
             // save
@@ -108,14 +96,13 @@ class ExportLayer(ZLayerRoutine):
             [IKeyPress, 13, [IPress, TOOL:Export:Export]]
 
             // Deactivate
-            [IClick, layerPath, wid-5, 5]
+            [IClick, 351, wid-5, 5]
 
-        , layerName, index, savePath]
+        , index, savePath]
         '''
 
     def get_args_from_layer(self, layer):
         return [
-            layer.name,
             layer.zbrush_index()
         ]
 
@@ -131,10 +118,6 @@ class CreateLayer(ZLayerRoutine):
             [FileExecute, #dllPath, RenameSetNext, #layerName]
             [IPress, "Tool:Layers:Rename"]
 
-            // Deactivate record layer
-            // [VarSet, layerPath, [StrMerge, "Tool:Layers:", #layerName]]
-            // [VarSet, wid, [IWidth, layerPath]]
-            // [IClick, layerPath, wid-10, 5]
         , layerName]
         '''
 

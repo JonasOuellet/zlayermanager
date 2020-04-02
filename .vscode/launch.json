@@ -18,9 +18,10 @@
             "program": "${workspaceFolder}\\src\\zlm_sender\\__main__.py",
             "console": "integratedTerminal",
             "args": [
-                "-o",
-                "-f",
-                "C:\\Program Files\\Pixologic\\ZBrush 2018 FL\\ZStartup\\ZPlugs64\\ZlmData\\layers.TXT"
+                "-uz"
+                // "-o",
+                // "-f",
+                // "C:\\Program Files\\Pixologic\\ZBrush 2018 FL\\ZStartup\\ZPlugs64\\ZlmData\\layers.TXT"
             ]
         },
         {
@@ -30,7 +31,8 @@
             "program": "${workspaceFolder}\\src\\zlm_ui\\__main__.py",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}\\zscripts\\zlmData\\layers.TXT"
+                //"E:\\zLayerManager\\dist\\ZlmData\\layers.TXT"
+                "C:\\Program Files\\Pixologic\\ZBrush 2020 FL\\ZStartup\\ZPlugs64\\ZlmData\\layers.TXT"
             ]
         },
         {

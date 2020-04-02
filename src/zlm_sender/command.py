@@ -45,3 +45,19 @@ def open(file_path=None):
 def app_import(file_path):
     command = "import zlm;zlm.zlm_import_file('{}')".format(file_path.replace('\\', '/'))
     send_app_cmd(command)
+
+
+def update_from_zbrush():
+    conn = Connection()
+    # error when connecting so it means that the UI is not opened
+    if conn.connect():
+        conn.send('update_from_zbrush')
+    conn.close()
+
+
+def update_zbrush():
+    conn = Connection()
+    # error when connecting so it means that the UI is not opened
+    if conn.connect():
+        conn.send('update_zbrush')
+    conn.close()

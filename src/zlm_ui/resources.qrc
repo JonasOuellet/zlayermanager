@@ -21,6 +21,7 @@
     <file alias="merge.png">img/merge.png</file>
     <file alias="filter.png">img/filter.png</file>
     <file alias="help.png">img/help.png</file>
+    <file alias="clear.png">img/clear.png</file>
 </qresource>
 
 </RCC>

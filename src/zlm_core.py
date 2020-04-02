@@ -58,6 +58,10 @@ class ZlmLayer(object):
                 if self.master.recording_layer:
                     self.master.recording_layer._mode = ZlmLayerMode.active
                 self.master.recording_layer = self
+        else:
+            if self.master:
+                if self.master.recording_layer == self:
+                    self.master.recording_layer = None
         self._mode = value
 
     @staticmethod
