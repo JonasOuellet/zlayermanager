@@ -19,13 +19,8 @@ import version
 class VersionThread(QtCore.QThread):
     completed = QtCore.pyqtSignal(bool)
 
-    def __init__(self, wait_time=500):
-        QtCore.QThread.__init__(self)
-
-        self.wait_time = wait_time
-
-    def run(self, *args, **kwargs):
-        self.msleep(self.wait_time)
+    def run(self):
+        self.sleep(1)
         valid = True
         try:
             valid = version.is_version_valid()
@@ -157,8 +152,8 @@ class ZlmMainUI(Qt.QMainWindow):
     def check_for_updates(self):
         if self._version_thread is None:
             self._version_thread = VersionThread()
-            self._version_thread.start()
             self._version_thread.completed.connect(self.on_valid_version)
+            self._version_thread.start()
 
     def on_valid_version(self, valid):
         if not valid:

@@ -5,7 +5,7 @@ block_cipher = None
 # http://ndk.sytes.net/wordpress/?p=1023
 
 a = Analysis(['zlm_ui\\__main__.py'],
-             pathex=[r"C:\Program Files (x86)\Windows Kits\10\Redist\10.0.18362.0\ucrt\DLLs\x64"],
+             pathex=[r"C:\Program Files (x86)\Windows Kits\10\Redist\10.0.17763.0\ucrt\DLLs\x64"],
              binaries=[],
              datas=[('zlm_ui\\stylesheet.css', '.')],
              hiddenimports=[],
