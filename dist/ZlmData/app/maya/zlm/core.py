@@ -1,3 +1,5 @@
+import traceback
+
 from maya import cmds
 
 from zlm_core import ZlmSettings
@@ -21,26 +23,27 @@ def close_port():
 
         if cmds.commandPort(portStr, q=True):
             cmds.commandPort(cl=True, name=portStr)
+            print "Zlm port '{}' closed.".format(_LAST_OPENED_PORT)
         else:
-            print "Zlm port '{}' already closed".format(port)
+            print "Zlm port '{}' already closed".format(_LAST_OPENED_PORT)
 
 
 def open_port():
     global _LAST_OPENED_PORT
 
-    try:
-        settings = ZlmSettings()
-        port = settings.get_app_port('Maya')
-        portStr = ':{}'.format(port)
+    settings = ZlmSettings()
+    port = settings.get_app_port('Maya')
+    portStr = ':{}'.format(port)
 
-        if not cmds.commandPort(portStr, q=True):
-            cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
-            _LAST_OPENED_PORT = port
-        else:
-            print "Zlm port '{}' already opened".format(portStr[1:])
+    if _LAST_OPENED_PORT != port:
+        close_port()
 
-    except Exception as e:
-        print e
+    if not cmds.commandPort(portStr, q=True):
+        cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
+        _LAST_OPENED_PORT = port
+        print "Zlm port '{}' opened.".format(port)
+    else:
+        print "Zlm port '{}' already opened.".format(port)
 
 
 def callback_add(cb_type, callback):
@@ -73,13 +76,20 @@ def callback_clr(cb_type):
 
 
 def zlm_import_file(file_path):
-    for cb in _IMPORT_FILE_CALLBACKS:
-        cb(file_path)
-
+    try:
+        for cb in _IMPORT_FILE_CALLBACKS:
+            cb(file_path)
+    except:
+        print 'Zlm - Error when importing file "{}":'.format(file_path)
+        traceback.print_exc()
 
 def zlm_import_all():
     settings = ZlmSettings()
     folder = settings.get_export_folder()
 
-    for cb in _IMPORT_ALL_CALLBACKS:
-        cb(folder, settings.export_format)
+    try:
+        for cb in _IMPORT_ALL_CALLBACKS:
+            cb(folder, settings.export_format)
+    except:
+        print 'Zlm - Error when importing files:'
+        traceback.print_exc()    

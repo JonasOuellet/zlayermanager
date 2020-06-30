@@ -78,9 +78,6 @@ def import_file(file_path):
             import_obj(file_path)
 
         print 'zlm - Import Successfull.'
-    except Exception as e:
-        print e
-        raise
     finally:
         cmds.select(sel)
         cmds.undoInfo(stateWithoutFlush=True)
@@ -105,16 +102,12 @@ def import_files(folder, ext):
     progress = cmds.progressWindow(title='ZlmImport', maxValue=len(files), status=' ' * 15)
 
     for filepath in files:
-        try:
-            dirname, filename = os.path.split(filepath)
-            filename, ext = os.path.splitext(filename)
+        dirname, filename = os.path.split(filepath)
+        filename, ext = os.path.splitext(filename)
 
-            cmds.progressWindow(progress, e=True, status=filename)
-            import_file(filepath)
-            cmds.progressWindow(progress, e=True, step=1)
-
-        except Exception as e:
-            print(e)
+        cmds.progressWindow(progress, e=True, status=filename)
+        import_file(filepath)
+        cmds.progressWindow(progress, e=True, step=1)
 
     clean_folder(folder, ext)
     cmds.progressWindow(progress, e=True, endProgress=True)

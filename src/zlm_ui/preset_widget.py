@@ -267,7 +267,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
         dialog.setTextValue(text)
         # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
         lineEdit = dialog.findChild(Qt.QLineEdit)
-        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_]"), dialog))
+        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_]+"), dialog))
         if dialog.exec_():
             return dialog.textValue()
         return None
