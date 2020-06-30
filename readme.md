@@ -32,6 +32,7 @@ Open a console in the `.\src` directory then enter the following:
 
 ```bash
 > python36 -m venv zlm_env
+> zlm_env\Scripts\activate.bat
 > python36 -m pip install -r requirements.txt
 ```
 
