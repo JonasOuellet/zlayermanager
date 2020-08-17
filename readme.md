@@ -1,4 +1,6 @@
-# zLayerManager
+# [zLayerManager](https://jonasouellet.github.io/zlayermanager/)
+
+<img src="https://raw.githubusercontent.com/JonasOuellet/zlayermanager/master/docs/_images/zlm_all.png" width="350" alt="zLayerManager UI"/>
 
 ## Description
 
