@@ -155,18 +155,8 @@ class FocusLayer(ZLayerRoutine):
     def definition(self, *args, **kwargs):
         return '''
         [RoutineDef, zfl,
-            [Loop, 1000,
-                [If, [IsEnabled, Tool:Layers:SelectDown],
-                    [IPress, Tool:Layers:SelectDown]
-                ,
-                [LoopExit]
-                ]
-            ]
-
-            [Loop, index,
-                [IPress, Tool:Layers:SelectUp]
-            ]
-
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
+            [IClick, 351, 5, 5]
         , index]
         '''
 
