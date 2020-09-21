@@ -26,6 +26,7 @@ class ScriptWidget(Qt.QPlainTextEdit):
             # insert four spaces at cursor position
             # TODO: handle selection
             self.insertPlainText('    ')
+            return
         return super().keyPressEvent(event)
 
 
@@ -112,7 +113,7 @@ class ZlmScriptingUI(Qt.QMainWindow):
     def _execSelected(self, text):
         lines = text.splitlines()
         for line in lines:
-            self.outputWindow.write(f">>>{line}\n")
+            self.outputWindow.write(f">>> {line}\n")
 
         try:
             with self._redirectOutput() as s:
