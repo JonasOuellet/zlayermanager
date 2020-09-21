@@ -11,6 +11,7 @@ from zlm_ui import resources_rc
 from zlm_ui.layer_widget import ZlmLayerWidget
 from zlm_ui.comserver import CommunicationServer
 from zlm_ui.settings_ui import SettingsDialog
+from zlm_ui.scriptingUI import ZlmScriptingUI
 from zlm_to_zbrush import import_base, import_layer, send_to_zbrush, send_update_request
 import zlm_app
 import version
@@ -139,6 +140,9 @@ class ZlmMainUI(Qt.QMainWindow):
 
         self._firstTime = True
         self._version_thread = None
+
+        self.script = ZlmScriptingUI.theOne(self)
+        self.script.show()
 
     def showEvent(self, event):
         self.showing.emit()

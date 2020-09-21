@@ -13,13 +13,15 @@ if os.name == 'nt':
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
-def _send_script():
+def send_script(scriptPath=None):
     # use start with shell=True instead ??
-    subprocess.call([zlm_settings.ZBRUSH_PATH, zlm_settings.SCRIPT_PATH],
+    if scriptPath is None:
+        scriptPath = zlm_settings.SCRIPT_PATH
+    subprocess.call([zlm_settings.ZBRUSH_PATH, scriptPath],
                     startupinfo=startupinfo)
 
 
-def _set_layer_state():
+def set_layer_state():
     for l in zlm_core.main_layers.layers_it(exclude_record=True,
                                             backward=True):
         zsc.SetLayerMode(l)
@@ -31,7 +33,7 @@ def _set_layer_state():
 
 
 def send_to_zbrush():
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         # always preferable to go to subdiv (i think)
@@ -40,21 +42,21 @@ def send_to_zbrush():
 
         zsc.DeactivateRecord()
 
-        _set_layer_state()
+        set_layer_state()
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def send_intensity(layers=None, intensity=1.0):
     if layers is None:
         layers = zlm_core.main_layers.instances_list
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         for l in layers:
             zsc.SetIntensity(l)
 
-    _send_script()
+    send_script()
 
 
 def export_layers(layers=None, subdiv=0, base_mesh=False):
@@ -76,7 +78,7 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
             imp_cmd = '[ShellExecute,"call {} & call {} -m zlm_sender -i {{}}"]'.format(zlm_settings.ACTIVATE_SCRIPT,
                                                                                         zlm_settings.PYTHON)
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.Quote()
         zsc.SubdivStore()
         zsc.SubdivMax()
@@ -104,10 +106,10 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
 
         zsc.SubdivMax()
 
-        _set_layer_state()
+        set_layer_state()
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def import_base(file_path, vertex_count):
@@ -127,7 +129,7 @@ def import_layer(file_path, name, vertex_count):
 
 
 def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -154,20 +156,20 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
         zsc.SubdivMax()
         zsc.DeactivateRecord()
 
-        _set_layer_state()
+        set_layer_state()
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def create_layer(layer):
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
         zsc.SubdivMax()
         zsc.CreateLayer(layer)
         zsc.SubdivRestore()
 
-    _send_script()
+    send_script()
 
 
 def send_deleted_layers(layers):
@@ -177,7 +179,7 @@ def send_deleted_layers(layers):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l.index)
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -193,14 +195,14 @@ def send_deleted_layers(layers):
             zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def send_new_layers_name(layers):
     if isinstance(layers, zlm_core.ZlmLayer):
         layers = [layers]
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -213,7 +215,7 @@ def send_new_layers_name(layers):
             zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def send_duplicated_layers(layers, move_down=False):
@@ -230,7 +232,7 @@ def send_duplicated_layers(layers, move_down=False):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l[0].index)
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -248,7 +250,7 @@ def send_duplicated_layers(layers, move_down=False):
             zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def send_merged_layers(layers):
@@ -261,7 +263,7 @@ def send_merged_layers(layers):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l.index)
     tl = layers[0]
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript():
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -284,7 +286,7 @@ def send_merged_layers(layers):
             zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
 
         zsc.SubdivRestore()
-    _send_script()
+    send_script()
 
 
 def send_update_request():

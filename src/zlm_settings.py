@@ -16,7 +16,7 @@ else:
     ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2020 FL\ZBrush.exe"
 
     dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'dist', 'ZlmData'))
-    SCRIPT_PATH = os.path.join(dirname, 'zlm.TXT')
+    SCRIPT_PATH = os.path.abspath(os.path.join(dirname, os.pardir, os.pardir, 'zlm.TXT'))
     ZLM_PATH = ''
 
     UPDATE_SCRIPT_PATH = os.path.join(dirname, 'zLayerUpdate.TXT')

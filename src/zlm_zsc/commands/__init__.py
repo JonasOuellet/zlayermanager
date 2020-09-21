@@ -7,5 +7,5 @@ from zlm_zsc.commands.layerop import (
     RenameLayer, DuplicateLayer, MoveLayer, MergeDown
 )
 from zlm_zsc.commands.meshop import (
-    GetNumPoint, SetSubDivForVertex, UpdateMesh, ExportMesh
+    GetNumPoint, SetSubDivForVertex, UpdateMesh, ExportMesh, ImportMesh
 )

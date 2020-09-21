@@ -1,4 +1,4 @@
-
+import zlm_settings
 
 _CURRENT_ZSCRIPT = None
 
@@ -7,6 +7,9 @@ _COMMANDS = {}
 
 class ZScript(object):
     def __init__(self, output_file=None, show_actions=False, freeze=True):
+        if output_file is None:
+            output_file = zlm_settings.SCRIPT_PATH
+
         self.file_path = output_file
 
         self.show_actions = show_actions
