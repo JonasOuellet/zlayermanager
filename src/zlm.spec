@@ -1,9 +1,10 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
 
+
 a = Analysis(['zlm_sender\\__main__.py'],
-             pathex=[r"C:\Program Files (x86)\Windows Kits\10\Redist\10.0.17763.0\ucrt\DLLs\x64"],
+             pathex=['C:\\Program Files (x86)\Windows Kits\\10\Redist\\10.0.17763.0\\ucrt\\DLLs\\x64'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -18,15 +19,19 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
           [],
+          exclude_binaries=True,
           name='zlm',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          runtime_tmpdir=None,
-          console=True,
-          icon='zlm_ui\\img\\zbrush.ico')
+          console=True )
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='zlm')

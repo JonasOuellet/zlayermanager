@@ -61,8 +61,12 @@ class CoreSettingWidget(SettingsTabBase):
         pass
 
     def validate(self, settings):
+        # fix for #2
         if not os.path.isdir(settings.working_folder):
-            return False, "Invalid File Folder."
+            try:
+                os.makedirs(settings.working_folder)
+            except:
+                return False, "Invalid File Folder, Cannot create folder: {}".format(settings.working_folder)
         return True, ""
 
     def save(self, settings):

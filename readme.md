@@ -80,13 +80,13 @@ To build you have to navigate to `src` folder and activate the virtual environme
 
 #### Building zlm.exe
 ```bash
-pyinstaller --distpath ..\dist\ZlmData zlm.spec
+pyinstaller --distpath ..\build zlm.spec
 ```
 
 #### Building zlm_ui.exe
 ```bash
-pyinstaller --distpath ..\dist\ZlmData zlm_ui.spec
+pyinstaller --distpath ..\build zlm_ui.spec
 ```
 
-
+Finally, copy the content of \build\zlm and \build\zlm_ui in dist\ZlmData
 

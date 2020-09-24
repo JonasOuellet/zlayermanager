@@ -1,6 +1,7 @@
-dist/ZlmData/ZFileUtils
-dist/ZlmData/*.exe
-dist/*.zip
+dist
+!dist/zLayerManager.txt
+!dist/ZlmData/app
+!dist/ZlmData/presets
 src/zlm_env
 src/zscripts
 **/__pycache__
@@ -12,3 +13,5 @@ zscripts
 docs_build
 docs/_sources
 **.exe
+build
+zlm.txt
