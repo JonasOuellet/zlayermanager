@@ -6,19 +6,23 @@ class DeactivateRecord(ZRoutine):
     def definition(self, *args, **kwargs):
         return '''
         [RoutineDef, zdr,
-            [If, [IsDisabled, 351],
-                [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
-            ]
+            // Check there is layer first
+            [If, [IsEnabled, 359],
+            
+                [If, [IsDisabled, 351],
+                    [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
+                ]
 
-            // frame current layer if recording
-            [If, [IsDisabled, "Tool:Layers:SelectUp"],
-                [ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
+                // frame current layer if recording
+                [If, [IsDisabled, "Tool:Layers:SelectUp"],
+                    [ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
 
-            , /* else */
-                [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
-                [IPress, "Tool:Layers:SelectUp"]
-                [ISet, "Tool:Layers:Layers Scrollbar", 0, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] - 1]
-                [IPress, "Tool:Layers:SelectDown"]
+                , /* else */
+                    [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
+                    [IPress, "Tool:Layers:SelectUp"]
+                    [ISet, "Tool:Layers:Layers Scrollbar", 0, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] - 1]
+                    [IPress, "Tool:Layers:SelectDown"]
+                ]
             ]
         ]
         '''
