@@ -15,7 +15,7 @@ if getattr(sys, 'frozen', False):
 else:
     ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2020 FL\ZBrush.exe"
 
-    dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'dist', 'ZlmData'))
+    dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     SCRIPT_PATH = os.path.join(dirname, 'zlm.TXT')
     ZLM_PATH = ''
 

@@ -3,9 +3,10 @@ import os
 from maya import cmds
 
 from zlm_core import ZlmSettings, communication
-from zlm.zlm_utils import load_obj_plugin
+from zlm.zlm_utils import load_obj_plugin, doWithNoUndo
 
 
+@doWithNoUndo
 def _export_mesh(obj, settings):
     vert_count = cmds.polyEvaluate(obj, vertex=True)
     if vert_count:
@@ -43,7 +44,7 @@ def _export(objs, base=False):
             args = ['i_layer', path, name, v_count]
             if base:
                 args[0] = 'i_base'
-                args.pop(3)
+                args.pop(2)
             communication.send_command(*args)
 
         except Exception as e:

@@ -13,6 +13,24 @@ class ExportMesh(ZRoutine):
         '''
 
 
+class ImportMesh(ZRoutine):
+
+    def definition(self, *args, **kwargs):
+        return '''[RoutineDef, zim, 
+            [VarSet, dllPath, ""]
+            [MemReadString, zlmMFileUtilPath, dllPath]
+
+            [VarSet, subtoolName, [IGetTitle,Tool:ItemInfo]]
+            [FileNameSetNext, #importPath]
+            [IKeyPress, 13, [IPress, Tool:Import:Import]]
+
+            [FileExecute, #dllPath, RenameSetNext, [StrExtract, #subtoolName, 0, ([StrLength, #subtoolName] - 2)]]
+            [IPress, "Tool:SubTool:Rename"]
+
+        , importPath]
+        '''
+
+
 class GetNumPoint(ZRoutine):
     def definition(self, *args, **kwargs):
         return '''
@@ -36,7 +54,7 @@ class SetSubDivForVertex(ZRoutine):
     def definition(self, *args, **kwargs):
         return '''
         [RoutineDef, zssdv,
-            //start at subdiv 1 than advance the subvision till the vertex count 
+            // start at subdiv 1 than advance the subvision till the vertex count 
             // equal the requested vertex count
             [VarSet, found, 0]
             [VarSet, pCount, 0]

@@ -4,9 +4,10 @@ import glob
 from maya import cmds
 from maya.api import OpenMaya as om
 
-from zlm.zlm_utils import load_obj_plugin
+from zlm.zlm_utils import load_obj_plugin, doWithNoUndo
 
 
+@doWithNoUndo
 def import_obj(file_path):
     dirname, filename = os.path.split(file_path)
     filename, ext = os.path.splitext(filename)
