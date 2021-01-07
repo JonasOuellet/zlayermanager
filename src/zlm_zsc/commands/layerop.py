@@ -7,7 +7,7 @@ class DeactivateRecord(ZRoutine):
         return '''
         [RoutineDef, zdr,
             // Check there is layer first
-            [If, [IsEnabled, 359],
+            [If, [IsEnabled, 376],
             
                 [If, [IsDisabled, 368],
                     [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
