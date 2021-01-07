@@ -90,3 +90,24 @@ pyinstaller --distpath ..\build zlm_ui.spec
 
 Finally, copy the content of \build\zlm and \build\zlm_ui in dist\ZlmData
 
+## Dist folder
+
+Download zfileUtils from this [folder](http://docs.pixologic.com/user-guide/customizing-zbrush/zscripting/zfileutils/) and add it to `dist/ZlmData/ZFileUtils`.  
+
+Also download [ZSOCKET](https://github.com/JonasOuellet/zsocket).  This is used to communicate with DCC.
+
+
+It should look like that:
+
+```bash
+|-- ZlmData
+|   |-- ZFileUtils
+|   |  |-- ZFileUtils.lib
+|   |  |-- ZFileUtils.dll
+|   |-- app
+|   |-- ZSOCKET.dll
+```
+
+## Dev
+
+Make sure to set the good zbrush path in `src\zlm_settings.py`

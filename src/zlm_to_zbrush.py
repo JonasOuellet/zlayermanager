@@ -63,20 +63,22 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
 
     settings = zlm_settings.instance()
     # check if port if valid.
-    app_import = settings.get_current_app_port() is not None and settings.send_after_export
+    app_port = settings.get_current_app_port()
+    app_import = app_port is not None and settings.send_after_export
 
     out_folder = settings.get_export_folder()
     out_format = settings.get_current_app_format()
 
     quote = zsc.Quote.get()
     if app_import:
-        if getattr(sys, 'frozen', False):
-            imp_cmd = '[ShellExecute,[StrMerge,"call ",{1},"{0}",{1}," -i ",{1},"{{}}",{1}]]'.format(zlm_settings.ZLM_PATH, quote)
-        else:
-            imp_cmd = '[ShellExecute,"call {} & call {} -m zlm_sender -i {{}}"]'.format(zlm_settings.ACTIVATE_SCRIPT,
-                                                                                        zlm_settings.PYTHON)
+        imp_cmd = """[FileExecute,"ZSOCKET.dll","SocketSend", "import zlm;zlm.zlm_import_file('{}')"]"""
 
     with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+
+        if app_import:
+            # make sure we use to good addr
+            zsc.TextCommand(f'[FileExecute,"ZSOCKET.dll","SetSocketAddr","127.0.0.1:{app_port}"]')
+
         zsc.Quote()
         zsc.SubdivStore()
         zsc.SubdivMax()
@@ -94,13 +96,13 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
                                 out_format)
             zsc.ExportMesh(path)
             if app_import:
-                zsc.TextCommand(imp_cmd.format(path))
+                zsc.TextCommand(imp_cmd.format(path.replace('\\', '/')))
 
         for l in layers:
             path = os.path.join(out_folder, l.name + out_format)
             zsc.ExportLayer(l, path)
             if app_import:
-                zsc.TextCommand(imp_cmd.format(path))
+                zsc.TextCommand(imp_cmd.format(path.replace('\\', '/')))
 
         zsc.SubdivMax()
 
