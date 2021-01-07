@@ -6,7 +6,7 @@ from zlm_to_zbrush import (
     export_layers, create_layer, send_to_zbrush, send_deleted_layers,
     send_new_layers_name, send_duplicated_layers, send_merged_layers
 )
-from zlm_ui.zlm_layertree import ZlmLayerTreeWidget
+from zlm_ui.zlm_layerTree import ZlmLayerTreeWidget
 from zlm_ui.filter_widget import LayerFilterWidget
 from zlm_ui.preset_widget import ZlmPresetWidget
 from zlm_ui.export_widget import ZlmExportWidget
