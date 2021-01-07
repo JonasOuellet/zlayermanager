@@ -1,6 +1,7 @@
 dist
 !dist/zLayerManager.txt
 !dist/ZlmData/app
+!dist/ZlmData/zLayerUpdate.TXT
 !dist/ZlmData/presets
 src/zlm_env
 src/zscripts
