@@ -31,6 +31,7 @@ class DeactivateRecord(ZRoutine):
 class SetLayerMode(ZLayerRoutine):
 
     def definition(self, *args, **kwargs):
+        # we check the state 2 time just to make sure zbrush get it
         return '''
         [RoutineDef, zslm,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
@@ -39,8 +40,8 @@ class SetLayerMode(ZLayerRoutine):
                 [ISet, 368, intensity]
             ]
 
+            [Loop, 2,
             [VarSet, curMode, [IModGet, 368]]
-
             [If, curMode != mode,
                 [VarSet, wid, [IWidth, 368]]
                 [If, mode == 1,
@@ -51,6 +52,7 @@ class SetLayerMode(ZLayerRoutine):
                     ]
                     [IClick, 368, wid-5, 5]
                 ]
+            ]
             ]
         , index, mode, intensity]
         '''
