@@ -1,13 +1,10 @@
-from collections import OrderedDict
 from enum import IntEnum
-import copy
-import subprocess
 import os
 import sys
 import json
 import re
 
-from zlm_settings import ZBRUSH_PATH, SCRIPT_PATH, ZLM_PATH, ZlmSettings
+from zlm_settings import ZlmSettings
 
 invalid_char_re = re.compile('[^A-Za-z0-9_]')
 valid_name_re = "[A-Za-z0-9_]{0,15}"

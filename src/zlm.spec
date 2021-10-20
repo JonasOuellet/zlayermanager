@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['zlm_sender\\__main__.py'],
-             pathex=['C:\\Program Files (x86)\Windows Kits\\10\Redist\\10.0.17763.0\\ucrt\\DLLs\\x64'],
+             pathex=['C:\\Program Files (x86)\Windows Kits\\10\Redist\\10.0.18362.0\\ucrt\\DLLs\\x64'],
              binaries=[],
              datas=[],
              hiddenimports=[],

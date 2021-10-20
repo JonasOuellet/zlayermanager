@@ -1,9 +1,6 @@
-dist
-!dist/zLayerManager.txt
-!dist/ZlmData/app
-!dist/ZlmData/zLayerUpdate.TXT
-!dist/ZlmData/presets
-src/zlm_env
+dist/ZlmData/*
+!dist/ZlmData/zlmOps.txt
+!dist/ZlmData/zLayerUpdate.txt
 src/zscripts
 **/__pycache__
 **.zsc
@@ -16,3 +13,5 @@ docs/_sources
 **.exe
 build
 zlm.txt
+venv
+layers.txt

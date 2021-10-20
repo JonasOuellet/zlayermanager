@@ -1,15 +1,16 @@
+import zlm_info
 from zlm_zsc.base_commands import ZRoutine, ZLayerRoutine
 
 
 class DeactivateRecord(ZRoutine):
 
     def definition(self, *args, **kwargs):
-        return '''
+        return f'''
         [RoutineDef, zdr,
             // Check there is layer first
-            [If, [IsEnabled, 376],
+            [If, [IsEnabled, "Tool:Layers:Layer Intensity"],
             
-                [If, [IsDisabled, 368],
+                [If, [IsDisabled, {zlm_info.LAYER_INDEX}],
                     [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
                 ]
 
@@ -32,25 +33,25 @@ class SetLayerMode(ZLayerRoutine):
 
     def definition(self, *args, **kwargs):
         # we check the state 2 time just to make sure zbrush get it
-        return '''
+        return f'''
         [RoutineDef, zslm,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
 
             [If, mode == 2,
-                [ISet, 368, intensity]
+                [ISet, {zlm_info.LAYER_INDEX}, intensity]
             ]
 
             [Loop, 2,
-            [VarSet, curMode, [IModGet, 368]]
+            [VarSet, curMode, [IModGet, {zlm_info.LAYER_INDEX}]]
             [If, curMode != mode,
-                [VarSet, wid, [IWidth, 368]]
+                [VarSet, wid, [IWidth, {zlm_info.LAYER_INDEX}]]
                 [If, mode == 1,
-                    [IClick, 368, wid-20, 5]
+                    [IClick, {zlm_info.LAYER_INDEX}, wid-20, 5]
                 ,
                     [If, curMode == 1,
-                        [IClick, 368, wid-10, 5]
+                        [IClick, {zlm_info.LAYER_INDEX}, wid-10, 5]
                     ]
-                    [IClick, 368, wid-5, 5]
+                    [IClick, {zlm_info.LAYER_INDEX}, wid-5, 5]
                 ]
             ]
             ]
@@ -68,10 +69,10 @@ class SetLayerMode(ZLayerRoutine):
 class SetIntensity(ZLayerRoutine):
 
     def definition(self, *args, **kwargs):
-        return '''
+        return f'''
         [RoutineDef, zi,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-            [ISet, 368, intensity]
+            [ISet, {zlm_info.LAYER_INDEX}, intensity]
         , index, intensity]
         '''
 
@@ -85,16 +86,16 @@ class SetIntensity(ZLayerRoutine):
 class ExportLayer(ZLayerRoutine):
 
     def definition(self, *args, **kwargs):
-        return '''
+        return f'''
         [RoutineDef, zel,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
 
             // Activate
-            [VarSet, wid, [IWidth, 368]]
-            [ISet, 368, 1.0]
+            [VarSet, wid, [IWidth, {zlm_info.LAYER_INDEX}]]
+            [ISet, {zlm_info.LAYER_INDEX}, 1.0]
 
-            [If, [IModGet, 368] == 0,
-                [IClick, 368, wid-5, 5]
+            [If, [IModGet, {zlm_info.LAYER_INDEX}] == 0,
+                [IClick, {zlm_info.LAYER_INDEX}, wid-5, 5]
             ]
 
             // save
@@ -102,7 +103,7 @@ class ExportLayer(ZLayerRoutine):
             [IKeyPress, 13, [IPress, TOOL:Export:Export]]
 
             // Deactivate
-            [IClick, 368, wid-5, 5]
+            [IClick, {zlm_info.LAYER_INDEX}, wid-5, 5]
 
         , index, savePath]
         '''
@@ -159,10 +160,10 @@ class RenameLayer(ZLayerRoutine):
 
 class FocusLayer(ZLayerRoutine):
     def definition(self, *args, **kwargs):
-        return '''
+        return f'''
         [RoutineDef, zfl,
             [ISet, "Tool:Layers:Layers Scrollbar", 0, index]
-            [IClick, 368, 5, 5]
+            [IClick, {zlm_info.LAYER_INDEX}, 5, 5]
         , index]
         '''
 

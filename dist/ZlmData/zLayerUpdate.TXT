@@ -7,157 +7,7 @@
 , outputVar]
 
 
-// we should use these number instead of interface path if there is two layer with the same name
-// layers goes from 368 to 375
-
-[RoutineDef, zlmGetLayerCount,
-    [IFreeze,
-
-    //initialise output value to 0
-    [VarSet, output, 0]
-
-    //if there's a scrollbar there is more than one layer
-    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
-
-	    //store current scroll bar position
-		[VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
-
-		//set scroll bar to a maximum to ensure it is at the top
-		[ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
-		[VarSet, output, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] + 1]
-
-        // restore scroll bar position
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
-	,
-        
-    	[If,[IsEnabled, "Tool:Layers:Layer Intensity"],
-			[VarSet,output,1]	
-		]
-	]
-    ]
-,output]
-
-
-[RoutineDef, zlmSaveLayerInfo,
-    [IFreeze, 
-
-    [VarSet, layersCount, 0]
-    [RoutineCall, zlmGetLayerCount, layersCount]
-
-    // set max subdivs
-    [VarSet, subdiv, [IGet, "Tool:Geometry:SDiv"]]
-    [VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
-
-    [VarSet, isRecording, 0]
-    [VarSet, recordingYpos, 0]
-    [If, layersCount > 0,
-
-        // if layer widget is disabled and we have layers it means that there is a layer on record
-        // in this case we have to activate higher subdiv to deactivate it
-        [If, [IsDisabled, 368],
-            [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
-        ]
-
-        // frame current layer if recording
-        [If, [IsDisabled, "Tool:Layers:SelectUp"],
-            [ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
-
-        , /* else */
-            [ISet, "Tool:Layers:Layers Scrollbar", 0, 0]
-            [IPress, "Tool:Layers:SelectUp"]
-            [ISet, "Tool:Layers:Layers Scrollbar", 0, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] - 1]
-            [IPress, "Tool:Layers:SelectDown"]
-        ]
-
-        // deactivate Recording
-        [If, ([IModGet, 368] == 1),
-            [VarSet, isRecording, 1]
-            
-            [VarSet, wid, [IWidth, 368]]	
-            [IClick, 368, wid-10, 5]
-
-            [VarSet, recordingYpos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
-        ]
-    ]
-
-    [If, [MemGetSize, layerNameMem],,
-        [MemCreate, layerNameMem, 1024]
-    ]
-
-    [VarSet, currentSize, 0]
-    [VarSet, byteOffset, 0]
-
-    [VarSet, quote, [StrFromAsc, 34]]
-
-    // Loop Through all layer, get the name and add to the memory
-    [Loop, layersCount,
-        [VarSet, scrollbarPos, layersCount - counter - 1]
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, #scrollbarPos]
-
-        [VarSet, curLayerName, [IGetTitle, 368]]
-        [VarSet, intensity, [IGet, 368]]
-        [VarSet, mode, [IModGet, 368]]
-        
-        [If, (#isRecording && (#scrollbarPos == #recordingYpos)),
-            [VarSet, mode, 1]
-        ]
-
-        [VarSet, curLayerName, [StrMerge, #quote, curLayerName, #quote, " ", #intensity, " ", #mode, [StrFromAsc, 10]]]
-
-        [VarAdd, currentSize, [StrLength, curLayerName]]
-
-        // Check if memory is big enough
-        // Resize it enough so we dont have to resize everytime
-        [If, currentSize > [MemGetSize, layerNameMem],
-            [MemResize, layerNameMem, (currentSize + ((layersCount - counter) * 20))]
-        ,]
-
-        // Write data to the memory
-        [VarAdd, byteOffset, [MemWriteString, layerNameMem, curLayerName, byteOffset, 0]]
-
-    , counter]
-
-    // Write the name of the sub tools
-    [VarSet, subtoolName, [IGetTitle, "Tool:ItemInfo"]]
-    [VarSet, idx, [SubToolGetActiveIndex]]
-    [VarSet, subtoolLine, [StrMerge, #quote, #subtoolName, #quote, " ", #idx]]
-
-    [VarAdd, currentSize, [StrLength, subtoolLine]]
-
-    // Check if memory is big enough
-    // Resize it enough so we dont have to resize everytime
-    [If, currentSize > [MemGetSize, layerNameMem],
-        [MemResize, layerNameMem, currentSize]
-    ,]
-    [VarAdd, byteOffset, [MemWriteString, layerNameMem, subtoolLine, byteOffset, 0]]
-
-
-    // Resize memory to the actual total size so we don't write any empty bits.
-    [MemResize, layerNameMem, currentSize]
-
-    [MemSaveToFile, layerNameMem, filepath, 1]
-
-    [MemDelete, layerNameMem]
-
-    // If was recording
-    [If, #isRecording, 
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, recordingYpos]
-        [VarSet, wid, [IWidth, 368]]
-        [IClick, 368, wid-20, 5]
-    ]
-
-    // restore scroll bar position
-    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
-    ]
-
-    // restore subdiv.
-    [ISet, "Tool:Geometry:SDiv", #subdiv, 0]
-
-    ] // IFreeze
-
-, filepath]
-
+<zscriptinsert, "zlmOps.txt">
 
 // check if there is a subtool loaded
 [If, [IExists, "Tool:Layers:Layers Scrollbar"],
@@ -167,7 +17,9 @@
     [RoutineCall, zlmSaveLayerInfo, filePath]
     [RoutineCall, zlmGetExecutable, exec]
     [VarSet, quote, [StrFromAsc, 34]]
-
-    [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]    
+    
+    [VarSet, cmd, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]
+    // [Note, cmd]
+    [ShellExecute, cmd]
 ,
 ]

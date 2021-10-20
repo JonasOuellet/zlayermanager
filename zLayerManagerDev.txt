@@ -1,22 +1,14 @@
 [RoutineDef, zlmGetLayerPath,
     // Check if we are on pc
     [If, [ZBrushInfo, 6] == 0,
-        [VarSet, outputVar, [FileNameResolvePath, "ZlmData\layers.TXT"]]
+        [VarSet, outputVar, [FileNameResolvePath, "layers.TXT"]]
     , /* Else */
-        [VarSet, outputVar, [FileNameResolvePath, "ZlmData/layers.TXT"]]
+        [VarSet, outputVar, [FileNameResolvePath, "layers.TXT"]]
     ]
 , outputVar]
 
-[RoutineDef, zlmGetExecutable,
-    // Check if we are on pc
-    [If, [ZBrushInfo, 6] == 0,
-        [VarSet, outputVar, [FileNameResolvePath, "ZlmData\zlm.exe"]]
-    , /* Else */
-        [VarSet, outputVar, [FileNameResolvePath, "ZlmData/zlm.exe"]]
-    ]
-, outputVar]
 
-<zscriptinsert, "ZlmData\zlmOps.txt">
+<zscriptinsert, "dist\ZlmData\zlmOps.txt">
 
 [RoutineDef, CheckSystem,	
     //check ZBrush version
@@ -31,9 +23,9 @@
     // Make sure we have the dll and set its path
     [If, [ZBrushInfo, 16] == 64,//64 bit
         [If, isMac,
-            [VarSet,dllPath,[FileNameResolvePath, "ZlmData/ZFileUtils/ZFileUtils.lib"]]
+            [VarSet,dllPath,[FileNameResolvePath, "dist/ZlmData/ZFileUtils/ZFileUtils.lib"]]
         ,	
-            [VarSet,dllPath,[FileNameResolvePath, "ZlmData\ZFileUtils\ZFileUtils64.dll"]]
+            [VarSet,dllPath,[FileNameResolvePath, "dist\ZlmData\ZFileUtils\ZFileUtils64.dll"]]
         ]
     , //else 32 bit - no longer supported
         [Note, "\Cff9923This zscript\Cffffff is not designed for this version of \Cff9923ZBrush\Cffffff.",, 3, 4737096,, 300]
@@ -67,23 +59,24 @@
 
 [RoutineCall, CheckSystem]
 
-[IShowActions, 0]
-[ISubPalette,"Zplugin:zLayerManager"]
-
-[IButton, "Zplugin:zLayerManager:Open", "Open Layer Manager UI or update it if already opened",
+[IButton, "Open Zlayer", "Open Layer Manager UI or update it if already opened",
     // check if there is a subtool loaded
     [If, [IExists, "Tool:Layers:Layers Scrollbar"],
         [VarSet, filePath, ""]
-        [VarSet, exec, ""]
+        [VarSet, exec, [FileNameResolvePath, "venv\Scripts\python.exe"]]
+        [VarSet, scriptPath, [FileNameResolvePath, "src"]]
+        [VarSet, ui, [FileNameResolvePath, "src\zlm_sender"]]
         [RoutineCall, zlmGetLayerPath, filePath]
         [RoutineCall, zlmSaveLayerInfo, filePath]
-        [RoutineCall, zlmGetExecutable, exec]
         [VarSet, quote, [StrFromAsc, 34]]
 
         [VarSet, layerId, 0]
         [RoutineCall, zlmGetIdFirstLayerID, layerId]
-
-        [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " ", #layerId, " -o -f ", #quote, #filePath, #quote]]
+        [VarSet, cmd, [StrMerge, "SET PYTHONPATH=", #scriptPath, " & "]]
+        [VarSet, cmd, [StrMerge, cmd, "start ", #quote, #quote, " ", #quote, #exec, #quote, " ", #quote, #ui, #quote]]
+        [VarSet, cmd, [StrMerge, cmd, " ", #layerId, " -o -f", #quote, #filePath, #quote]]
+        // [Note, cmd]
+        [ShellExecute, cmd]
     ,
         [Note, "Zlm: Invalid Subtool"]
     ]

@@ -1,29 +1,5 @@
 import os
 import json
-import sys
-
-
-if getattr(sys, 'frozen', False):
-    # find path
-    dirname = os.path.dirname(sys.executable)
-    ZBRUSH_PATH = os.path.abspath(os.path.join(dirname, os.path.pardir, os.pardir, os.pardir, 'ZBrush.exe'))
-    SCRIPT_PATH = os.path.join(dirname, 'zlm.TXT')
-    ZLM_PATH = os.path.join(dirname, 'zlm.exe')
-    
-    UPDATE_SCRIPT_PATH = os.path.join(dirname, 'zLayerUpdate.TXT')
-
-else:
-    ZBRUSH_PATH = r"C:\Program Files\Pixologic\ZBrush 2020 FL\ZBrush.exe"
-
-    dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    SCRIPT_PATH = os.path.join(dirname, 'zlm.TXT')
-    ZLM_PATH = ''
-
-    UPDATE_SCRIPT_PATH = os.path.join(dirname, 'zLayerUpdate.TXT')
-
-    # Development path
-    ACTIVATE_SCRIPT = os.path.join(os.path.dirname(__file__), 'zlm_env', 'Scripts', 'activate.bat')
-    PYTHON = 'python36'
 
 
 class ZlmSettings(object):

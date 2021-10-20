@@ -1,10 +1,10 @@
 import os
-import sys
 import subprocess
 
 import zlm_core
 import zlm_settings
 import zlm_zsc as zsc
+import zlm_info
 
 
 startupinfo = None
@@ -15,7 +15,12 @@ if os.name == 'nt':
 
 def _send_script():
     # use start with shell=True instead ??
-    subprocess.call([zlm_settings.ZBRUSH_PATH, zlm_settings.SCRIPT_PATH],
+    zbrush = zlm_info.get_zbrush_path()
+    if zbrush is None:
+        print("No Zbrush running cannot send script")
+        return
+
+    subprocess.call([zbrush, zlm_info.SCRIPT_PATH],
                     startupinfo=startupinfo)
 
 
@@ -31,7 +36,7 @@ def _set_layer_state():
 
 
 def send_to_zbrush():
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         # always preferable to go to subdiv (i think)
@@ -50,7 +55,7 @@ def send_intensity(layers=None, intensity=1.0):
     if layers is None:
         layers = zlm_core.main_layers.instances_list
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         for l in layers:
             zsc.SetIntensity(l)
 
@@ -73,7 +78,7 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
     if app_import:
         imp_cmd = """[FileExecute,"ZSOCKET.dll","SocketSend", "import zlm;zlm.zlm_import_file('{}')"]"""
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
 
         if app_import:
             # make sure we use to good addr
@@ -129,7 +134,7 @@ def import_layer(file_path, name, vertex_count):
 
 
 def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -163,7 +168,7 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
 
 
 def create_layer(layer):
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
         zsc.SubdivMax()
         zsc.CreateLayer(layer)
@@ -179,7 +184,7 @@ def send_deleted_layers(layers):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l.index)
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -202,7 +207,7 @@ def send_new_layers_name(layers):
     if isinstance(layers, zlm_core.ZlmLayer):
         layers = [layers]
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -232,7 +237,7 @@ def send_duplicated_layers(layers, move_down=False):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l[0].index)
 
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -254,7 +259,7 @@ def send_duplicated_layers(layers, move_down=False):
 
 
 def send_merged_layers(layers):
-    """send merged layers, the layer with the smalled index will be kept and its index 
+    """send merged layers, the layer with the smalled index will be kept and its index
     will remain unchanged.
 
     Args:
@@ -263,7 +268,7 @@ def send_merged_layers(layers):
     # sort layer by index
     layers = sorted(layers, key=lambda l: l.index)
     tl = layers[0]
-    with zsc.ZScript(zlm_settings.SCRIPT_PATH):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
         zsc.SubdivStore()
 
         zsc.SubdivMax()
@@ -290,6 +295,12 @@ def send_merged_layers(layers):
 
 
 def send_update_request():
-    
-    subprocess.call([zlm_settings.ZBRUSH_PATH, zlm_settings.SCRIPT_PATH],
+    """Update layer content from zbrush
+    """
+    zbrush = zlm_info.get_zbrush_path()
+    if zbrush is None:
+        print("No Zbrush running cannot send script")
+        return
+
+    subprocess.call([zbrush, zlm_info.UPDATE_SCRIPT_PATH],
                     startupinfo=startupinfo)
