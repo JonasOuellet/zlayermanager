@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 
 
 class ZlmSettings(object):
@@ -9,6 +8,8 @@ class ZlmSettings(object):
 
     def __init__(self, auto_load=True):
         self.working_folder = os.path.join(self.getsettingfolder(), 'files')
+
+        self.check_for_updates = True
 
         self.send_after_export = False
         self.current_app = 'Maya'
@@ -19,6 +20,8 @@ class ZlmSettings(object):
             }
         }
 
+        self.additionnal_preset_dir = []
+
         self.bigData = {}
 
         if auto_load:
@@ -26,7 +29,11 @@ class ZlmSettings(object):
 
     @staticmethod
     def getsettingfolder():
-        folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
+        try:
+            folder = os.environ["ZLM_SETTINGS_PATH"]
+        except:
+            folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
+
         if not os.path.exists(folder):
             os.makedirs(folder)
 

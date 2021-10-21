@@ -29,7 +29,11 @@ class ZlmSettings(object):
 
     @staticmethod
     def getsettingfolder():
-        folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
+        try:
+            folder = os.environ["ZLM_SETTINGS_PATH"]
+        except:
+            folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
+
         if not os.path.exists(folder):
             os.makedirs(folder)
 

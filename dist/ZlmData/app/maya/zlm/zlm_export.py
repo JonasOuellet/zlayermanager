@@ -2,7 +2,7 @@ import os
 
 from maya import cmds
 
-from zlm_core import ZlmSettings, communication
+from zlm_core import ZlmSettings, zlm_com
 from zlm.zlm_utils import load_obj_plugin, doWithNoUndo
 
 
@@ -45,7 +45,7 @@ def _export(objs, base=False):
             if base:
                 args[0] = 'i_base'
                 args.pop(2)
-            communication.send_command(*args)
+            zlm_com.send_command(*args)
 
         except Exception as e:
             print "Error when exporting mesh: {}. {}".format(obj, str(e))

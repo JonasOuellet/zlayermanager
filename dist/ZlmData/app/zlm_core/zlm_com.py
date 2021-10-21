@@ -1,8 +1,7 @@
 import tempfile
 import os
-from multiprocessing.connection import Listener, Client
+from multiprocessing.connection import Client
 
-from zlm_core import ZlmSettings
 
 __all__ = [
     'send_command'

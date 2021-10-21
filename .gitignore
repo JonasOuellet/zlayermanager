@@ -1,6 +1,8 @@
 dist/ZlmData/*
 !dist/ZlmData/zlmOps.txt
 !dist/ZlmData/zLayerUpdate.txt
+!dist/ZlmData/app/*
+*.zip
 src/zscripts
 **/__pycache__
 **.zsc

@@ -10,7 +10,8 @@ WIN_DLL_PATH = r'C:\Program Files (x86)\Windows Kits\10\Redist\10.0.18362.0\ucrt
 if __name__ == '__main__':
     root = Path('.').resolve()
 
-    os.chdir(root.joinpath('src').resolve())
+    src = root.joinpath('src').resolve()
+    os.chdir(src)
 
     # add dll to path
     print("add dll to path")
@@ -114,3 +115,6 @@ if __name__ == '__main__':
     for f in zlmdata.joinpath("app").glob("**\\*.pyc"):
         print(f"Delete {f}")
         os.remove(f)
+
+    print("copying zlm_settings to Dist/ZlmData/app/zlm_core")
+    shutil.copy2(src.joinpath("zlm_settings.py"), zlmdata.joinpath('app', 'zlm_core', 'zlm_settings.py'))
