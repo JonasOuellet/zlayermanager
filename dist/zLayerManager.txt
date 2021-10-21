@@ -82,8 +82,10 @@
 
         [VarSet, layerId, 0]
         [RoutineCall, zlmGetIdFirstLayerID, layerId]
-
-        [ShellExecute, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " ", #layerId, " -o -f ", #quote, #filePath, #quote]]
+        
+        [VarSet, cmd, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " ", #layerId]]
+        [VarSet, cmd, [StrMerge, #cmd, " -o -f ", #quote, #filePath, #quote]]
+        [ShellExecute, #cmd]
     ,
         [Note, "Zlm: Invalid Subtool"]
     ]

@@ -4,11 +4,11 @@ from zlm_sender import command
 
 def main():
     # UNCOMMNENT FOR DEVELOPMENT
-    import debugpy
-    port = 8888
-    debugpy.listen(port)
-    print(f"Waiting for attach on port {port}")
-    debugpy.wait_for_client()
+    # import debugpy
+    # port = 8888
+    # debugpy.listen(port)
+    # print(f"Waiting for attach on port {port}")
+    # debugpy.wait_for_client()
 
     parser = argparse.ArgumentParser(description="ZLayerManager bridge (communicate from zbrush to the UI)")
 
