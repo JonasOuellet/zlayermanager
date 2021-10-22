@@ -316,11 +316,19 @@ def get_preset_folders():
         os.makedirs(directory)
     out['app'].append(directory)
 
-    for directory in ZlmSettings.instance().additionnal_preset_dir:
+    settings = ZlmSettings.instance()
+    for directory in settings.additionnal_preset_dir:
         if os.path.isdir(directory):
             out['app'].append(directory)
 
-    directory = os.path.expanduser(os.path.join('~', 'zLayerManager', 'presets'))
+    try:
+        for directory in os.environ['ZLM_PRESET_PATH'].split(';'):
+            if os.path.isdir(directory):
+                out['app'].append(directory)
+    except:
+        pass
+
+    directory = os.path.join(settings.getsettingfolder(), 'presets')
     if not os.path.isdir(directory):
         os.makedirs(directory)
     out['user'] = directory

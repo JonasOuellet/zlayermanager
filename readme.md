@@ -99,3 +99,9 @@ It should look like that:
 ## Dev
 
 Make sure to set the good zbrush path in `src\zlm_settings.py`
+
+
+## Environment Variable
+
+ZLM_SETTINGS_PATH: override zlm settings folder
+ZLM_PRESET_PATH: ';' seperated list of preset folder.
