@@ -38,7 +38,11 @@
                 "368",
                 "${workspaceFolder}\\layers.TXT"
             ],
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "ZLM_SETTINGS_PATH": "C:\\dev\\animtools\\GbxAnimLauncher\\Tools\\ZLayerManager",
+                "ZLM_PRESET_PATH": "c:\\dev\\Cypress2\\ContentSource\\cypress2source\\Character\\__Shared\\Head\\ZBrush\\presets"
+            }
         },
         {
             "name": "Python: Current File (Integrated Terminal)",
