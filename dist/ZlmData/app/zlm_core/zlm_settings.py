@@ -4,6 +4,8 @@ import json
 
 class ZlmSettings(object):
     _instance = None
+    _settings_folder = None
+
     exclude_attr = set(['bigData'])
 
     def __init__(self, auto_load=True):
@@ -29,15 +31,18 @@ class ZlmSettings(object):
 
     @staticmethod
     def getsettingfolder():
-        try:
-            folder = os.environ["ZLM_SETTINGS_PATH"]
-        except:
-            folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
+        if ZlmSettings._settings_folder is None:
+            try:
+                folder = os.environ["ZLM_SETTINGS_PATH"]
+            except:
+                folder = os.path.expanduser(os.path.join('~', 'zLayerManager'))
 
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+            if not os.path.exists(folder):
+                os.makedirs(folder)
 
-        return folder
+            ZlmSettings._settings_folder = folder
+
+        return ZlmSettings._settings_folder
 
     @staticmethod
     def getsettingfile():
