@@ -24,9 +24,9 @@ copyright = '2019, Jonathan Ouellet'
 author = 'Jonathan Ouellet'
 
 # The short X.Y version
-version = '1.3'
+version = '1.7'
 # The full version, including alpha/beta/rc tags
-release = '1.3.0'
+release = '1.7.0'
 
 
 # -- General configuration ---------------------------------------------------
