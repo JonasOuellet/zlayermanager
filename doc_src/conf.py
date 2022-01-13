@@ -85,7 +85,7 @@ html_theme_options = {
     # https://stackoverflow.com/questions/27669376/show-entire-toctree-in-read-the-docs-sidebar
     'navigation_depth': 4,
     # https://stackoverflow.com/questions/36925871/toctree-nested-drop-down
-    "collapse_navigation" : False
+    "collapse_navigation": False
 }
 
 # hide show source link

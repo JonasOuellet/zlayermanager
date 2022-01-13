@@ -2,7 +2,7 @@ import requests
 import re
 
 
-current_version = 1.3
+current_version = 1.7
 
 
 def get_version():
