@@ -5,6 +5,14 @@ Zlm is **only available for windows** for now. However, if you are a more advanc
 source, see how on the project `github
 <https://github.com/JonasOuellet/zLayerManager>`_. 
 
+.. raw:: html
+
+    <!-- https://jameshfisher.com/2017/08/30/how-do-i-make-a-full-width-iframe/ -->
+    <div style="position:relative;padding-top:56.25%;margin-bottom:60px">
+        <iframe src="https://player.vimeo.com/video/665455824" frameborder="0" allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+    </div>
+
 
 Download
 --------
