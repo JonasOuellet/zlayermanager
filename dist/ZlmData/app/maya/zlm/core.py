@@ -23,9 +23,9 @@ def close_port():
 
         if cmds.commandPort(portStr, q=True):
             cmds.commandPort(cl=True, name=portStr)
-            print "Zlm port '{}' closed.".format(_LAST_OPENED_PORT)
+            print("Zlm port '{}' closed.".format(_LAST_OPENED_PORT))
         else:
-            print "Zlm port '{}' already closed".format(_LAST_OPENED_PORT)
+            print("Zlm port '{}' already closed".format(_LAST_OPENED_PORT))
 
 
 def open_port():
@@ -41,9 +41,9 @@ def open_port():
     if not cmds.commandPort(portStr, q=True):
         cmds.commandPort(name=portStr, sourceType='python', noreturn=True)
         _LAST_OPENED_PORT = port
-        print "Zlm port '{}' opened.".format(port)
+        print("Zlm port '{}' opened.".format(port))
     else:
-        print "Zlm port '{}' already opened.".format(port)
+        print("Zlm port '{}' already opened.".format(port))
 
 
 def callback_add(cb_type, callback):
@@ -80,7 +80,7 @@ def zlm_import_file(file_path):
         for cb in _IMPORT_FILE_CALLBACKS:
             cb(file_path)
     except:
-        print 'Zlm - Error when importing file "{}":'.format(file_path)
+        print('Zlm - Error when importing file "{}":'.format(file_path))
         traceback.print_exc()
 
 def zlm_import_all():
@@ -91,5 +91,5 @@ def zlm_import_all():
         for cb in _IMPORT_ALL_CALLBACKS:
             cb(folder, settings.export_format)
     except:
-        print 'Zlm - Error when importing files:'
+        print('Zlm - Error when importing files:')
         traceback.print_exc()    

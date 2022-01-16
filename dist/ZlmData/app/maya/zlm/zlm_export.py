@@ -48,7 +48,7 @@ def _export(objs, base=False):
             zlm_com.send_command(*args)
 
         except Exception as e:
-            print "Error when exporting mesh: {}. {}".format(obj, str(e))
+            print("Error when exporting mesh: {}. {}".format(obj, str(e)))
 
     cmds.select(objs)
 

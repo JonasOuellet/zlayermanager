@@ -1,5 +1,6 @@
-import tempfile
+import sys
 import os
+import tempfile
 from multiprocessing.connection import Client
 
 
@@ -24,6 +25,10 @@ def send_command(cmd_name, *args):
     cmd_args = [cmd_name]
     cmd_args.extend(args)
 
-    client = Client(('localhost', _get_port()), authkey='secret')
+    if sys.version_info > (3, 0):
+        # need to use byte string
+        client = Client(('localhost', _get_port()), authkey=b'secret')
+    else:
+        client = Client(('localhost', _get_port()), authkey='secret')
     client.send(cmd_args)
     client.close()

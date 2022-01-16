@@ -73,12 +73,12 @@ def import_file(file_path):
     cmds.undoInfo(stateWithoutFlush=False)
     sel = cmds.ls(selection=True)
 
-    print 'zlm - Importing "{}"...'.format(filename)
+    print('zlm - Importing "{}"...'.format(filename))
     try:
         if ext.lower() == '.obj':
             import_obj(file_path)
 
-        print 'zlm - Import Successfull.'
+        print('zlm - Import Successfull.')
     finally:
         cmds.select(sel)
         cmds.undoInfo(stateWithoutFlush=True)

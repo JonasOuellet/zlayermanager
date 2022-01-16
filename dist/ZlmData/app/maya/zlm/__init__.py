@@ -1,11 +1,11 @@
 """ To use it in maya:
 Location your installation of ZLayerManager in the zbrush startup folder
 it should be something like that:
-C:\Program Files\Pixologic\ZBrush 2018
+C:\\Program Files\\Pixologic\\ZBrush 2018
 ```
 >>> # add zlm script folder to sys path
 >>> import sys
->>> sys.path.append(r"{path to zbrush}\ZStartup\ZPlugs64\ZlmData\app\maya)
+>>> sys.path.append(r"{path to zbrush}\\ZStartup\\ZPlugs64\\ZlmData\\app\\maya)
 >>> import zlm
 >>> # open communication port so maya can receive command
 >>> zlm.open_port()
