@@ -7,19 +7,25 @@ def is_valid_mode(mode, filter_mode):
     if filter_mode == 0:
         return True
 
-    if filter_mode == 3 and mode == 1:
+    if filter_mode == 2 and mode >= 1:
+        return True
+
+    if filter_mode == 4 and mode == 1:
         return True
 
     if filter_mode == 1 and mode == 0:
         return True
 
-    return filter_mode == mode
+    if filter_mode == 3 and mode == 2:
+        return True
+
+    return False
 
 
 class LayerFilterWidget(Qt.QWidget):
     filter_edited = QtCore.pyqtSignal(str, int)
 
-    filter_option = ['All', 'Off', 'Active', 'Record']
+    filter_option = ['All', 'Off', 'Active/Record', 'Active', 'Record']
 
     def __init__(self, parent):
         Qt.QWidget.__init__(self)
