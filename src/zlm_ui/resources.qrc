@@ -22,6 +22,8 @@
     <file alias="filter.png">img/filter.png</file>
     <file alias="help.png">img/help.png</file>
     <file alias="clear.png">img/clear.png</file>
+    <file alias="asortinv.png">img/asortinv.png</file>
+    <file alias="asort.png">img/asort.png</file>
 </qresource>
 
 </RCC>

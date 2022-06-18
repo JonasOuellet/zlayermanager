@@ -2,7 +2,7 @@ import sys
 import os
 import webbrowser
 
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 import zlm_core
 from zlm_settings import ZlmSettings
@@ -11,7 +11,17 @@ from zlm_ui import resources_rc
 from zlm_ui.layer_widget import ZlmLayerWidget
 from zlm_ui.comserver import CommunicationServer
 from zlm_ui.settings_ui import SettingsDialog
-from zlm_to_zbrush import import_base, import_layer, send_to_zbrush, send_update_request
+from zlm_ui.reorder_layer import ReorderLayerUI
+from zlm_ui.rename_dialog import RenameDialog
+from zlm_ui.process_info import ProcesInfo
+from zlm_to_zbrush import (
+    import_base,
+    import_layer,
+    send_new_layer_order,
+    send_to_zbrush,
+    send_update_request,
+    send_new_layers_name
+)
 import zlm_app
 import version
 
@@ -30,31 +40,31 @@ class VersionThread(QtCore.QThread):
         self.completed.emit(valid)
 
 
-class VersionDialog(Qt.QDialog):
+class VersionDialog(QtWidgets.QDialog):
 
     def __init__(self, parent):
-        Qt.QDialog.__init__(self, parent, QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
 
         self.setWindowTitle("New version available")
 
-        self.cb_check_for_update = Qt.QPushButton("Always check for updates.")
+        self.cb_check_for_update = QtWidgets.QPushButton("Always check for updates.")
         self.cb_check_for_update.setCheckable(True)
         self.cb_check_for_update.setChecked(ZlmSettings.instance().check_for_updates)
 
-        pb_download = Qt.QPushButton("Download")
+        pb_download = QtWidgets.QPushButton("Download")
         pb_download.clicked.connect(self.accept)
 
-        pb_cancel = Qt.QPushButton("Cancel")
+        pb_cancel = QtWidgets.QPushButton("Cancel")
         pb_cancel.clicked.connect(self.reject)
 
-        label = Qt.QLabel("A new version is available. Would you like to download it?")
+        label = QtWidgets.QLabel("A new version is available. Would you like to download it?")
         label.setWordWrap(True)
 
-        layout = Qt.QGridLayout()
+        layout = QtWidgets.QGridLayout()
 
         layout.addWidget(label, 0, 0, 1, 2)
         layout.addWidget(self.cb_check_for_update, 1, 0, 1, 2)
-        layout.addItem(Qt.QSpacerItem(0, 10, Qt.QSizePolicy.Preferred, Qt.QSizePolicy.Fixed), 2, 0, 1, 2)
+        layout.addItem(QtWidgets.QSpacerItem(0, 10, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed), 2, 0, 1, 2)
         layout.addWidget(pb_download, 3, 0, 1, 1)
         layout.addWidget(pb_cancel, 3, 1, 1, 1)
 
@@ -64,7 +74,7 @@ class VersionDialog(Qt.QDialog):
         return not self.cb_check_for_update.isChecked()
 
 
-class ZlmMainUI(Qt.QMainWindow):
+class ZlmMainUI(QtWidgets.QMainWindow):
     closing = QtCore.pyqtSignal()
     showing = QtCore.pyqtSignal()
 
@@ -76,44 +86,56 @@ class ZlmMainUI(Qt.QMainWindow):
     }
 
     def __init__(self, file_path=None):
-        Qt.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.settings = ZlmSettings.instance().get('ui', self.default_settings)
 
         self.setWindowTitle("ZLayerManager v{}".format(version.current_version))
         self._apply_custom_stylesheet()
-        self.setWindowIcon(Qt.QIcon(':/zbrush.png'))
+        self.setWindowIcon(QtGui.QIcon(':/zbrush.png'))
 
         # Qt.Qt.WindowFlags
         self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, self.settings.get("always_on_top", False))
 
         self.tw_widget = ZlmLayerWidget(self)
-        self.lbl_subtool = Qt.QLabel("SubTool: ")
+        self.lbl_subtool = QtWidgets.QLabel("SubTool: ")
 
-        self.lbl_layer_count = Qt.QLabel("0")
+        self.lbl_layer_count = QtWidgets.QLabel("0")
 
-        pb_option = Qt.QPushButton(Qt.QIcon(':/gear.png'), '')
+        pb_option = QtWidgets.QPushButton(QtGui.QIcon(':/gear.png'), '')
         pb_option.clicked.connect(self.show_option)
 
-        pb_help = Qt.QPushButton(Qt.QIcon(':/help.png'), '')
+        pb_help = QtWidgets.QPushButton(QtGui.QIcon(':/help.png'), '')
         pb_help.clicked.connect(self.open_help_url)
 
-        topLayout = Qt.QHBoxLayout()
+        topLayout = QtWidgets.QHBoxLayout()
         topLayout.addWidget(self.lbl_subtool)
         topLayout.addStretch()
-        topLayout.addWidget(self.lbl_layer_count, 0, Qt.Qt.AlignRight)
-        topLayout.addWidget(Qt.QLabel("Layers"), 0, Qt.Qt.AlignRight)
+        topLayout.addWidget(self.lbl_layer_count, 0, QtCore.Qt.AlignRight)
+        topLayout.addWidget(QtWidgets.QLabel("Layers"), 0, QtCore.Qt.AlignRight)
         topLayout.addSpacing(20)
         topLayout.addWidget(pb_option)
         topLayout.addWidget(pb_help)
 
-        mainLayout = Qt.QVBoxLayout()
+        mainLayout = QtWidgets.QVBoxLayout()
 
         mainLayout.addLayout(topLayout)
         mainLayout.addWidget(self.tw_widget)
 
-        self.central_widget = Qt.QWidget()
+        self.central_widget = QtWidgets.QWidget()
         self.central_widget.setLayout(mainLayout)
         self.setCentralWidget(self.central_widget)
+
+        # creating menu
+        menuBar = self.menuBar()
+        menu = menuBar.addMenu("Edit")
+        action = menu.addAction("Reorder Layers")
+        action.triggered.connect(self.open_reorder_layer)
+
+        fix_layer_name = menu.addAction(QtGui.QIcon(':/rename.png'), "Remove name duplicate")
+        fix_layer_name.triggered.connect(self.remove_name_dup)
+
+        bulk_rename = menu.addAction(QtGui.QIcon(':/rename.png'), "Rename all")
+        bulk_rename.triggered.connect(self.bulk_rename)
 
         zlm_app.on_exception.append(self.on_error)
         zlm_app.on_port_not_set.append(self.on_port_not_set)
@@ -232,8 +254,58 @@ class ZlmMainUI(Qt.QMainWindow):
         self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))
 
     def on_port_not_set(self, app):
-        Qt.QMessageBox.warning(self, "Port not set", "Communication port not set. Please set it in the settings window.")
+        QtWidgets.QMessageBox.warning(
+            self,
+            "Port not set",
+            "Communication port not set. Please set it in the settings window."
+        )
 
     def on_error(self, e):
-        Qt.QMessageBox.warning(self, 'Could not communicate', 'Could not communicate with "{}".\n'
-                                     'Please make sure port is opened.'.format(ZlmSettings.instance().current_app))
+        QtWidgets.QMessageBox.warning(
+            self,
+            'Could not communicate',
+            'Could not communicate with "{}".\n'
+            'Please make sure port is opened.'.format(ZlmSettings.instance().current_app)
+        )
+
+    def open_reorder_layer(self):
+        inst = ReorderLayerUI(self)
+        geo = self.settings.get("reorderWindowGeo", None)
+        if geo:
+            try:
+                inst.setGeometry(*geo)
+            except:
+                pass
+        if inst.exec_():
+            # update layer
+            layers = inst.get_layers()
+            window = ProcesInfo(self, "Updating zbrush.  Please wait...")
+            window.show()
+            QtWidgets.QApplication.processEvents()
+            send_new_layer_order(layers)
+            window.close()
+
+        geo = inst.geometry()
+        self.settings['reorderWindowGeo'] = [geo.x(), geo.y(), geo.width(), geo.height()]
+
+    def remove_name_dup(self):
+        layers = zlm_core.main_layers.fix_up_names()
+        if layers:
+            send_new_layers_name(layers)
+
+    def bulk_rename(self):
+        if zlm_core.main_layers.instances_list:
+            _, ex_name = zlm_core.main_layers.remove_invalid_char(zlm_core.main_layers.instances_list[0].name)
+        else:
+            ex_name = "layerName"
+        dialog = RenameDialog(ex_name, self)
+        if dialog.exec_():
+            names = [layer.name for layer in zlm_core.main_layers.instances_list]
+            new_names = dialog.rename(names)
+            mod_layers = []
+            for layer, new_name in zip(zlm_core.main_layers.instances_list, new_names):
+                if zlm_core.main_layers.rename_layer(layer, new_name):
+                    mod_layers.append(layer)
+
+            if mod_layers:
+                send_new_layers_name(mod_layers)

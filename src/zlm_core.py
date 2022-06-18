@@ -4,6 +4,8 @@ import sys
 import json
 import re
 
+from typing import List
+
 from zlm_settings import ZlmSettings
 
 invalid_char_re = re.compile('[^A-Za-z0-9_]')
@@ -88,7 +90,7 @@ class ZlmLayers(object):
 
     def __init__(self):
         self.instances = {}
-        self.instances_list = []
+        self.instances_list: List[ZlmLayer] = []
 
         self.subtool = None
 
@@ -122,7 +124,7 @@ class ZlmLayers(object):
         else:
             self.instances_list.insert(index, layer)
             # increase index of below layers
-            for i in range(index+1, len(self.instances_list)):
+            for i in range(index + 1, len(self.instances_list)):
                 self.instances_list[i].index += 1
 
             for cb in self._cb_on_layers_changed:

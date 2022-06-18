@@ -117,9 +117,6 @@ class ZlmLayerWidget(Qt.QWidget):
 
         rename_icon = Qt.QIcon(':/rename.png')
 
-        remove_name_dup = Qt.QAction(rename_icon, 'Fix up layers name', self)
-        remove_name_dup.triggered.connect(self.remove_name_dup)
-
         if layer_under_mouse:
             rename_action = Qt.QAction(rename_icon, 'Rename layer', self)
             rename_action.triggered.connect(lambda: self.rename_layer(layer_under_mouse))
@@ -150,8 +147,6 @@ class ZlmLayerWidget(Qt.QWidget):
             menu.addAction(rename_action)
         if len(selected_layers) > 1:
             menu.addAction(bulk_rename)
-
-        menu.addAction(remove_name_dup)
 
         menu.popup(self.tree_widget.mapToGlobal(pos))
 
@@ -231,11 +226,6 @@ class ZlmLayerWidget(Qt.QWidget):
 
             if mod_layers:
                 send_new_layers_name(mod_layers)
-
-    def remove_name_dup(self):
-        layers = zlm_core.main_layers.fix_up_names()
-        if layers:
-            send_new_layers_name(layers)
 
     def on_close(self):
         self.main_ui.settings['import_collapsed'] = self.import_widget.is_collapsed()

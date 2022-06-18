@@ -1,5 +1,6 @@
 import os
 import subprocess
+from typing import List
 
 import zlm_core
 import zlm_settings
@@ -25,9 +26,9 @@ def _send_script():
 
 
 def _set_layer_state():
-    for l in zlm_core.main_layers.layers_it(exclude_record=True,
-                                            backward=True):
-        zsc.SetLayerMode(l)
+    for layer in zlm_core.main_layers.layers_it(exclude_record=True,
+                                                backward=True):
+        zsc.SetLayerMode(layer)
 
     record_layer = zlm_core.main_layers.recording_layer
     if record_layer:
@@ -56,8 +57,8 @@ def send_intensity(layers=None, intensity=1.0):
         layers = zlm_core.main_layers.instances_list
 
     with zsc.ZScript(zlm_info.SCRIPT_PATH):
-        for l in layers:
-            zsc.SetIntensity(l)
+        for layer in layers:
+            zsc.SetIntensity(layer)
 
     _send_script()
 
@@ -74,7 +75,6 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
     out_folder = settings.get_export_folder()
     out_format = settings.get_current_app_format()
 
-    quote = zsc.Quote.get()
     if app_import:
         imp_cmd = """[FileExecute,"ZSOCKET.dll","SocketSend", "import zlm;zlm.zlm_import_file('{}')"]"""
 
@@ -90,22 +90,24 @@ def export_layers(layers=None, subdiv=0, base_mesh=False):
         zsc.DeactivateRecord()
 
         # Deactive any active layers
-        for l in zlm_core.main_layers.layers_it(exclude_record=False,
-                                                backward=True):
-            zsc.SetLayerMode(l.zbrush_index(), 0, 1.0)
+        for layer in zlm_core.main_layers.layers_it(exclude_record=False,
+                                                    backward=True):
+            zsc.SetLayerMode(layer.zbrush_index(), 0, 1.0)
 
         zsc.SubdivSet(subdiv)
 
         if base_mesh:
-            path = os.path.join(out_folder, zlm_core.main_layers.subtool.name +
-                                out_format)
+            path = os.path.join(
+                out_folder,
+                zlm_core.main_layers.subtool.name + out_format
+            )
             zsc.ExportMesh(path)
             if app_import:
                 zsc.TextCommand(imp_cmd.format(path.replace('\\', '/')))
 
-        for l in layers:
-            path = os.path.join(out_folder, l.name + out_format)
-            zsc.ExportLayer(l, path)
+        for layer in layers:
+            path = os.path.join(out_folder, layer.name + out_format)
+            zsc.ExportLayer(layer, path)
             if app_import:
                 zsc.TextCommand(imp_cmd.format(path.replace('\\', '/')))
 
@@ -147,9 +149,9 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
                 # zsc.SetLayerMode(layer)
 
         # Deactive any active layers
-        for l in zlm_core.main_layers.layers_it(exclude_record=False,
-                                                backward=True):
-            zsc.SetLayerMode(l.zbrush_index(), 0, 1.0)
+        for layer in zlm_core.main_layers.layers_it(exclude_record=False,
+                                                    backward=True):
+            zsc.SetLayerMode(layer.zbrush_index(), 0, 1.0)
 
         # if layer is specified set this layer mode to record:
         if layer is not None:
@@ -304,3 +306,52 @@ def send_update_request():
 
     subprocess.call([zbrush, zlm_info.UPDATE_SCRIPT_PATH],
                     startupinfo=startupinfo)
+
+
+def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
+    """Send the new layer order and update the mains layer list.
+
+    Args:
+        layers (List[zlm_core.ZlmLayer]): _description_
+    """
+    # reverse layers because it is like that in zbrush
+    main_layers = list(reversed(zlm_core.main_layers.instances_list))
+    new_layers = list(reversed(layers))
+
+    need_to_send = False
+
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
+        zsc.SubdivStore()
+
+        zsc.SubdivMax()
+        zsc.DeactivateRecord()
+
+        for x, layer in enumerate(new_layers):
+            current_index = main_layers.index(layer)
+            if x != current_index:
+                zsc.MoveLayer(current_index, x)
+
+                main_layers.pop(current_index)
+                main_layers.insert(x, layer)
+
+                need_to_send = True
+
+        if zlm_core.main_layers.recording_layer:
+            zsc.SetLayerMode(zlm_core.main_layers.recording_layer)
+
+        zsc.SubdivRestore()
+
+    if need_to_send:
+        _send_script()
+
+        # update main layer list
+        main_layers = list(reversed(main_layers))
+        # update all the layers indexes
+        for y, l in enumerate(main_layers):
+            l.index = y + 1
+
+        zlm_core.main_layers.instances_list[:] = main_layers[:]
+
+        # call a ui update
+        for cb in zlm_core.main_layers._cb_on_layers_changed:
+            cb()
