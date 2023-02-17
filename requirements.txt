@@ -7,7 +7,7 @@ colorama==0.4.4
 debugpy==1.5.1
 docutils==0.17.1
 flake8==4.0.1
-future==0.17.1
+future==0.18.3
 idna==2.8
 imagesize==1.2.0
 importlib-metadata==4.2.0
