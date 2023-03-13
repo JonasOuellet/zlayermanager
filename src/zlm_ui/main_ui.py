@@ -2,6 +2,8 @@ import sys
 import os
 import webbrowser
 
+from typing import Optional
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 import zlm_core
@@ -208,7 +210,7 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
         ZlmSettings.instance().save_to_file()
 
-    def load_layers(self, file_path):
+    def load_layers(self, file_path: Optional[str] = None):
         zlm_core.main_layers.load_from_file(file_path)
         self.update_subtool_label()
 
@@ -316,3 +318,4 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
     def sub_tool_index_changed(self, index: int):
         send_new_sub_tool(index, self.com_server.get_port())
+        self.load_layers()

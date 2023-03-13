@@ -4,9 +4,10 @@ import sys
 import json
 import re
 
-from typing import List
+from typing import List, Optional
 
 from zlm_settings import ZlmSettings
+import zlm_info
 
 invalid_char_re = re.compile('[^A-Za-z0-9_]')
 valid_name_re = "[A-Za-z0-9_]{0,15}"
@@ -239,16 +240,20 @@ class ZlmLayers(object):
         for index, line in enumerate(lines[1:]):
             self.subtools.append(ZlmSubTool.from_line(line, index))
 
-    def load_from_file(self, file_path):
+    def load_from_file(self, file_path: Optional[str] = None):
         self.clear()
 
-        with open(file_path, mode='r') as f:
-            lines = f.readlines()
-        try:
-            layer_end = self._parse_layer(lines)
-            self._parse_subtool_line(lines[layer_end:])
-        except:
-            pass
+        if file_path is None:
+            file_path = zlm_info.LAYER_PATH
+
+        if os.path.exists(file_path):
+            with open(file_path, mode='r') as f:
+                lines = f.readlines()
+            try:
+                layer_end = self._parse_layer(lines)
+                self._parse_subtool_line(lines[layer_end:])
+            except:
+                pass
 
         for cb in self._cb_on_layer_updated:
             cb()

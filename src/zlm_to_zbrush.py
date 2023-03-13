@@ -358,9 +358,13 @@ def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
 
 
 def send_new_sub_tool(index: int, port: int):
-    with zsc.ZScript(zlm_info.SCRIPT_PATH):
-        zsc.TextCommand(f'[SubToolSelect, {index}]')
-
-        # include update script so we update the new layers
-        zsc.TextCommand(f'<zscriptinsert, "{zlm_info.UPDATE_SCRIPT_FILE}"')
+    with open(zlm_info.SCRIPT_PATH, mode='w') as f:
+        f.write(f"""
+[IFreeze,
+[SubToolSelect, {index}]
+<zscriptinsert, "zlmOps.txt">
+[VarSet, filePath, "{zlm_info.LAYER_PATH}"]
+[RoutineCall, zlmSaveLayerInfo, filePath]
+]
+""")
     _send_script()
