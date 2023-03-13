@@ -355,3 +355,12 @@ def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
         # call a ui update
         for cb in zlm_core.main_layers._cb_on_layers_changed:
             cb()
+
+
+def send_new_sub_tool(index: int, port: int):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
+        zsc.TextCommand(f'[SubToolSelect, {index}]')
+
+        # include update script so we update the new layers
+        zsc.TextCommand(f'<zscriptinsert, "{zlm_info.UPDATE_SCRIPT_FILE}"')
+    _send_script()

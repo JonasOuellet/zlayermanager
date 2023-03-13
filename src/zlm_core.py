@@ -25,15 +25,14 @@ class ZlmSubTool(object):
         self.index = index
 
     @staticmethod
-    def from_line(line):
+    def from_line(line, index):
         line = line.strip()
-        start = line.find("\"")
-        end = line.find("\"", start+1)
-        splitted = line[end+1:].strip()
-        name = line[start+1: end]
+        start = line.find("\"") + 1
+        end = line.find("\"", start)
+        name = line[start: end]
         if name.endswith('.'):
             name = name[:-1]
-        return ZlmSubTool(name, int(splitted))
+        return ZlmSubTool(name, index)
 
 
 class ZlmLayer(object):
@@ -92,7 +91,8 @@ class ZlmLayers(object):
         self.instances = {}
         self.instances_list: List[ZlmLayer] = []
 
-        self.subtool = None
+        self.current_sub_tool: int = 0
+        self.subtools: List[ZlmSubTool] = []
 
         self.recording_layer = None
 
@@ -132,12 +132,10 @@ class ZlmLayers(object):
 
         layer.master = self
 
-    def set_subtool(self, subtool):
-        self.subtool = subtool
-
     def clear(self):
         self.instances.clear()
         self.instances_list.clear()
+        self.subtools.clear()
 
     def layers_it(self, exclude_record=True, backward=False):
         layers = self.instances_list
@@ -223,18 +221,35 @@ class ZlmLayers(object):
 
         return layer, new_layer
 
+    def _parse_layer(self, lines: List[str]) -> int:
+        # layer index starts a 1
+        for x, line in enumerate(lines, 1):
+            if line.startswith('SubTools:'):
+                return x - 1
+            self._add_layer(ZlmLayer.from_line(line, x))
+        return 0
+
+    def _parse_subtool_line(self, lines: List[str]):
+        if not lines:
+            return
+
+        line = lines[0].strip()
+        # get current subtool
+        self.current_sub_tool = int(line.split(' ')[1])
+        for index, line in enumerate(lines[1:]):
+            self.subtools.append(ZlmSubTool.from_line(line, index))
+
     def load_from_file(self, file_path):
         self.clear()
-        subTool = None
 
         with open(file_path, mode='r') as f:
             lines = f.readlines()
-            # last line is for subtools
-            for x, line in enumerate(lines[:-1]):
-                layer = ZlmLayer.from_line(line, x+1)
-                self._add_layer(layer)
-            subTool = ZlmSubTool.from_line(lines[-1])
-            self.set_subtool(subTool)
+        try:
+            layer_end = self._parse_layer(lines)
+            self._parse_subtool_line(lines[layer_end:])
+        except:
+            pass
+
         for cb in self._cb_on_layer_updated:
             cb()
 
@@ -245,7 +260,7 @@ class ZlmLayers(object):
 
         number = 1
         # replace number with new number
-        match = re.search('(\d+)$', name)
+        match = re.search(r'(\d+)$', name)
         if match:
             name = name[:match.span()[0]]
             number = int(match.group(0)) + 1

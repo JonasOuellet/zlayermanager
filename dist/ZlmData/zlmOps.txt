@@ -3,25 +3,26 @@
 
     //initialise output value to 0
     [VarSet, output, 0]
+    [If, [IExists, "Tool:Layers:Layers Scrollbar"],
+        //if there's a scrollbar there is more than one layer
+        [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
 
-    //if there's a scrollbar there is more than one layer
-    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
+            //store current scroll bar position
+            [VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
 
-	    //store current scroll bar position
-		[VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
+            //set scroll bar to a maximum to ensure it is at the top
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
+            [VarSet, output, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] + 1]
 
-		//set scroll bar to a maximum to ensure it is at the top
-		[ISet, "Tool:Layers:Layers Scrollbar", 0, 256]
-		[VarSet, output, [IGetSecondary, "Tool:Layers:Layers Scrollbar"] + 1]
-
-        // restore scroll bar position
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
-	,
-        
-    	[If,[IsEnabled, "Tool:Layers:Layer Intensity"],
-			[VarSet,output,1]	
-		]
-	]
+            // restore scroll bar position
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
+        ,
+            
+            [If,[IsEnabled, "Tool:Layers:Layer Intensity"],
+                [VarSet,output,1]	
+            ]
+	    ]
+    ]
     ]
 ,output]
 
@@ -44,13 +45,14 @@
     [VarSet, layersCount, 0]
     [RoutineCall, zlmGetLayerCount, layersCount]
 
-    // set max subdivs
-    [VarSet, subdiv, [IGet, "Tool:Geometry:SDiv"]]
-    [VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
-
-    [VarSet, isRecording, 0]
-    [VarSet, recordingYpos, 0]
     [If, layersCount > 0,
+        // set max subdivs
+        [VarSet, subdiv, [IGet, "Tool:Geometry:SDiv"]]
+        [VarSet, tmpLyScrPos, [IGetSecondary, "Tool:Layers:Layers Scrollbar"]]
+
+        [VarSet, isRecording, 0]
+        [VarSet, recordingYpos, 0]
+
 
         [VarSet, layerIdOne, 0]
         [RoutineCall, zlmGetIdFirstLayerID, layerIdOne]
@@ -119,13 +121,9 @@
 
     , counter]
 
-    // Write the name of the sub tools
-    [VarSet, subtoolName, [IGetTitle, "Tool:ItemInfo"]]
-    [VarSet, idx, [SubToolGetActiveIndex]]
-    [VarSet, subtoolLine, [StrMerge, #quote, #subtoolName, #quote, " ", #idx]]
-
+    [VarSet, currentSubToolIndex, [SubToolGetActiveIndex]]
+    [VarSet, subtoolLine, [StrMerge, "SubTools: ", #currentSubToolIndex, [StrFromAsc, 10]]]
     [VarAdd, currentSize, [StrLength, subtoolLine]]
-
     // Check if memory is big enough
     // Resize it enough so we dont have to resize everytime
     [If, currentSize > [MemGetSize, layerNameMem],
@@ -133,6 +131,21 @@
     ,]
     [VarAdd, byteOffset, [MemWriteString, layerNameMem, subtoolLine, byteOffset, 0]]
 
+    [VarSet, subToolCount, [SubToolGetCount]]
+    [Loop, subToolCount,
+        [SubToolSelect, #index]
+        [VarSet, subToolName, [StrMerge, #quote, [IGetTitle, "Tool:ItemInfo"], #quote]]
+        [If, #index + 1 < subToolCount,
+            [VarSet, subToolName, [StrMerge, #subToolName, [StrFromAsc, 10]]]
+        ]
+        [VarAdd, currentSize, [StrLength, subToolName]]
+        // Check if memory is big enough
+        // Resize it enough so we dont have to resize everytime
+        [If, currentSize > [MemGetSize, layerNameMem],
+            [MemResize, layerNameMem, currentSize]
+        ,]
+        [VarAdd, byteOffset, [MemWriteString, layerNameMem, subToolName, byteOffset, 0]]
+    , index]
 
     // Resize memory to the actual total size so we don't write any empty bits.
     [MemResize, layerNameMem, currentSize]
@@ -141,20 +154,25 @@
 
     [MemDelete, layerNameMem]
 
+    [SubToolSelect, #currentSubToolIndex]
+
     // If was recording
-    [If, #isRecording, 
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, recordingYpos]
-        [VarSet, wid, [IWidth, #layerIdOne]]
-        [IClick, #layerIdOne, wid-20, 5]
-    ]
+    [If, layersCount > 0,
+        [If, #isRecording, 
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, recordingYpos]
+            [VarSet, wid, [IWidth, #layerIdOne]]
+            [IClick, #layerIdOne, wid-20, 5]
+        ]
 
-    // restore scroll bar position
-    [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
-        [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
-    ]
+        // restore scroll bar position
+        [If, [IsEnabled, "Tool:Layers:Layers Scrollbar"],
+            [ISet, "Tool:Layers:Layers Scrollbar", 0, tmpLyScrPos]
+        ]
 
-    // restore subdiv.
-    [ISet, "Tool:Geometry:SDiv", #subdiv, 0]
+        // restore subdiv.
+        [ISet, "Tool:Geometry:SDiv", #subdiv, 0]
+
+    ]
 
     ] // IFreeze
 

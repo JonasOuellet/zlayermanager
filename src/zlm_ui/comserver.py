@@ -50,6 +50,9 @@ class CommunicationServer(QObject):
 
         return self._deamon.isRunning()
 
+    def get_port(self) -> int:
+        return self._address[1]
+
     def start(self):
         if not self.isRunning():
             self._address = ('localhost', 0)

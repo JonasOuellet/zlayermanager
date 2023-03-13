@@ -20,7 +20,8 @@ from zlm_to_zbrush import (
     send_new_layer_order,
     send_to_zbrush,
     send_update_request,
-    send_new_layers_name
+    send_new_layers_name,
+    send_new_sub_tool
 )
 import zlm_app
 import version
@@ -107,14 +108,17 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         pb_help = QtWidgets.QPushButton(QtGui.QIcon(':/help.png'), '')
         pb_help.clicked.connect(self.open_help_url)
 
+        self.cb_subtool = QtWidgets.QComboBox()
+        self.cb_subtool.currentIndexChanged.connect(self.sub_tool_index_changed)
+
         topLayout = QtWidgets.QHBoxLayout()
-        topLayout.addWidget(self.lbl_subtool)
-        topLayout.addStretch()
+        topLayout.addWidget(self.lbl_subtool, 0)
+        topLayout.addWidget(self.cb_subtool, 1)
         topLayout.addWidget(self.lbl_layer_count, 0, QtCore.Qt.AlignRight)
         topLayout.addWidget(QtWidgets.QLabel("Layers"), 0, QtCore.Qt.AlignRight)
         topLayout.addSpacing(20)
-        topLayout.addWidget(pb_option)
-        topLayout.addWidget(pb_help)
+        topLayout.addWidget(pb_option, 0)
+        topLayout.addWidget(pb_help, 0)
 
         mainLayout = QtWidgets.QVBoxLayout()
 
@@ -209,11 +213,11 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.update_subtool_label()
 
     def update_subtool_label(self):
-        subtool = zlm_core.main_layers.subtool
-        if subtool:
-            self.lbl_subtool.setText("SubTool: " + subtool.name)
-        else:
-            self.lbl_subtool.setText("SubTool: ")
+        signal_blocked = self.cb_subtool.blockSignals(True)
+        self.cb_subtool.clear()
+        self.cb_subtool.addItems([st.name for st in zlm_core.main_layers.subtools])
+        self.cb_subtool.setCurrentIndex(zlm_core.main_layers.current_sub_tool)
+        self.cb_subtool.blockSignals(signal_blocked)
 
     def _apply_custom_stylesheet(self):
         if getattr(sys, 'frozen', False):
@@ -309,3 +313,6 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
             if mod_layers:
                 send_new_layers_name(mod_layers)
+
+    def sub_tool_index_changed(self, index: int):
+        send_new_sub_tool(index, self.com_server.get_port())
