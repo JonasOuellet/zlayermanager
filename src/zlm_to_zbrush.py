@@ -368,3 +368,9 @@ def send_new_sub_tool(index: int, port: int):
 ]
 """)
     _send_script()
+
+
+def send_sdiv_level(lvl: int):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
+        zsc.SubdivSet(lvl)
+    _send_script()

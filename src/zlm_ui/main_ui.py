@@ -23,7 +23,8 @@ from zlm_to_zbrush import (
     send_to_zbrush,
     send_update_request,
     send_new_layers_name,
-    send_new_sub_tool
+    send_new_sub_tool,
+    send_sdiv_level
 )
 import zlm_app
 import version
@@ -77,6 +78,42 @@ class VersionDialog(QtWidgets.QDialog):
         return not self.cb_check_for_update.isChecked()
 
 
+class SDivWidget(QtWidgets.QWidget):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.sld = QtWidgets.QSlider(orientation=QtCore.Qt.Horizontal)
+        self.lbl = QtWidgets.QLabel("SDiv")
+        self.sld.valueChanged.connect(self.update_lbl_text)
+        self.sld.sliderReleased.connect(self.slider_released)
+        layout = QtWidgets.QVBoxLayout()
+        layout.setSpacing(0)
+        layout.addWidget(self.lbl)
+        layout.addWidget(self.sld)
+        layout.setContentsMargins(10, 0, 10, 0)
+        self.setLayout(layout)
+
+    def slider_released(self):
+        value = self.sld.value()
+        send_sdiv_level(value)
+
+    def update_lbl_text(self, index):
+        self.lbl.setText(f"SDiv {index}")
+
+    def set_cur_max(self, current: int, pmax: int):
+        self.sld.blockSignals(True)
+        if pmax > 0:
+            self.update_lbl_text(current)
+            self.sld.setRange(1, pmax)
+            self.sld.setValue(current)
+            self.setEnabled(True)
+        else:
+            self.lbl.setText("SDiv")
+            self.sld.setRange(1, 1)
+            self.setEnabled(False)
+        self.sld.blockSignals(False)
+
+
 class ZlmMainUI(QtWidgets.QMainWindow):
     closing = QtCore.pyqtSignal()
     showing = QtCore.pyqtSignal()
@@ -102,25 +139,15 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.tw_widget = ZlmLayerWidget(self)
         self.lbl_subtool = QtWidgets.QLabel("SubTool: ")
 
-        self.lbl_layer_count = QtWidgets.QLabel("0")
-
-        pb_option = QtWidgets.QPushButton(QtGui.QIcon(':/gear.png'), '')
-        pb_option.clicked.connect(self.show_option)
-
-        pb_help = QtWidgets.QPushButton(QtGui.QIcon(':/help.png'), '')
-        pb_help.clicked.connect(self.open_help_url)
-
         self.cb_subtool = QtWidgets.QComboBox()
         self.cb_subtool.currentIndexChanged.connect(self.sub_tool_index_changed)
 
+        self.sdiv_widget = SDivWidget()
+
         topLayout = QtWidgets.QHBoxLayout()
         topLayout.addWidget(self.lbl_subtool, 0)
-        topLayout.addWidget(self.cb_subtool, 1)
-        topLayout.addWidget(self.lbl_layer_count, 0, QtCore.Qt.AlignRight)
-        topLayout.addWidget(QtWidgets.QLabel("Layers"), 0, QtCore.Qt.AlignRight)
-        topLayout.addSpacing(20)
-        topLayout.addWidget(pb_option, 0)
-        topLayout.addWidget(pb_help, 0)
+        topLayout.addWidget(self.cb_subtool, 5)
+        topLayout.addWidget(self.sdiv_widget, 3)
 
         mainLayout = QtWidgets.QVBoxLayout()
 
@@ -143,11 +170,20 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         bulk_rename = menu.addAction(QtGui.QIcon(':/rename.png'), "Rename all")
         bulk_rename.triggered.connect(self.bulk_rename)
 
+        menu.addSeparator()
+
+        settings_act = menu.addAction(QtGui.QIcon(":/gear.png"), "Settings")
+        settings_act.triggered.connect(self.show_option)
+
+        help_menu = menuBar.addMenu("Help")
+        pb_help = help_menu.addAction(QtGui.QIcon(':/help.png'), 'Open Documentation')
+        pb_help.triggered.connect(self.open_help_url)
+
+        bug_action = help_menu.addAction("Flag bug")
+        bug_action.triggered.connect(self.flag_a_bug)
+
         zlm_app.on_exception.append(self.on_error)
         zlm_app.on_port_not_set.append(self.on_port_not_set)
-
-        for i in range(3):
-            zlm_core.main_layers.add_callback(i, self.update_layer_count)
 
         if file_path and os.path.exists(file_path):
             self.load_layers(file_path)
@@ -220,6 +256,10 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.cb_subtool.addItems([st.name for st in zlm_core.main_layers.subtools])
         self.cb_subtool.setCurrentIndex(zlm_core.main_layers.current_sub_tool)
         self.cb_subtool.blockSignals(signal_blocked)
+        self.sdiv_widget.set_cur_max(
+            zlm_core.main_layers.current_sub_tool_sdiv,
+            zlm_core.main_layers.current_sub_tool_sdiv_max
+        )
 
     def _apply_custom_stylesheet(self):
         if getattr(sys, 'frozen', False):
@@ -256,8 +296,11 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         except:
             pass
 
-    def update_layer_count(self, *args, **kwargs):
-        self.lbl_layer_count.setText(str(len(zlm_core.main_layers.instances_list)))
+    def flag_a_bug(self):
+        try:
+            webbrowser.open("https://github.com/JonasOuellet/zlayermanager/issues")
+        except:
+            pass
 
     def on_port_not_set(self, app):
         QtWidgets.QMessageBox.warning(

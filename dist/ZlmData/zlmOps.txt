@@ -122,8 +122,13 @@
     , counter]
 
     [VarSet, currentSubToolIndex, [SubToolGetActiveIndex]]
-    [VarSet, subtoolLine, [StrMerge, "SubTools: ", #currentSubToolIndex, [StrFromAsc, 10]]]
-    [VarAdd, currentSize, [StrLength, subtoolLine]]
+    [VarSet, subtoolLine, [StrMerge, "SubTools: ", #currentSubToolIndex]]
+    [If, [IExists, "Tool:Geometry:SDiv"],
+        
+        [VarSet, subtoolLine, [StrMerge, #subtoolLine, " ", [IGet, "Tool:Geometry:SDiv"], " ", [IGetMax, "Tool:Geometry:SDiv"]]]
+    ]
+    [VarSet, subtoolLine, [StrMerge, #subtoolLine, [StrFromAsc, 10]]]
+    [VarAdd, currentSize, [StrLength, #subtoolLine]]
     // Check if memory is big enough
     // Resize it enough so we dont have to resize everytime
     [If, currentSize > [MemGetSize, layerNameMem],
@@ -134,7 +139,12 @@
     [VarSet, subToolCount, [SubToolGetCount]]
     [Loop, subToolCount,
         [SubToolSelect, #index]
-        [VarSet, subToolName, [StrMerge, #quote, [IGetTitle, "Tool:ItemInfo"], #quote]]
+        [VarSet, subToolFolder, [SubToolGetFolderName, #index]]
+        [If, [StrLength, subToolFolder],
+            [VarSet, subToolName, [StrMerge, #quote, subToolFolder, "/", [IGetTitle, "Tool:ItemInfo"], #quote]]
+        ,
+            [VarSet, subToolName, [StrMerge, #quote, [IGetTitle, "Tool:ItemInfo"], #quote]]
+        ]
         [If, #index + 1 < subToolCount,
             [VarSet, subToolName, [StrMerge, #subToolName, [StrFromAsc, 10]]]
         ]

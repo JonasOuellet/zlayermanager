@@ -93,6 +93,8 @@ class ZlmLayers(object):
         self.instances_list: List[ZlmLayer] = []
 
         self.current_sub_tool: int = 0
+        self.current_sub_tool_sdiv: int = 0
+        self.current_sub_tool_sdiv_max: int = 0
         self.subtools: List[ZlmSubTool] = []
 
         self.recording_layer = None
@@ -234,9 +236,16 @@ class ZlmLayers(object):
         if not lines:
             return
 
-        line = lines[0].strip()
+        splitted = lines[0].strip().split()
         # get current subtool
-        self.current_sub_tool = int(line.split(' ')[1])
+        self.current_sub_tool = int(splitted[1])
+        try:
+            self.current_sub_tool_sdiv = int(splitted[2])
+            self.current_sub_tool_sdiv_max = int(splitted[3])
+        except:
+            self.current_sub_tool_sdiv = 0
+            self.current_sub_tool_sdiv_max = 0
+
         for index, line in enumerate(lines[1:]):
             self.subtools.append(ZlmSubTool.from_line(line, index))
 
