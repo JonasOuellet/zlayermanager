@@ -35,14 +35,11 @@
             "request": "launch",
             "module": "zlm_ui",
             "args": [
-                "370",
-                "${workspaceFolder}\\layers.TXT"
+                "406",
+                "${workspaceFolder}\\dist\\ZlmData\\layers.TXT"
             ],
             "envFile": "${workspaceFolder}/.env",
-            "env": {
-                "ZLM_SETTINGS_PATH": "C:\\dev\\animtools\\GbxAnimLauncher\\Tools\\ZLayerManager",
-                "ZLM_PRESET_PATH": "c:\\dev\\Cypress2\\ContentSource\\cypress2source\\Character\\__Shared\\Head\\ZBrush\\presets"
-            }
+            "qt": "auto"
         },
         {
             "name": "Python: Current File (Integrated Terminal)",

@@ -355,3 +355,22 @@ def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
         # call a ui update
         for cb in zlm_core.main_layers._cb_on_layers_changed:
             cb()
+
+
+def send_new_sub_tool(index: int, port: int):
+    with open(zlm_info.SCRIPT_PATH, mode='w') as f:
+        f.write(f"""
+[IFreeze,
+[SubToolSelect, {index}]
+<zscriptinsert, "zlmOps.txt">
+[VarSet, filePath, "{zlm_info.LAYER_PATH}"]
+[RoutineCall, zlmSaveLayerInfo, filePath]
+]
+""")
+    _send_script()
+
+
+def send_sdiv_level(lvl: int):
+    with zsc.ZScript(zlm_info.SCRIPT_PATH):
+        zsc.SubdivSet(lvl)
+    _send_script()

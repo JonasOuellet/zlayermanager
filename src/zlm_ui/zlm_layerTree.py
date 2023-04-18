@@ -435,6 +435,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         for layer in main_layers.instances_list:
             self.create_layer(layer)
+        self.updateColumnSize()
 
     def update_layer(self):
         column = self.sortColumn()
@@ -445,7 +446,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         for key, layers in self.itemDict.items():
             for item in layers:
                 item.update()
-                
+
                 if item.layer.mode == ZlmLayerMode.record:
                     self.current_item_recording = item
 

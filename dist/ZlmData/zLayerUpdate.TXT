@@ -9,17 +9,13 @@
 
 <zscriptinsert, "zlmOps.txt">
 
-// check if there is a subtool loaded
-[If, [IExists, "Tool:Layers:Layers Scrollbar"],
-    [VarSet, filePath, ""]
-    [VarSet, exec, ""]
-    [RoutineCall, zlmGetLayerPath, filePath]
-    [RoutineCall, zlmSaveLayerInfo, filePath]
-    [RoutineCall, zlmGetExecutable, exec]
-    [VarSet, quote, [StrFromAsc, 34]]
-    
-    [VarSet, cmd, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]
-    // [Note, cmd]
-    [ShellExecute, cmd]
-,
-]
+[VarSet, filePath, ""]
+[VarSet, exec, ""]
+[RoutineCall, zlmGetLayerPath, filePath]
+[RoutineCall, zlmSaveLayerInfo, filePath]
+[RoutineCall, zlmGetExecutable, exec]
+[VarSet, quote, [StrFromAsc, 34]]
+
+[VarSet, cmd, [StrMerge, "start ", #quote, #quote, " ", #quote, #exec, #quote, " -o -f ", #quote, #filePath, #quote]]
+// [Note, cmd]
+[ShellExecute, cmd]

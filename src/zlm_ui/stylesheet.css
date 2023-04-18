@@ -8,6 +8,10 @@ QLabel {
     background-color: rgba(0, 0, 0, 0);
 }
 
+QLabel:disabled {
+    color: rgb(136, 136, 136);
+}
+
 QPushButton {
 	border-style: solid;
 	border-width: 1px;
@@ -169,12 +173,24 @@ QSlider::groove{
     stop:1 rgba(176, 176, 176, 50));
 }
 
+QSlider::groove:disabled {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, 
+    stop:0 rgba(176, 176, 176, 23), 
+    stop:0.5 rgba(176, 176, 176, 180), 
+    stop:1 rgba(176, 176, 176, 23));
+}
+
+
 QSlider::handle {
     background-color: rgb(255, 144, 37);
 	border-style: solid;
 	border-width: 1px;
 	border-radius: 1ex;
 	border-color: rgb(0, 0, 0);
+}
+
+QSlider::handle:disabled {
+    background-color: rgb(153, 107, 64);
 }
 
 QSlider::handle:hover {

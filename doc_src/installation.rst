@@ -51,7 +51,7 @@ Click on `open` to open the standalone UI.
     - If this is the first time you use the tool and it freeze ZBrush when opening it, the os is preventing you from using the tool, you have to open it manually and say that you trust the tool.
       
       - Close Zbrush
-      - Navigate to ZlmData\zlm_ui.exe and open it.
+      - Navigate to `ZlmData/zlm_ui.exe` and open it.
       - Awnser trust and open anyway.
 
     - You must have a subtool selected to open the UI
