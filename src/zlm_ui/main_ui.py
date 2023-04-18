@@ -102,7 +102,7 @@ class SDivWidget(QtWidgets.QWidget):
 
     def set_cur_max(self, current: int, pmax: int):
         self.sld.blockSignals(True)
-        if pmax > 0:
+        if pmax > 1:
             self.update_lbl_text(current)
             self.sld.setRange(1, pmax)
             self.sld.setValue(current)
@@ -179,7 +179,7 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         pb_help = help_menu.addAction(QtGui.QIcon(':/help.png'), 'Open Documentation')
         pb_help.triggered.connect(self.open_help_url)
 
-        bug_action = help_menu.addAction("Flag bug")
+        bug_action = help_menu.addAction("Submit bug or request")
         bug_action.triggered.connect(self.flag_a_bug)
 
         zlm_app.on_exception.append(self.on_error)

@@ -38,7 +38,8 @@
                 "406",
                 "${workspaceFolder}\\dist\\ZlmData\\layers.TXT"
             ],
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "qt": "auto"
         },
         {
             "name": "Python: Current File (Integrated Terminal)",
