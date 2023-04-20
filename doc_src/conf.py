@@ -26,7 +26,7 @@ author = 'Jonathan Ouellet'
 # The short X.Y version
 version = '1.10'
 # The full version, including alpha/beta/rc tags
-release = '1.10.0'
+release = '1.10.1'
 
 
 # -- General configuration ---------------------------------------------------

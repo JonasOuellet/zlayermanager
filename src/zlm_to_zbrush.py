@@ -149,9 +149,9 @@ def _update_mesh(file_path, vertex_count, layer=None, create_layer=False):
                 # zsc.SetLayerMode(layer)
 
         # Deactive any active layers
-        for layer in zlm_core.main_layers.layers_it(exclude_record=False,
-                                                    backward=True):
-            zsc.SetLayerMode(layer.zbrush_index(), 0, 1.0)
+        for _layer in zlm_core.main_layers.layers_it(exclude_record=False,
+                                                     backward=True):
+            zsc.SetLayerMode(_layer.zbrush_index(), 0, 1.0)
 
         # if layer is specified set this layer mode to record:
         if layer is not None:

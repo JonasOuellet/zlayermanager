@@ -3,7 +3,7 @@ import requests
 import re
 
 
-current_version = "1.10.0"
+current_version = "1.10.1"
 
 
 def get_version() -> Tuple[int, int, int]:
