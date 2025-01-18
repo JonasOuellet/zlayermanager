@@ -1,7 +1,7 @@
-from PyQt5 import Qt
+from typing import TYPE_CHECKING
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 import zlm_core
-from zlm_settings import ZlmSettings
 from zlm_to_zbrush import (
     export_layers, create_layer, send_to_zbrush, send_deleted_layers,
     send_new_layers_name, send_duplicated_layers, send_merged_layers
@@ -14,10 +14,14 @@ from zlm_ui.import_widget import ZlmImportWidget
 from zlm_ui import layer_edit_option as leo
 from zlm_ui.rename_dialog import RenameDialog
 
+if TYPE_CHECKING:
+    from zlm_ui.main_ui import ZlmMainUI
+    from zlm_core import ZlmLayer
 
-class ZlmLayerWidget(Qt.QWidget):
-    def __init__(self, parent):
-        Qt.QWidget.__init__(self, parent)
+
+class ZlmLayerWidget(QtWidgets.QWidget):
+    def __init__(self, parent: "ZlmMainUI"):
+        super().__init__(parent)
 
         self.main_ui = parent
         self.main_ui.closing.connect(self.on_close)
@@ -25,7 +29,7 @@ class ZlmLayerWidget(Qt.QWidget):
         self.preset_widget = ZlmPresetWidget()
         self.filter_widget = LayerFilterWidget(parent)
         self.tree_widget = ZlmLayerTreeWidget(parent)
-        self.tree_widget.setContextMenuPolicy(Qt.Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree_widget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self.tree_widget.customContextMenuRequested.connect(self.tree_widget_custom_menu)
 
         self.filter_widget.filter_edited.connect(self.tree_widget.build)
@@ -40,7 +44,7 @@ class ZlmLayerWidget(Qt.QWidget):
 
         self.import_widget = ZlmImportWidget(self.main_ui)
 
-        layout = Qt.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(self.preset_widget)
@@ -89,40 +93,40 @@ class ZlmLayerWidget(Qt.QWidget):
         export_layers([], base_mesh=True, subdiv=self.export_widget.get_subdiv())
 
     def tree_widget_custom_menu(self, pos):
-        menu = Qt.QMenu(self)
-        turn_off_action = Qt.QAction(Qt.QIcon(":/eye.png"), 'Turn All Off', self)
+        menu = QtWidgets.QMenu(self)
+        turn_off_action = QtWidgets.QAction(QtGui.QIcon(":/eye.png"), 'Turn All Off', self)
         turn_off_action.triggered.connect(self.turn_all_off)
 
-        create_action = Qt.QAction(Qt.QIcon(':/add.png'), 'Create Layer', self)
+        create_action = QtWidgets.QAction(QtGui.QIcon(':/add.png'), 'Create Layer', self)
         create_action.triggered.connect(self.create_layer)
 
         selected_layers = self.tree_widget.get_selected_layers()
 
         if selected_layers:
-            clear_selection_action = Qt.QAction(Qt.QIcon(":/clear.png"), 'Clear Selection', self)
+            clear_selection_action = QtWidgets.QAction(QtGui.QIcon(":/clear.png"), 'Clear Selection', self)
             clear_selection_action.triggered.connect(self.tree_widget.clearSelection)
 
         layer_under_mouse = self.tree_widget.get_layer_under_mouse()
         suff = 's' if len(selected_layers) > 1 else ''
         if selected_layers:
-            remove_action = Qt.QAction(Qt.QIcon(':/remove.png'), f'Delete selected layer{suff}', self)
+            remove_action = QtWidgets.QAction(QtGui.QIcon(':/remove.png'), f'Delete selected layer{suff}', self)
             remove_action.triggered.connect(lambda: self.remove_layer(selected_layers))
 
-            duplicate_action = Qt.QAction(Qt.QIcon(':/duplicate.png'), f'Duplicate selected layer{suff}', self)
+            duplicate_action = QtWidgets.QAction(QtGui.QIcon(':/duplicate.png'), f'Duplicate selected layer{suff}', self)
             duplicate_action.triggered.connect(lambda: self.duplicate_layer(selected_layers))
 
         if len(selected_layers) > 1:
-            merge_action = Qt.QAction(Qt.QIcon(":/merge.png"), "Merge selected layers", self)
+            merge_action = QtWidgets.QAction(QtGui.QIcon(":/merge.png"), "Merge selected layers", self)
             merge_action.triggered.connect(lambda: self.merge_layers(selected_layers))
 
-        rename_icon = Qt.QIcon(':/rename.png')
+        rename_icon = QtGui.QIcon(':/rename.png')
 
         if layer_under_mouse:
-            rename_action = Qt.QAction(rename_icon, 'Rename layer', self)
+            rename_action = QtWidgets.QAction(rename_icon, 'Rename layer', self)
             rename_action.triggered.connect(lambda: self.rename_layer(layer_under_mouse))
 
         if len(selected_layers) > 1:
-            bulk_rename = Qt.QAction(rename_icon, f'Rename selected layers', self)
+            bulk_rename = QtWidgets.QAction(rename_icon, 'Rename selected layers', self)
             bulk_rename.triggered.connect(lambda: self.bulk_rename(selected_layers))
 
         menu.addAction(turn_off_action)
@@ -172,19 +176,24 @@ class ZlmLayerWidget(Qt.QWidget):
             # send to zbrush:
             create_layer(layer)
 
-    def remove_layer(self, layers):
+    def remove_layer(self, layers: list["ZlmLayer"]):
         result = True
         if leo.should_ask_before_delete():
-            result = Qt.QMessageBox.warning(self, "Delete Layers", 'This will delete selected layers.  Are you sure?',
-                                            Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
-            result = result == Qt.QMessageBox.StandardButton.Yes
+            result = QtWidgets.QMessageBox.warning(
+                self,
+                "Delete Layers",
+                'This will delete selected layers.  Are you sure?',
+                QtWidgets.QMessageBox.StandardButton.Yes,
+                QtWidgets.QMessageBox.StandardButton.No
+            )
+            result = result == QtWidgets.QMessageBox.StandardButton.Yes
 
         if result:
             for layer in layers:
                 zlm_core.main_layers.remove_layer(layer)
             send_deleted_layers(layers)
 
-    def duplicate_layer(self, layers):
+    def duplicate_layer(self, layers: list["ZlmLayer"]):
         dup_layers = []
         move_dup_down = leo.should_move_dup_down()
         for layer in layers:
@@ -203,7 +212,7 @@ class ZlmLayerWidget(Qt.QWidget):
 
         send_duplicated_layers(dup_layers, move_dup_down)
 
-    def merge_layers(self, layers):
+    def merge_layers(self, layers: list["ZlmLayer"]):
         zlm_core.main_layers.merge_layers(layers)
         send_merged_layers(layers)
 
@@ -213,11 +222,11 @@ class ZlmLayerWidget(Qt.QWidget):
             if zlm_core.main_layers.rename_layer(layer, text):
                 send_new_layers_name(layer)
 
-    def bulk_rename(self, layers):
+    def bulk_rename(self, layers: list["ZlmLayer"]):
         _, ex_name = zlm_core.main_layers.remove_invalid_char(layers[0].name)
         dialog = RenameDialog(ex_name, self)
-        if dialog.exec_():
-            names = [l.name for l in layers]
+        if dialog.exec():
+            names = [layer.name for layer in layers]
             new_names = dialog.rename(names)
             mod_layers = []
             for layer, new_name in zip(layers, new_names):
@@ -235,14 +244,14 @@ class ZlmLayerWidget(Qt.QWidget):
         self.export_widget.on_close()
 
     def _get_name_(self, title='Enter Name', label='Name: ', text=''):
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
+        dialog = QtWidgets.QInputDialog(self)
+        dialog.setInputMode(QtWidgets.QInputDialog.InputMode.TextInput)
         dialog.setWindowTitle(title)
         dialog.setLabelText(label)
         dialog.setTextValue(text)
-        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
-        lineEdit = dialog.findChild(Qt.QLineEdit)
-        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp(zlm_core.valid_name_re), dialog))
+        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4
+        lineEdit: QtWidgets.QLineEdit = dialog.findChild(QtWidgets.QLineEdit)
+        lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(zlm_core.valid_name_re), dialog))
         if dialog.exec_():
             return dialog.textValue()
         return None

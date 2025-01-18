@@ -16,6 +16,7 @@ from zlm_ui.settings_ui import SettingsDialog
 from zlm_ui.reorder_layer import ReorderLayerUI
 from zlm_ui.rename_dialog import RenameDialog
 from zlm_ui.process_info import ProcesInfo
+from zlm_ui import wrappers
 from zlm_to_zbrush import (
     import_base,
     import_layer,
@@ -47,7 +48,12 @@ class VersionThread(QtCore.QThread):
 class VersionDialog(QtWidgets.QDialog):
 
     def __init__(self, parent):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint)
+        super().__init__(
+            self,
+            parent,
+            (QtCore.Qt.WindowType.WindowSystemMenuHint | QtCore.Qt.WindowType.WindowTitleHint |
+             QtCore.Qt.WindowType.WindowCloseButtonHint)
+        )
 
         self.setWindowTitle("New version available")
 
@@ -68,7 +74,12 @@ class VersionDialog(QtWidgets.QDialog):
 
         layout.addWidget(label, 0, 0, 1, 2)
         layout.addWidget(self.cb_check_for_update, 1, 0, 1, 2)
-        layout.addItem(QtWidgets.QSpacerItem(0, 10, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed), 2, 0, 1, 2)
+        layout.addItem(
+            QtWidgets.QSpacerItem(
+                0, 10, QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed
+            ),
+            2, 0, 1, 2
+        )
         layout.addWidget(pb_download, 3, 0, 1, 1)
         layout.addWidget(pb_cancel, 3, 1, 1, 1)
 
@@ -82,7 +93,7 @@ class SDivWidget(QtWidgets.QWidget):
 
     def __init__(self) -> None:
         super().__init__()
-        self.sld = QtWidgets.QSlider(orientation=QtCore.Qt.Horizontal)
+        self.sld = QtWidgets.QSlider(orientation=QtCore.Qt.Orientation.Horizontal)
         self.lbl = QtWidgets.QLabel("SDiv")
         self.sld.valueChanged.connect(self.update_lbl_text)
         self.sld.sliderReleased.connect(self.slider_released)
@@ -126,15 +137,14 @@ class ZlmMainUI(QtWidgets.QMainWindow):
     }
 
     def __init__(self, file_path=None):
-        QtWidgets.QMainWindow.__init__(self)
+        super().__init__()
         self.settings = ZlmSettings.instance().get('ui', self.default_settings)
 
         self.setWindowTitle("ZLayerManager v{}".format(version.current_version))
         self._apply_custom_stylesheet()
         self.setWindowIcon(QtGui.QIcon(':/zbrush.png'))
 
-        # Qt.Qt.WindowFlags
-        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, self.settings.get("always_on_top", False))
+        self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, self.settings.get("always_on_top", False))
 
         self.tw_widget = ZlmLayerWidget(self)
         self.lbl_subtool = QtWidgets.QLabel("SubTool: ")
@@ -142,12 +152,16 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         self.cb_subtool = QtWidgets.QComboBox()
         self.cb_subtool.currentIndexChanged.connect(self.sub_tool_index_changed)
 
+        self.pb_refresh = QtWidgets.QPushButton(QtGui.QIcon(":/reset.png"), '')
+        self.pb_refresh.clicked.connect(self.refresh_from_zbrush)
+
         self.sdiv_widget = SDivWidget()
 
         topLayout = QtWidgets.QHBoxLayout()
         topLayout.addWidget(self.lbl_subtool, 0)
         topLayout.addWidget(self.cb_subtool, 5)
         topLayout.addWidget(self.sdiv_widget, 3)
+        topLayout.addWidget(self.pb_refresh, 0)
 
         mainLayout = QtWidgets.QVBoxLayout()
 
@@ -280,9 +294,9 @@ class ZlmMainUI(QtWidgets.QMainWindow):
         if settings_dialog.exec():
             always_on_top = self.settings.get("always_on_top", False)
             flags = self.windowFlags()
-            on_top = flags & QtCore.Qt.WindowStaysOnTopHint == QtCore.Qt.WindowStaysOnTopHint
+            on_top = flags & QtCore.Qt.WindowType.WindowStaysOnTopHint == QtCore.Qt.WindowType.WindowStaysOnTopHint
             if on_top != always_on_top:
-                self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, always_on_top)
+                self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, always_on_top)
                 self.show()
 
             if not was_check_updates and ZlmSettings.instance().check_for_updates:
@@ -359,6 +373,12 @@ class ZlmMainUI(QtWidgets.QMainWindow):
             if mod_layers:
                 send_new_layers_name(mod_layers)
 
+    @wrappers.do_with_wait_cursor
     def sub_tool_index_changed(self, index: int):
-        send_new_sub_tool(index, self.com_server.get_port())
-        self.load_layers()
+        if send_new_sub_tool(index, self.com_server.get_port()):
+            self.load_layers()
+
+    @wrappers.do_with_wait_cursor
+    def refresh_from_zbrush(self, *args, **kwargs):
+        if send_update_request():
+            self.load_layers()

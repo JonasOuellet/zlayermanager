@@ -8,7 +8,7 @@ class ProcesInfo(QtWidgets.QWidget):
 
         self.setWindowTitle("Updating zbrush")
 
-        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowTitleHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.Window | QtCore.Qt.WindowType.WindowTitleHint)
         # self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
 
         lbl = QtWidgets.QLabel(info)

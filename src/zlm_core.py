@@ -1,10 +1,9 @@
+from typing import Generator, Optional, List
 from enum import IntEnum
 import os
 import sys
 import json
 import re
-
-from typing import List, Optional
 
 from zlm_settings import ZlmSettings
 import zlm_info
@@ -28,8 +27,8 @@ class ZlmSubTool(object):
     @staticmethod
     def from_line(line, index):
         line = line.strip()
-        start = line.find("\"") + 1
-        end = line.find("\"", start)
+        start = line.find('"') + 1
+        end = line.find('"', start)
         name = line[start: end]
         if name.endswith('.'):
             name = name[:-1]
@@ -37,7 +36,7 @@ class ZlmSubTool(object):
 
 
 class ZlmLayer(object):
-    def __init__(self, name, intensity, mode, index, master=None):
+    def __init__(self, name: str, intensity: float, mode: ZlmLayerMode, index: int, master: Optional["ZlmLayers"] = None):
         super(ZlmLayer, self).__init__()
         self.master = master
         self._mode = 0
@@ -66,11 +65,11 @@ class ZlmLayer(object):
     @staticmethod
     def from_line(line, line_index):
         line = line.strip()
-        start = line.find("\"")
-        end = line.find("\"", start+1)
+        start = line.find('"')
+        end = line.find('"', start + 1)
 
-        splitted = line[end+1:].strip().split(' ')
-        return ZlmLayer(line[start+1: end], float(splitted[0]), int(splitted[1]), line_index)
+        splitted = line[end + 1:].strip().split(' ')
+        return ZlmLayer(line[start + 1: end], float(splitted[0]), int(splitted[1]), line_index)
 
     def zbrush_index(self):
         if self.master:
@@ -89,7 +88,7 @@ class ZlmLayers(object):
     cb_layers_changed = 4
 
     def __init__(self):
-        self.instances = {}
+        self.instances: dict[str, list[ZlmLayer]] = {}
         self.instances_list: List[ZlmLayer] = []
 
         self.current_sub_tool: int = 0
@@ -117,10 +116,10 @@ class ZlmLayers(object):
         elif cb_type == 4:
             self._cb_on_layers_changed.append(callback)
 
-    def _add_layer(self, layer, index=None):
-        l = self.instances.get(layer.name, [])
-        l.append(layer)
-        self.instances[layer.name] = l
+    def _add_layer(self, layer: "ZlmLayer", index=None):
+        lay = self.instances.get(layer.name, [])
+        lay.append(layer)
+        self.instances[layer.name] = lay
 
         if index is None:
             self.instances_list.append(layer)
@@ -140,15 +139,15 @@ class ZlmLayers(object):
         self.instances_list.clear()
         self.subtools.clear()
 
-    def layers_it(self, exclude_record=True, backward=False):
+    def layers_it(self, exclude_record=True, backward=False) -> Generator["ZlmLayer", None, None]:
         layers = self.instances_list
         if backward:
             layers = reversed(layers)
 
-        for l in layers:
-            if exclude_record and l.mode == ZlmLayerMode.record:
+        for layer in layers:
+            if exclude_record and layer.mode == ZlmLayerMode.record:
                 continue
-            yield l
+            yield layer
 
     def get_first_layer_by_name(self, name):
         try:
@@ -164,7 +163,7 @@ class ZlmLayers(object):
             cb(layer)
         return layer
 
-    def remove_layer(self, layer):
+    def remove_layer(self, layer: "ZlmLayer"):
         if self.recording_layer == layer:
             self.recording_layer = None
 
@@ -176,14 +175,14 @@ class ZlmLayers(object):
 
         self.instances_list.remove(layer)
 
-        for l in self.instances_list[layer.index-1:]:
-            l.index -= 1
+        for lay in self.instances_list[layer.index - 1:]:
+            lay.index -= 1
 
         for cb in self._cb_on_layer_removed:
             cb(layer)
         return layer
 
-    def rename_layer(self, layer, new_name):
+    def rename_layer(self, layer: "ZlmLayer", new_name: str) -> bool:
         if new_name and new_name != layer.name:
             self.instances[layer.name].remove(layer)
             # remove if empty
@@ -193,16 +192,16 @@ class ZlmLayers(object):
             old_name = layer.name
             new_name = self.validate_layer_name(new_name)
             layer.name = new_name
-            l = self.instances.get(new_name, [])
-            l.append(layer)
-            self.instances[new_name] = l
+            lay = self.instances.get(new_name, [])
+            lay.append(layer)
+            self.instances[new_name] = lay
 
             for cb in self._cb_on_layer_renamed:
                 cb(layer, old_name)
             return True
         return False
 
-    def duplicate_layer(self, layer, move_down=False):
+    def duplicate_layer(self, layer: "ZlmLayer", move_down=False):
         suf = '_dup'
         new_name = layer.name
         needed_len = max_name_len - len(suf)
@@ -314,12 +313,12 @@ class ZlmLayers(object):
 
         return modified_layers
 
-    def merge_layers(self, layers):
+    def merge_layers(self, layers: list["ZlmLayer"]):
         # start by removing biggest index because we dont want to affect the index
-        sorted_layers = sorted(layers, key=lambda l: l.index, reverse=True)
+        sorted_layers = sorted(layers, key=lambda lay: lay.index, reverse=True)
         keep_layer = sorted_layers[-1]
-        for l in sorted_layers[:-1]:
-            self.remove_layer(l)
+        for layer in sorted_layers[:-1]:
+            self.remove_layer(layer)
         return keep_layer
 
 
@@ -375,12 +374,12 @@ def get_preset_file():
             try:
                 if not isinstance(value, list):
                     value = [value]
-                
+
                 files = []
                 for d in value:
                     files.extend(os.path.join(d, f) for f in os.listdir(d) if '.json' in f)
                 out[key] = tuple(files)
-            except Exception as e:
+            except:
                 pass
         else:
             out[key] = ()
@@ -473,22 +472,22 @@ def apply_preset(preset):
 
         layers = main_layers.instances.get(name, None)
         if layers:
-            cl = None
+            currentLayer = None
             if len(layers) > 1:
                 index = layer.get('index', None)
                 if index is not None:
                     # check for index in the array of layer with the same name
-                    for l in layers:
-                        if l.index == index:
-                            cl = l
+                    for lay in layers:
+                        if lay.index == index:
+                            currentLayer = lay
                             break
                     # layer not found, do nothing.
             else:
-                cl = layers[0]
+                currentLayer = layers[0]
 
-            if cl:
-                cl.mode = 2
-                cl.intensity = layer.get('intensity', 1.0)
+            if currentLayer:
+                currentLayer.mode = 2
+                currentLayer.intensity = layer.get('intensity', 1.0)
 
     record = preset.get('record', None)
     if record:
@@ -498,24 +497,24 @@ def apply_preset(preset):
             layers = main_layers.instances.get(name, None)
 
             if layers:
-                cl = None
+                currentLayer = None
                 if len(layers) > 1:
                     index = layer.get('index', None)
                     if index is not None:
                         # check for index in the array of layer with the same name
-                        for l in layers:
-                            if l.index == index:
-                                cl = l
+                        for lay in layers:
+                            if lay.index == index:
+                                currentLayer = lay
                                 break
                         # layer not found, do nothing.
                 else:
-                    cl = layers[0]
+                    currentLayer = layers[0]
 
-                if cl:
-                    cl.mode = 1
-                    cl.intensity = 1.0
+                if currentLayer:
+                    currentLayer.mode = 1
+                    currentLayer.intensity = 1.0
 
-                    main_layers.recording_layer = cl
+                    main_layers.recording_layer = currentLayer
 
 
 def save_layers_preset(name, data):
@@ -524,4 +523,3 @@ def save_layers_preset(name, data):
 
     with open(filepath, mode='w') as f:
         json.dump(data, f, indent=4)
-

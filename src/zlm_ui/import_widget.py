@@ -1,4 +1,4 @@
-from PyQt5 import Qt
+from PyQt5 import QtWidgets
 
 from zlm_ui.collapsable import ZlmCollapsableWidget
 from zlm_app import send_app_cmd
@@ -11,13 +11,13 @@ class ZlmImportWidget(ZlmCollapsableWidget):
 
         self.main_ui = main_ui
 
-        self.pb_sel = Qt.QPushButton('Selected as layer(s)')
+        self.pb_sel = QtWidgets.QPushButton('Selected as layer(s)')
         self.pb_sel.clicked.connect(self.export_layers)
 
-        self.pb_base = Qt.QPushButton('Selected as base mesh')
+        self.pb_base = QtWidgets.QPushButton('Selected as base mesh')
         self.pb_base.clicked.connect(self.export_base)
 
-        layout = Qt.QHBoxLayout()
+        layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.pb_sel)
         layout.addWidget(self.pb_base)
 

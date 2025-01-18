@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Remote Attach",
-            "type": "python",
+            "type": "debugpy",
             "request": "attach",
             "connect": {
                 "host": "localhost",
@@ -21,7 +21,7 @@
         },
         {
             "name": "zlm_sender: Open UI",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "zlm_sender",
             "args": [
@@ -31,26 +31,26 @@
         },
         {
             "name": "ZlmUI",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "zlm_ui",
             "args": [
                 "414",
-                "${workspaceFolder}\\dist\\ZlmData\\layers.TXT"
+                "${workspaceFolder}\\layers.TXT"
             ],
             "envFile": "${workspaceFolder}/.env",
-            "qt": "auto"
+            // "qt": "auto"
         },
         {
             "name": "Python: Current File (Integrated Terminal)",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
         },
         {
             "name": "UI",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}\\src\\zlm_ui\\__main__.py",
         }

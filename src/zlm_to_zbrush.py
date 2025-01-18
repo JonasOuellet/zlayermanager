@@ -14,15 +14,16 @@ if os.name == 'nt':
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
-def _send_script():
+def _send_script() -> bool:
     # use start with shell=True instead ??
     zbrush = zlm_info.get_zbrush_path()
     if zbrush is None:
         print("No Zbrush running cannot send script")
-        return
+        return False
 
     subprocess.call([zbrush, zlm_info.SCRIPT_PATH],
                     startupinfo=startupinfo)
+    return True
 
 
 def _set_layer_state():
@@ -357,7 +358,7 @@ def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
             cb()
 
 
-def send_new_sub_tool(index: int, port: int):
+def send_new_sub_tool(index: int, port: int) -> bool:
     with open(zlm_info.SCRIPT_PATH, mode='w') as f:
         f.write(f"""
 [IFreeze,
@@ -367,7 +368,7 @@ def send_new_sub_tool(index: int, port: int):
 [RoutineCall, zlmSaveLayerInfo, filePath]
 ]
 """)
-    _send_script()
+    return _send_script()
 
 
 def send_sdiv_level(lvl: int):

@@ -1,5 +1,6 @@
+dist/zlm_ui
+dist/zlm
 dist/ZlmData/*
-dist/test
 !dist/ZlmData/zlmOps.txt
 !dist/ZlmData/zLayerUpdate.txt
 !dist/ZlmData/app/*

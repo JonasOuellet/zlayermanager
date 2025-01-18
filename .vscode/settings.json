@@ -8,14 +8,9 @@
         "**/*.zsc": true,
         "docs_build": true,
     },
-    "python.linting.pylintEnabled": false,
-    "python.linting.pycodestyleEnabled": false,
-    "python.linting.enabled": true,
-    "restructuredtext.confPath": "${workspaceFolder}\\doc_src",
-    "python.linting.flake8Enabled": true,
-
-    "python.linting.flake8Args": [
+    "flake8.args": [
         "--max-line-length=130",
         "--ignore=E722"
-    ]
+    ],
+    "restructuredtext.confPath": "${workspaceFolder}\\doc_src",
 }

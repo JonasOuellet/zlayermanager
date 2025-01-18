@@ -1,3 +1,4 @@
+from typing import Any
 import os
 import json
 
@@ -70,8 +71,7 @@ class ZlmSettings(object):
 
                 for key, value in outdict.items():
                     self.bigData[key] = value
-
-        except Exception as e:
+        except:
             pass
 
     @staticmethod
@@ -87,7 +87,7 @@ class ZlmSettings(object):
             elif isinstance(value, dict):
                 self._recursive_update(_dict[k], value)
 
-    def get(self, key, defaultValue=None):
+    def get(self, key, defaultValue=None) -> dict[str, Any]:
         if key not in self.bigData:
             self.bigData[key] = defaultValue
 
@@ -102,7 +102,7 @@ class ZlmSettings(object):
     def __getitem__(self, index):
         try:
             return self.bigData[index]
-        except KeyError as e:
+        except KeyError:
             return None
 
     def __setitem__(self, key, value):

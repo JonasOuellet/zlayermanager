@@ -96,7 +96,7 @@ class ZRoutine(ZCommand):
                 # find next '""
                 s = idx + 1
                 e = zscript.find('"', s)
-                out += zscript[idx:e+1]
+                out += zscript[idx:e + 1]
                 idx = e
             elif c == '/':
                 c1 = zscript[idx + 1]

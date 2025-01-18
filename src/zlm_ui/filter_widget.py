@@ -1,6 +1,10 @@
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PyQt5 import QtWidgets, QtCore, QtGui
+
+if TYPE_CHECKING:
+    from zlm_ui.main_ui import ZlmMainUI
 
 
 def is_valid_mode(mode, filter_mode):
@@ -27,7 +31,7 @@ class LayerFilterWidget(QtWidgets.QWidget):
 
     filter_option = ['All', 'Off', 'Active/Record', 'Active', 'Record']
 
-    def __init__(self, parent):
+    def __init__(self, parent: "ZlmMainUI"):
         super().__init__(parent)
 
         self.main_ui = parent
@@ -73,11 +77,11 @@ class LayerFilterWidget(QtWidgets.QWidget):
 
         return menu
 
-    def setCurrentFilter(self, new_filter, toggled):
+    def setCurrentFilter(self, new_filter: str, toggled: bool):
         if toggled:
             self.current_filter = self.filter_option.index(new_filter)
             self.filter_edited.emit(self.le_search_bar.text().lower(),
                                     self.current_filter)
 
-    def _search_bar_changed(self, text):
+    def _search_bar_changed(self, text: str):
         self.filter_edited.emit(text.lower(), self.current_filter)

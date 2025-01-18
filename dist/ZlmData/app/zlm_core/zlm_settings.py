@@ -26,6 +26,8 @@ class ZlmSettings(object):
 
         self.bigData = {}
 
+        self.allow_negative_layer = False
+
         if auto_load:
             self.load()
 

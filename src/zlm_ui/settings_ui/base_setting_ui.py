@@ -1,4 +1,4 @@
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 import zlm_settings
 from zlm_ui.collapsable import ZlmCollapsableWidget
@@ -12,7 +12,7 @@ class SettingsTabBase(ZlmCollapsableWidget):
     DEFAULT_SETTINGS = zlm_settings.ZlmSettings(False)
 
     def __init__(self, name):
-        ZlmCollapsableWidget.__init__(self, name)
+        super().__init__(name)
         self.name = name
 
     def set_layout(self, layout):

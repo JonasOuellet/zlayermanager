@@ -4,38 +4,21 @@ import subprocess
 import shutil
 
 
-WIN_DLL_PATH = r'C:\Program Files (x86)\Windows Kits\10\Redist\10.0.18362.0\ucrt\DLLs\x64'
-
 
 if __name__ == '__main__':
-    root = Path('.').resolve()
-
-    src = root.joinpath('src').resolve()
-    os.chdir(src)
-
-    # add dll to path
-    print("add dll to path")
-    os.environ['PATH'] = os.environ['PATH'] + ';' + WIN_DLL_PATH
-
-    builddir = root.joinpath("build")
-    if builddir.exists():
-        print(f"delete current build dir {builddir}")
-        shutil.rmtree(builddir)
-
     print("Building zlm.spec")
-    subprocess.check_call(['pyinstaller', '--distpath', str(builddir), 'zlm.spec'])
+    subprocess.check_call(['pyinstaller', '-y', '--distpath', "dist", 'src/zlm.spec'])
 
     print("Building zlm_ui.spec")
-    subprocess.check_call(['pyinstaller', '--distpath', str(builddir), 'zlm_ui.spec'])
+    subprocess.check_call(['pyinstaller', '-y', '--distpath', "dist", 'src/zlm_ui.spec'])
 
-    zlmdata = root.joinpath("dist", "ZlmData")
-    cmd = ['robocopy', str(builddir.joinpath('zlm_ui')), str(zlmdata), '/e', '/is', '/it']
+    cmd = ['robocopy', "dist/zlm_ui", "dist/ZlmData", '/e', '/is', '/it']
     ret = subprocess.call(cmd, shell=True)
     if ret >= 8:
-        raise(Exception("robocopy error"))
+        raise Exception("robocopy error")
 
     print("Copying zlm.exe into dist/ZlmData")
-    shutil.copy2(builddir.joinpath('zlm', 'zlm.exe'), zlmdata.joinpath('zlm.exe'))
+    shutil.copy2("dist/zlm/zlm.exe", "dist/ZlmData/zlm.exe")
 
     to_remove = [
         '..\\zLayerManager.zsc'
@@ -45,59 +28,82 @@ if __name__ == '__main__':
         "zlmOps.zsc",
         "layers.txt",
 
-        "d3dcompiler_47.dll",
-        "opengl32sw.dll",
-        "libGLESv2.dll",
-        "libEGL.dll",
-        "Qt5QuickShapes.dll",
-        "Qt5QuickTemplates2.dll",
-        "Qt5QuickTest.dll",
-        "Qt5QuickWidgets.dll",
-        "Qt5Xml.dll",
-        "Qt5XmlPatterns.dll",
-        "Qt53DRender.dll",
-        "Qt5Qml.dll",
-        "Qt5Quick.dll",
-        "Qt5QuickControls2.dll",
-        "Qt5QuickParticles.dll",
-        "Qt5OpenGL.dll",
-        "Qt53DQuickScene2D.dll",
-        "Qt53DAnimation.dll",
-        "Qt53DCore.dll",
-        "Qt53DInput.dll",
-        "Qt53DLogic.dll",
+        "_internal/PyQt5/Qt5/bin/d3dcompiler_47.dll",
+        "_internal/PyQt5/Qt5/bin/opengl32sw.dll",
+        "_internal/PyQt5/Qt5/bin/libGLESv2.dll",
+        "_internal/PyQt5/Qt5/bin/libEGL.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickShapes.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickTemplates2.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickTest.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickWidgets.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Xml.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5XmlPatterns.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DRender.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Qml.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Quick.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickControls2.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5QuickParticles.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5OpenGL.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DQuickScene2D.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DAnimation.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DCore.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DInput.dll",
+        "_internal/PyQt5/Qt5/bin/Qt53DLogic.dll",
 
-        "Qt5Designer.dll",
-        "Qt5Location.dll",
-        "Qt5Network.dll",
-        "Qt5NetworkAuth.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Designer.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Location.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Network.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5NetworkAuth.dll",
 
-        "Qt5MultimediaQuick.dll",
-        "Qt5MultimediaWidgets.dll",
-        "Qt5Multimedia.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5MultimediaQuick.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5MultimediaWidgets.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Multimedia.dll",
 
-        "Qt5Sql.dll",
-        "Qt5Test.dll",
-        "Qt5WebChannel.dll",
-        "Qt5WebSockets.dll",
-        "Qt5Positioning.dll",
-        "Qt5PositioningQuick.dll",
-        "Qt5PrintSupport.dll",
-        "Qt5RemoteObjects.dll",
-        "Qt5Sensors.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Sql.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Test.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5WebChannel.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5WebSockets.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Positioning.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5PositioningQuick.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5PrintSupport.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5RemoteObjects.dll",
+        "_internal/PyQt5/Qt5/bin/Qt5Sensors.dll",
 
-        r"PyQt5\QtOpenGL.pyd",
-        r"PyQt5\QtQml.pyd",
-        r"PyQt5\QtQuick.pyd",
-        r"PyQt5\QtQuickWidgets.pyd",
-        r"PyQt5\QtXml.pyd",
-        r"PyQt5\QtXmlPatterns.pyd",
-
-        r"PyQt5\Qt\plugins\imageformats\qwbmp.dll",
-        r"PyQt5\Qt\plugins\imageformats\qwebp.dll",
-        r"PyQt5\Qt\plugins\imageformats\qtga.dll",
-        r"PyQt5\Qt\plugins\imageformats\qtiff.dll",
+        r"_internal\PyQt5\QtOpenGL.pyd",
+        r"_internal\PyQt5\QtQml.pyd",
+        r"_internal\PyQt5\QtQuick.pyd",
+        r"_internal\PyQt5\QtQuickWidgets.pyd",
+        r"_internal\PyQt5\QtXml.pyd",
+        r"_internal\PyQt5\QtXmlPatterns.pyd",
+        r"_internal\PyQt5\QtBluetooth.pyd",
+        r"_internal\PyQt5\QtBus.pyd",
+        r"_internal\PyQt5\QtQml.pyd",
+        r"_internal\PyQt5\QtQuick.pyd",
+        r"_internal\PyQt5\QtOpenGl.pyd",
+        r"_internal\PyQt5\QtSql.pyd",
+        r"_internal\PyQt5\QtSvg.pyd",
+        r"_internal\PyQt5\QtTest.pyd",
+        r"_internal\PyQt5\QtTextToSpeech.pyd",
+        r"_internal\PyQt5\QtWebChannel.pyd",
+        r"_internal\PyQt5\QtWebSockets.pyd",
+        r"_internal\PyQt5\QtRemoteObejcts.pyd",
+        r"_internal\PyQt5\QtSensors.pyd",
+        r"_internal\PyQt5\QtSerialPort.pyd",
+        r"_internal\PyQt5\QtPrintSupport.pyd",
+        r"_internal\PyQt5\QtMultimedia.pyd",
+        r"_internal\PyQt5\QtMultimediaWidgets.pyd",
+        r"_internal\PyQt5\QtNetwork.pyd",
+        r"_internal\PyQt5\QtHelp.pyd",
+        r"_internal\PyQt5\QtLocation.pyd",
+        r"_internal\PyQt5\QtNfc.pyd",
+        r"_internal\PyQt5\QtPositioning.pyd",
+        r"_internal\PyQt5\QtQuick3D.pyd",
+        r"_internal\PyQt5\QtRemoteObjects.pyd",
+        r"_internal\PyQt5\QtDesiner.pyd",
+        r"_internal\PyQt5\QtDBus.pyd",
     ]
+
+    zlmdata = Path("dist", "ZlmData").resolve()
 
     for f in to_remove:
         fullpath = zlmdata.joinpath(f).resolve()
@@ -117,4 +123,4 @@ if __name__ == '__main__':
         os.remove(f)
 
     print("copying zlm_settings to Dist/ZlmData/app/zlm_core")
-    shutil.copy2(src.joinpath("zlm_settings.py"), zlmdata.joinpath('app', 'zlm_core', 'zlm_settings.py'))
+    shutil.copy2("src/zlm_settings.py", zlmdata.joinpath('app', 'zlm_core', 'zlm_settings.py'))

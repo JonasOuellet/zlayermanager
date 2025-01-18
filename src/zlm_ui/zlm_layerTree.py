@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
 import re
+import math
 
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 from zlm_core import ZlmLayerMode, ZlmLayer, main_layers
 from zlm_ui.filter_widget import is_valid_mode
 from zlm_to_zbrush import send_to_zbrush, send_intensity
+from zlm_ui import layer_edit_option
+
+
+if TYPE_CHECKING:
+    from zlm_ui.main_ui import ZlmMainUI
 
 
 MINIMUM_INTENSITY_WIDTH = 160
@@ -13,33 +20,33 @@ MINIMUM_INTENSITY_WIDTH = 160
 # Use delegate to make it faster ?
 # https://stackoverflow.com/questions/7175333/how-to-create-delegate-for-qtreewidget
 
-class NoWheelSlider(Qt.QSlider):
+class NoWheelSlider(QtWidgets.QSlider):
     def __init__(self):
-        Qt.QSlider.__init__(self, Qt.Qt.Horizontal)
-        self.setRange(0, 100)
+        QtWidgets.QSlider.__init__(self, QtCore.Qt.Orientation.Horizontal)
 
     def wheelEvent(self, event):
         pass
 
 
-class ZlmIntensity(Qt.QWidget):
+class ZlmIntensity(QtWidgets.QWidget):
     slider_pressed = QtCore.pyqtSignal(object, float)
     slider_released = QtCore.pyqtSignal(object, float)
     slider_moved = QtCore.pyqtSignal(object, float)
 
     spin_box_changed = QtCore.pyqtSignal(object, float)
 
-    def __init__(self, item, intensity=1.0):
-        Qt.QWidget.__init__(self)
+    def __init__(self, item, allow_inverse_intensity: bool):
+        super().__init__()
         self.item = item
 
         self.slider = NoWheelSlider()
 
-        self.spinBox = Qt.QDoubleSpinBox()
+        self.spinBox = QtWidgets.QDoubleSpinBox()
         self.spinBox.setSingleStep(0.1)
-        self.spinBox.setRange(0, 1.0)
 
-        layout = Qt.QHBoxLayout()
+        self.update_range(allow_inverse_intensity)
+
+        layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.slider)
         layout.addWidget(self.spinBox)
 
@@ -52,22 +59,30 @@ class ZlmIntensity(Qt.QWidget):
 
         self.setMinimumWidth(MINIMUM_INTENSITY_WIDTH)
 
-    def set_intensity(self, value):
+    def update_range(self, allow_bellow_zero: bool):
+        if allow_bellow_zero:
+            self.spinBox.setRange(-1, 1.0)
+            self.slider.setRange(-100, 100)
+        else:
+            self.spinBox.setRange(0, 1.0)
+            self.slider.setRange(0, 100)
+
+    def set_intensity(self, value: float):
         self.spinBox.blockSignals(True)
-        self.slider.setValue(value * 100)
+        self.slider.setValue(round(value * 100))
         self.spinBox.setValue(value)
         self.spinBox.blockSignals(False)
 
-    def _sliderMoved(self, value):
-        f_value = value/100.0
+    def _sliderMoved(self, value: int):
+        f_value = value / 100.0
         self.spinBox.blockSignals(True)
         self.spinBox.setValue(f_value)
         self.spinBox.blockSignals(False)
 
         self.slider_moved.emit(self.item, f_value)
 
-    def _spinBoxChanged(self, value):
-        self.slider.setValue(int(value*100))
+    def _spinBoxChanged(self, value: float):
+        self.slider.setValue(round(value * 100))
         self.spin_box_changed.emit(self.item, value)
 
     def _slider_pressed(self):
@@ -77,19 +92,19 @@ class ZlmIntensity(Qt.QWidget):
         self.slider_released.emit(self.item, self.spinBox.value())
 
 
-class ZlmModeWidget(Qt.QWidget):
+class ZlmModeWidget(QtWidgets.QWidget):
     mode_changed = QtCore.pyqtSignal(object, object)
 
     def __init__(self, item, mode=ZlmLayerMode.off):
-        Qt.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
         self.item = item
 
-        layout = Qt.QHBoxLayout()
-        self.pb_on = Qt.QPushButton(Qt.QIcon(":/eye.png"), "")
+        layout = QtWidgets.QHBoxLayout()
+        self.pb_on = QtWidgets.QPushButton(QtGui.QIcon(":/eye.png"), "")
         self.pb_on.setCheckable(True)
         self.pb_on.setMaximumSize(QtCore.QSize(32, 32))
-        self.pb_rect = Qt.QPushButton(Qt.QIcon(":/record.png"), "")
+        self.pb_rect = QtWidgets.QPushButton(QtGui.QIcon(":/record.png"), "")
         self.pb_rect.setCheckable(True)
         self.pb_rect.setMaximumSize(QtCore.QSize(32, 32))
 
@@ -149,14 +164,19 @@ class ZlmModeWidget(Qt.QWidget):
 # solution found here:
 # https://stackoverflow.com/questions/21030719/sort-a-pyside-qtgui-qtreewidget-by-an-alpha-numeric-column
 # re-implement the QTreeWidgetItem
-class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
-    def __init__(self, parent, layer=None):
-        super(ZlmTreeWidgetItem, self).__init__(parent)
+class ZlmTreeWidgetItem(QtWidgets.QTreeWidgetItem):
+    def __init__(
+        self,
+        parent: "ZlmLayerTreeWidget",
+        layer: ZlmLayer | None = None,
+        allow_inverse_intensity: bool = False
+    ):
+        super().__init__(parent)
         self.tree_widget = parent
         self.layer = layer
 
         self.mode_widget = ZlmModeWidget(self)
-        self.intensity_widget = ZlmIntensity(self)
+        self.intensity_widget = ZlmIntensity(self, allow_inverse_intensity)
 
         if self.layer:
             self.update()
@@ -176,7 +196,7 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
         self.mode_widget.setMode(self.layer.mode)
         self.intensity_widget.set_intensity(self.layer.intensity)
 
-    def __lt__(self, other):
+    def __lt__(self, other: "ZlmTreeWidgetItem"):
         column = self.treeWidget().sortColumn()
         if column == 0:
             key1 = self.text(column)
@@ -193,12 +213,12 @@ class ZlmTreeWidgetItem(Qt.QTreeWidgetItem):
 
         return self.natural_sort_key(key1) < self.natural_sort_key(key2)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "ZlmTreeWidgetItem"):
         return self.layer == other.layer
 
     @staticmethod
     def natural_sort_key(key):
-        regex = '(\d*\.\d+|\d+)'
+        regex = r'(\d*\.\d+|\d+)'
         parts = re.split(regex, key)
         return tuple((e if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
@@ -212,37 +232,48 @@ def prog_column_resizing(func):
     return wrapper
 
 
-class ZlmLayerTreeWidget(Qt.QTreeWidget):
-    def __init__(self, parent):
-        super(ZlmLayerTreeWidget, self).__init__(parent)
+class ZlmLayerTreeWidget(QtWidgets.QTreeWidget):
+    def __init__(self, parent: "ZlmMainUI"):
+        super().__init__(parent)
         self.main_ui = parent
         self.main_ui.closing.connect(self.on_close)
         self.main_ui.showing.connect(self.on_show)
 
         self.setSortingEnabled(True)
-        self.sortByColumn(0, Qt.Qt.AscendingOrder)
+        self.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
         column_names = ['#', 'Layer Name', 'Mode', 'Intensity']
         self.setColumnCount(len(column_names))
         self.setHeaderLabels(column_names)
         self.setSelectionMode(self.SelectionMode.ExtendedSelection)
 
-        self.header().setSectionResizeMode(2, Qt.QHeaderView.ResizeToContents)
+        self.header().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         # column resizing
         self._is_resizing = False
-        self.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.header().sectionResized.connect(self.columnResized)
 
-        self.itemDict = {}
+        self.itemDict: dict[str, list[ZlmTreeWidgetItem]] = {}
         self.current_item_recording = None
 
-        self._selected_items = []
-        self._selected_layers = []
+        self._selected_items: list[ZlmTreeWidgetItem] = []
+        self._selected_layers: list[ZlmLayer] = []
 
         self.filter_text = ''
         self.filter_mode = 0
 
         self.installEventFilter(self)
+
+        self.main_ui.settings_changed.connect(self.on_settings_changed)
+
+    def on_settings_changed(self):
+        self.update_widget_range()
+
+    def update_widget_range(self):
+        set_bellow_zero = layer_edit_option.should_go_bellow_zero()
+        for idx in range(self.topLevelItemCount()):
+            item: ZlmTreeWidgetItem = self.topLevelItem(idx)
+            item.intensity_widget.update_range(set_bellow_zero)
 
     def on_close(self):
         self.main_ui.settings['layerViewColumn'] = self.getColumnsWidth()
@@ -268,7 +299,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
             if x < self.columnCount():
                 self.setColumnWidth(x, w)
 
-    def set_record_layer(self, layer):
+    def set_record_layer(self, layer: "ZlmLayer"):
         layer.mode = ZlmLayerMode.record
         if self.current_item_recording:
             # current item recording might be deleted if filter was used
@@ -315,7 +346,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         send_to_zbrush()
 
-    def on_item_slider_pressed(self, item, value):
+    def on_item_slider_pressed(self, item: ZlmTreeWidgetItem, value: float):
         value = round(value, 2)
         if value < 0.000001:
             value = 0
@@ -327,14 +358,14 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         try:
             self._selected_items.remove(item)
-        except Exception as e:
+        except:
             self._selected_layers.append(item.layer)
 
         for i in self._selected_items:
             i.intensity_widget.set_intensity(value)
 
-        for l in self._selected_layers:
-            l.intensity = value
+        for layer in self._selected_layers:
+            layer.intensity = value
 
         # If there is an item recording deactivate it for now
         if self.current_item_recording:
@@ -344,29 +375,29 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
     def on_item_slider_released(self, item, value):
         value = round(value, 2)
-        if value < 0.000001:
-            value = 0
-        if value > 1.0:
-            value = 1.0
+        should_disable = math.isclose(value, 0.0, abs_tol=1e-9)
 
         # If there was an item recording reactivate it
+        record_layer = None
         if self.current_item_recording:
-            self.current_item_recording.layer.mode = ZlmLayerMode.record
+            record_layer = self.current_item_recording.layer
+            record_layer.mode = ZlmLayerMode.record
 
-        for l in self._selected_layers:
-            l.intensity = value
-
+        for layer in self._selected_layers:
+            layer.intensity = value
+            if should_disable:
+                layer.mode = ZlmLayerMode.off
+                if item := self.item_for_layer(layer):
+                    item.update()
+            else:
+                if layer != record_layer:
+                    layer.mode = ZlmLayerMode.active
+                    if item := self.item_for_layer(layer):
+                        item.update()
         send_to_zbrush()
 
-    def on_item_slider_moved(self, item, value):
+    def on_item_slider_moved(self, item: ZlmTreeWidgetItem, value: float):
         value = round(value, 2)
-        if value < 0.01:
-            # to keep the layer active and avoid a lag when scrubbing to zero
-            # and scrubbing back to higher value
-            value = 0.01
-        if value > 1.0:
-            value = 1.0
-
         for i in self._selected_items:
             i.intensity_widget.set_intensity(value)
             i.layer.intensity = value
@@ -374,21 +405,19 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         send_intensity(self._selected_layers)
 
-    def on_item_spinbox_changed(self, item, value):
+    def on_item_spinbox_changed(self, item: ZlmTreeWidgetItem, value: float):
         value = round(value, 2)
-        mode = ZlmLayerMode.active
-        if value < 0.000001:
-            value = 0
-            mode = ZlmLayerMode.off
-        if value > 1.0:
-            value = 1.0
-            mode = ZlmLayerMode.active
+        should_disable = math.isclose(value, 0.0, abs_tol=1e-9)
 
+        record_layer = None
         if self.current_item_recording:
-            self.current_item_recording.layer.mode = ZlmLayerMode.active
-            self.current_item_recording = None
+            record_layer = self.current_item_recording.layer
+            record_layer.mode = ZlmLayerMode.record
 
-        for i in self.selectedItems():
+        mode = ZlmLayerMode.off if should_disable else ZlmLayerMode.active
+
+        selectedItems: list[ZlmTreeWidgetItem] = self.selectedItems()
+        for i in selectedItems:
             if i.layer != item.layer:
                 i.intensity_widget.set_intensity(value)
                 i.mode_widget.setMode(mode)
@@ -404,24 +433,24 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def mousePressEvent(self, event):
         # https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
         # do nothing if right click button ??
-        if event.button() == Qt.Qt.RightButton:
+        if event.button() == QtCore.Qt.MouseButton.RightButton:
             return
         item = self.itemAt(event.pos())
         item_selected = len(self.selectedItems())
-        if item and item_selected == 1 and item.isSelected() and event.button() != Qt.Qt.RightButton:
+        if item and item_selected == 1 and item.isSelected() and event.button() != QtCore.Qt.MouseButton.RightButton:
             item.setSelected(False)
         else:
-            Qt.QTreeWidget.mousePressEvent(self, event)
+            QtWidgets.QTreeWidget.mousePressEvent(self, event)
 
-    def should_be_visible(self, layer):
+    def should_be_visible(self, layer: ZlmLayer):
         return self.filter_text in layer.name.lower() and is_valid_mode(layer.mode, self.filter_mode)
 
-    def create_layer(self, layer):
+    def create_layer(self, layer: ZlmLayer, allow_inverse_intensity: bool = False):
         if self.should_be_visible(layer):
-            item = ZlmTreeWidgetItem(self, layer)
-            l = self.itemDict.get(layer.name, [])
-            l.append(item)
-            self.itemDict[layer.name] = l
+            item = ZlmTreeWidgetItem(self, layer, allow_inverse_intensity)
+            layers = self.itemDict.get(layer.name, [])
+            layers.append(item)
+            self.itemDict[layer.name] = layers
 
         if layer.mode == ZlmLayerMode.record:
             self.set_record_layer(layer)
@@ -433,8 +462,10 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
         self.filter_text = text
         self.filter_mode = mode
 
+        set_bellow_zero = layer_edit_option.should_go_bellow_zero()
+
         for layer in main_layers.instances_list:
-            self.create_layer(layer)
+            self.create_layer(layer, set_bellow_zero)
         self.updateColumnSize()
 
     def update_layer(self):
@@ -469,7 +500,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
 
         self.update_layer()
 
-    def layer_renamed(self, layer, old_name):
+    def layer_renamed(self, layer: ZlmLayer, old_name: str):
         item = None
         items = self.itemDict.get(old_name, None)
         if items:
@@ -484,9 +515,9 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
             items.remove(item)
 
             if self.should_be_visible(layer):
-                l = self.itemDict.get(layer.name, [])
-                l.append(item)
-                self.itemDict[layer.name] = l
+                layers = self.itemDict.get(layer.name, [])
+                layers.append(item)
+                self.itemDict[layer.name] = layers
 
                 column = self.sortColumn()
                 if column == 1:
@@ -502,23 +533,19 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
                 index = self.indexOfTopLevelItem(item)
                 self.takeTopLevelItem(index)
 
-    def get_selected_layers(self):
-        return [i.layer for i in self.selectedItems()]
-
     def get_recording_layer(self):
         if self.current_item_recording:
             return self.current_item_recording.layer
         return None
 
     def get_active_layers(self):
-        layers = []
+        out: list[ZlmLayer] = []
 
-        for lays in self.itemDict.values():
-            for l in lays:
-                if l.layer.mode != 0:
-                    layers.append(l.layer)
-
-        return layers
+        for layers in self.itemDict.values():
+            for layer in layers:
+                if layer.layer.mode != 0:
+                    layers.append(layer.layer)
+        return out
 
     @prog_column_resizing
     def updateColumnSize(self, width=None):
@@ -552,8 +579,8 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
     def has_item_selected(self):
         return len(self.selectedItems()) > 0
 
-    def get_item_under_mouse(self):
-        pos = self.viewport().mapFromGlobal(Qt.QCursor.pos())
+    def get_item_under_mouse(self) -> ZlmTreeWidgetItem | None:
+        pos = self.viewport().mapFromGlobal(QtGui.QCursor.pos())
         item = self.itemAt(pos)
         if item:
             return item
@@ -573,7 +600,7 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
                 sel.append(item.layer)
         return sel
 
-    def item_for_layer(self, layer):
+    def item_for_layer(self, layer: ZlmLayer) -> ZlmTreeWidgetItem | None:
         items = self.itemDict.get(layer.name, None)
         if items:
             if len(items) == 1:
@@ -590,16 +617,16 @@ class ZlmLayerTreeWidget(Qt.QTreeWidget):
             item.setSelected(not item.isSelected())
 
     def eventFilter(self, widget, event):
-        if event.type() == QtCore.QEvent.KeyPress:
-            if event.modifiers() == Qt.Qt.ControlModifier:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
+            if event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
                 key = event.key()
-                if key == Qt.Qt.Key_I:
+                if key == QtCore.Qt.Key.Key_I:
                     self.invert_selection()
                     return True
-                if key == Qt.Qt.Key_A:
+                if key == QtCore.Qt.Key.Key_A:
                     self.selectAll()
                     return True
-                if key == Qt.Qt.Key_X:
+                if key == QtCore.Qt.Key.Key_X:
                     self.clearSelection()
                     return True
-        return Qt.QTreeWidget.eventFilter(self, widget, event)
+        return QtWidgets.QTreeWidget.eventFilter(self, widget, event)

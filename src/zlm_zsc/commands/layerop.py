@@ -9,7 +9,7 @@ class DeactivateRecord(ZRoutine):
         [RoutineDef, zdr,
             // Check there is layer first
             [If, [IsEnabled, "Tool:Layers:Layer Intensity"],
-            
+
                 [If, [IsDisabled, {zlm_info.LAYER_INDEX}],
                     [ISet, "Tool:Geometry:SDiv", [IGetMax, "Tool:Geometry:SDiv"], 0]
                 ]

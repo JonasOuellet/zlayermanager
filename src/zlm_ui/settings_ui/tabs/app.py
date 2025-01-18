@@ -1,4 +1,4 @@
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 from zlm_settings import ZlmSettings
 from zlm_ui.settings_ui.base_setting_ui import SettingsTabBase, register_setting_tab
@@ -7,12 +7,12 @@ from zlm_ui.settings_ui.base_setting_ui import SettingsTabBase, register_setting
 AVAILABLE_OUTPUT_FORMAT = ['.obj', '.fbx', '.ma', '.GoZ']
 
 
-class ExportFormatDelegate(Qt.QStyledItemDelegate):
+class ExportFormatDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
-        Qt.QStyledItemDelegate.__init__(self, parent)
+        super().__init__(parent)
 
     def createEditor(self, parent, option, index):
-        editor = Qt.QComboBox(parent)
+        editor = QtWidgets.QComboBox(parent)
         editor.addItems(AVAILABLE_OUTPUT_FORMAT)
         return editor
 
@@ -37,37 +37,37 @@ class AppSettingWidget(SettingsTabBase):
     columns_count = 3
 
     def __init__(self):
-        SettingsTabBase.__init__(self, "External Application")
+        super().__init__("External Application")
 
-        self.pb_send_after_export = Qt.QPushButton('Send to app')
+        self.pb_send_after_export = QtWidgets.QPushButton('Send to app')
         self.pb_send_after_export.setCheckable(True)
 
-        self.cb_current_app = Qt.QComboBox()
+        self.cb_current_app = QtWidgets.QComboBox()
 
-        self.app_table = Qt.QTableWidget()
+        self.app_table = QtWidgets.QTableWidget()
         self.app_table.itemChanged.connect(self.item_changed)
 
-        pb_add = Qt.QPushButton(Qt.QIcon(":/add.png"), '')
+        pb_add = QtWidgets.QPushButton(QtGui.QIcon(":/add.png"), '')
         pb_add.clicked.connect(self.add_app)
-        pb_rem = Qt.QPushButton(Qt.QIcon(":/remove.png"), '')
+        pb_rem = QtWidgets.QPushButton(QtGui.QIcon(":/remove.png"), '')
         pb_rem.clicked.connect(self.remove_app)
 
-        pb_reset = Qt.QPushButton(Qt.QIcon(":/reset.png"), "")
+        pb_reset = QtWidgets.QPushButton(QtGui.QIcon(":/reset.png"), "")
         pb_reset.clicked.connect(self.reset_settings)
 
-        top_layout = Qt.QHBoxLayout()
+        top_layout = QtWidgets.QHBoxLayout()
         top_layout.addWidget(self.pb_send_after_export, 1)
         top_layout.addSpacing(10)
-        top_layout.addWidget(Qt.QLabel("Current Application: "), 0)
+        top_layout.addWidget(QtWidgets.QLabel("Current Application: "), 0)
         top_layout.addWidget(self.cb_current_app, 1)
 
-        bot_layout = Qt.QHBoxLayout()
+        bot_layout = QtWidgets.QHBoxLayout()
         bot_layout.addWidget(pb_add)
         bot_layout.addWidget(pb_rem)
         bot_layout.addStretch()
         bot_layout.addWidget(pb_reset)
 
-        layout = Qt.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addLayout(top_layout)
         layout.addWidget(self.app_table)
         layout.addLayout(bot_layout)
@@ -79,17 +79,17 @@ class AppSettingWidget(SettingsTabBase):
 
         availabed_width = self.app_table.size().width()
         for i in range(self.columns_count):
-            self.app_table.setColumnWidth(i, availabed_width * ratios[i])
+            self.app_table.setColumnWidth(i, round(availabed_width * ratios[i]))
 
     def build_table(self, settings):
         self.app_table.blockSignals(True)
         self.app_table.clear()
 
-        self.app_table.setHorizontalScrollBarPolicy(Qt.Qt.ScrollBarAlwaysOff)
+        self.app_table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.app_table.setShowGrid(False)
         self.app_table.verticalHeader().setVisible(False)
 
-        self.app_table.horizontalHeader().setSectionResizeMode(Qt.QHeaderView.ResizeMode.Fixed)
+        self.app_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Fixed)
 
         self.app_table.setColumnCount(self.columns_count)
         self.app_table.setHorizontalHeaderLabels(self.columns)
@@ -109,12 +109,12 @@ class AppSettingWidget(SettingsTabBase):
         self.set_column_size()
 
     def _set_item(self, i, soft, port, ext):
-        item = Qt.QTableWidgetItem()
-        item.setData(Qt.Qt.EditRole, port)
+        item = QtWidgets.QTableWidgetItem()
+        item.setData(QtCore.Qt.ItemDataRole.EditRole, port)
 
-        self.app_table.setItem(i, 0, Qt.QTableWidgetItem(soft))
+        self.app_table.setItem(i, 0, QtWidgets.QTableWidgetItem(soft))
         self.app_table.setItem(i, 1, item)
-        self.app_table.setItem(i, 2, Qt.QTableWidgetItem(ext))
+        self.app_table.setItem(i, 2, QtWidgets.QTableWidgetItem(ext))
 
     def build_combobox(self, settings):
         current_index = self.cb_current_app.currentIndex()
@@ -139,7 +139,7 @@ class AppSettingWidget(SettingsTabBase):
 
     def get_app_data(self, row_index):
         soft_name = self.app_table.item(row_index, 0).text()
-        port = self.app_table.item(row_index, 1).data(Qt.Qt.EditRole)
+        port = self.app_table.item(row_index, 1).data(QtCore.Qt.ItemDataRole.EditRole)
         ext = self.app_table.item(row_index, 2).text()
         return soft_name, port, ext
 
@@ -178,7 +178,7 @@ class AppSettingWidget(SettingsTabBase):
         name = 'application'
         index = 0
         for i in range(count):
-            cp = self.app_table.item(i, 1).data(Qt.Qt.EditRole)
+            cp = self.app_table.item(i, 1).data(QtCore.Qt.ItemDataRole.EditRole)
             if port is None:
                 port = cp + 1
             elif cp == port:

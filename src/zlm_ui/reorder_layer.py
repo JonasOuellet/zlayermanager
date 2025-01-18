@@ -21,9 +21,9 @@ class TableWidgetDragRows(QtWidgets.QTableWidget):
         self.setDragDropOverwriteMode(False)
         self.setDropIndicatorShown(True)
 
-        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
 
     def build(self, layers: List[zlm_core.ZlmLayer] = None):
         if layers is None:
@@ -73,7 +73,7 @@ class TableWidgetDragRows(QtWidgets.QTableWidget):
         elif rect.bottom() - pos.y() < margin:
             return True
         # noinspection PyTypeChecker
-        return rect.contains(pos, True) and not (int(self.model().flags(index)) & QtCore.Qt.ItemIsDropEnabled) and pos.y() >= rect.center().y()
+        return rect.contains(pos, True) and not (int(self.model().flags(index)) & QtCore.Qt.ItemFlag.ItemIsDropEnabled) and pos.y() >= rect.center().y()
 
     def get_layers(self) -> List[zlm_core.ZlmLayer]:
         return [self.item(x, 0).layer_inst for x in range(self.rowCount())]

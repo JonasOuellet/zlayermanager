@@ -1,6 +1,6 @@
 import re
 
-from PyQt5 import Qt, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 import zlm_core
 from zlm_ui.collapsable import ZlmCollapsableWidget
@@ -11,37 +11,37 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
     preset_activated = QtCore.pyqtSignal()
 
     def __init__(self):
-        ZlmCollapsableWidget.__init__(self, "Presets: ")
+        super().__init__("Presets: ")
 
-        self.cb_preset_file = Qt.QComboBox()
-        self.cb_layer_presets = Qt.QComboBox()
-        self.pb_activate = Qt.QPushButton('Activate')
+        self.cb_preset_file = QtWidgets.QComboBox()
+        self.cb_layer_presets = QtWidgets.QComboBox()
+        self.pb_activate = QtWidgets.QPushButton('Activate')
         self.pb_activate.clicked.connect(self.on_preset_activated)
 
-        self.pb_add_file = Qt.QPushButton(Qt.QIcon(':/add.png'), '')
+        self.pb_add_file = QtWidgets.QPushButton(QtGui.QIcon(':/add.png'), '')
         self.pb_add_file.clicked.connect(self.pb_add_file_clicked)
-        self.pb_rem_file = Qt.QPushButton(Qt.QIcon(':/remove.png'), '')
+        self.pb_rem_file = QtWidgets.QPushButton(QtGui.QIcon(':/remove.png'), '')
         self.pb_rem_file.clicked.connect(self.pb_rem_file_clicked)
 
-        self.pb_add_preset = Qt.QPushButton(Qt.QIcon(':/add.png'), '')
+        self.pb_add_preset = QtWidgets.QPushButton(QtGui.QIcon(':/add.png'), '')
         self.pb_add_preset.clicked.connect(self.pb_add_preset_clicked)
-        self.pb_rem_preset = Qt.QPushButton(Qt.QIcon(':/remove.png'), '')
+        self.pb_rem_preset = QtWidgets.QPushButton(QtGui.QIcon(':/remove.png'), '')
         self.pb_rem_preset.clicked.connect(self.pb_rem_preset_clicked)
-        self.pb_save_preset = Qt.QPushButton(Qt.QIcon(':/save.png'), '')
+        self.pb_save_preset = QtWidgets.QPushButton(QtGui.QIcon(':/save.png'), '')
         self.pb_save_preset.clicked.connect(self.pb_save_preset_clicked)
 
-        layout1 = Qt.QHBoxLayout()
+        layout1 = QtWidgets.QHBoxLayout()
         layout1.addWidget(self.cb_preset_file, 1)
         layout1.addWidget(self.pb_add_file, 0)
         layout1.addWidget(self.pb_rem_file, 0)
 
-        layout2 = Qt.QHBoxLayout()
+        layout2 = QtWidgets.QHBoxLayout()
         layout2.addWidget(self.cb_layer_presets, 1)
         layout2.addWidget(self.pb_save_preset, 0)
         layout2.addWidget(self.pb_add_preset, 0)
         layout2.addWidget(self.pb_rem_preset, 0)
 
-        mainLayout = Qt.QVBoxLayout()
+        mainLayout = QtWidgets.QVBoxLayout()
         mainLayout.addLayout(layout1)
         mainLayout.addLayout(layout2)
         mainLayout.addWidget(self.pb_activate)
@@ -182,7 +182,7 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
         number = 1
         # replace number with new number
-        match = re.search('(\d+)$', name)
+        match = re.search(r'(\d+)$', name)
         if match:
             name = name[:match.span()[0]]
             number = int(match.group(0)) + 1
@@ -192,9 +192,14 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
     def pb_rem_file_clicked(self):
         key, group, _ = self.get_current_preset_path()
-        test = Qt.QMessageBox.warning(self, "Remove Preset Group", 'This will remove preset group "{}".  Are you sure?'.format(group),
-                                      Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
-        if test == Qt.QMessageBox.StandardButton.Yes:
+        test = QtWidgets.QMessageBox.warning(
+            self,
+            "Remove Preset Group",
+            f'This will remove preset group "{group}".  Are you sure?',
+            QtWidgets.QMessageBox.StandardButton.Yes,
+            QtWidgets.QMessageBox.StandardButton.No
+        )
+        if test == QtWidgets.QMessageBox.StandardButton.Yes:
             index = self.cb_preset_file.currentIndex()
 
             zlm_core.remove_preset_file(group)
@@ -224,11 +229,15 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
     def pb_rem_preset_clicked(self):
         key, group, preset = self.get_current_preset_path()
-        test = Qt.QMessageBox.warning(self, "Remove Preset",
-                            'Are you sure you want to delete preset "{}"?'.format(preset),
-                            Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
+        test = QtWidgets.QMessageBox.warning(
+            self,
+            "Remove Preset",
+            f'Are you sure you want to delete preset "{preset}"?',
+            QtWidgets.QMessageBox.StandardButton.Yes,
+            QtWidgets.QMessageBox.StandardButton.No
+        )
 
-        if test == Qt.QMessageBox.StandardButton.Yes:
+        if test == QtWidgets.QMessageBox.StandardButton.Yes:
             index = self.cb_layer_presets.currentIndex()
 
             self.presets[key][group].pop(preset)
@@ -239,18 +248,22 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
 
             try:
                 if index >= self.cb_layer_presets.count():
-                    index = self.cb_layer_presets.count() - 1 
+                    index = self.cb_layer_presets.count() - 1
                 self.cb_layer_presets.setCurrentIndex(index)
             except:
                 pass
 
     def pb_save_preset_clicked(self):
         key, group, preset = self.get_current_preset_path()
-        test = Qt.QMessageBox.warning(self, "Save Preset",
-                            'Are you sure you want to override preset "{}"?'.format(preset),
-                            Qt.QMessageBox.StandardButton.Yes, Qt.QMessageBox.StandardButton.No)
+        test = QtWidgets.QMessageBox.warning(
+            self,
+            "Save Preset",
+            f'Are you sure you want to override preset "{preset}"?',
+            QtWidgets.QMessageBox.StandardButton.Yes,
+            QtWidgets.QMessageBox.StandardButton.No
+        )
 
-        if test == Qt.QMessageBox.StandardButton.Yes:
+        if test == QtWidgets.QMessageBox.StandardButton.Yes:
             self.presets[key][group][preset] = zlm_core.get_layers_as_preset()
 
             try:
@@ -260,14 +273,14 @@ class ZlmPresetWidget(ZlmCollapsableWidget):
                 pass
 
     def ask_for_name(self, title='Enter Name', label='Name: ', text=''):
-        dialog = Qt.QInputDialog(self)
-        dialog.setInputMode(Qt.QInputDialog.InputMode.TextInput)
+        dialog = QtWidgets.QInputDialog(self)
+        dialog.setInputMode(QtWidgets.QInputDialog.InputMode.TextInput)
         dialog.setWindowTitle(title)
         dialog.setLabelText(label)
         dialog.setTextValue(text)
-        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4 
-        lineEdit = dialog.findChild(Qt.QLineEdit)
-        lineEdit.setValidator(Qt.QRegExpValidator(Qt.QRegExp("[A-Za-z0-9_]+"), dialog))
-        if dialog.exec_():
+        # https://forum.qt.io/topic/9171/solved-how-can-a-lineedit-accept-only-ascii-alphanumeric-character-required-a-z-a-z-0-9/4
+        lineEdit: QtWidgets.QLineEdit = dialog.findChild(QtWidgets.QLineEdit)
+        lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[A-Za-z0-9_]+"), dialog))
+        if dialog.exec():
             return dialog.textValue()
         return None

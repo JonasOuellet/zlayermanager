@@ -1,7 +1,8 @@
+from typing import Callable
 import time
 from multiprocessing.connection import Listener, Client
 
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from zlm_sender.communicate import set_port, delete_port
 
@@ -36,13 +37,11 @@ class CommunicationDeamon(QThread):
         return self.listener.address
 
 
-class CommunicationServer(QObject):
+class CommunicationServer:
     def __init__(self):
-        QObject.__init__(self)
         self._deamon = None
-
         self._address = None
-        self._command_dict = {}
+        self._command_dict: dict[str, list[Callable]] = {}
 
     def isRunning(self):
         if not self._deamon:
@@ -90,7 +89,7 @@ class CommunicationServer(QObject):
             for f in func:
                 f(*msg[1:])
 
-    def add_callback(self, command_name, callback):
+    def add_callback(self, command_name: str, callback: Callable):
         if command_name not in self._command_dict:
             self._command_dict[command_name] = []
 
