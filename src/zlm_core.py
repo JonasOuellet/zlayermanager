@@ -4,12 +4,13 @@ import os
 import sys
 import json
 import re
+import codecs
 
 from zlm_settings import ZlmSettings
 import zlm_info
 
-invalid_char_re = re.compile('[^A-Za-z0-9_]')
-valid_name_re = "[A-Za-z0-9_]{0,15}"
+invalid_char_re = re.compile('[^A-Za-z0-9_가-힣]')
+valid_name_re = "[A-Za-z0-9_가-힣]{0,15}"
 max_name_len = 15
 
 
@@ -248,6 +249,40 @@ class ZlmLayers(object):
         for index, line in enumerate(lines[1:]):
             self.subtools.append(ZlmSubTool.from_line(line, index))
 
+    def _read_layer_file(self, file_path: str) -> List[str]:
+        with open(file_path, mode='rb') as f:
+            raw = f.read()
+
+        if not raw:
+            return []
+
+        candidates = []
+        if raw.startswith(codecs.BOM_UTF8):
+            candidates.append('utf-8-sig')
+        elif raw.startswith(codecs.BOM_UTF16_LE):
+            candidates.append('utf-16-le')
+        elif raw.startswith(codecs.BOM_UTF16_BE):
+            candidates.append('utf-16-be')
+
+        candidates.extend(['utf-16-le', 'utf-8', 'cp949'])
+
+        tried = set()
+        decoded = None
+        for encoding in candidates:
+            if encoding in tried:
+                continue
+            tried.add(encoding)
+            try:
+                decoded = raw.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+
+        if decoded is None:
+            decoded = raw.decode('utf-8', errors='replace')
+
+        return decoded.splitlines()
+
     def load_from_file(self, file_path: Optional[str] = None):
         self.clear()
 
@@ -255,9 +290,8 @@ class ZlmLayers(object):
             file_path = zlm_info.LAYER_PATH
 
         if os.path.exists(file_path):
-            with open(file_path, mode='r') as f:
-                lines = f.readlines()
             try:
+                lines = self._read_layer_file(file_path)
                 layer_end = self._parse_layer(lines)
                 self._parse_subtool_line(lines[layer_end:])
             except:
@@ -401,9 +435,8 @@ def create_new_preset_file(preset_name):
     user_folder = folders['user']
     full_path = os.path.join(user_folder, preset_name + '.json')
 
-    f = open(full_path, mode='w')
-    f.write('{}')
-    f.close()
+    with open(full_path, mode='w', encoding='utf-8') as f:
+        f.write('{}')
 
 
 def remove_preset_file(preset_name):
@@ -424,12 +457,17 @@ def load_presets():
         out[key] = {}
         for f in value:
             filename = os.path.basename(f).split('.')[0]
-            with open(f, mode='r') as filobj:
-                # avoid any error with json.
-                try:
+            try:
+                with open(f, mode='r', encoding='utf-8') as filobj:
                     out[key][filename] = json.load(filobj)
+            except UnicodeDecodeError:
+                try:
+                    with open(f, mode='r', encoding='cp949') as filobj:
+                        out[key][filename] = json.load(filobj)
                 except:
                     pass
+            except:
+                pass
     return out
 
 
@@ -521,5 +559,5 @@ def save_layers_preset(name, data):
     folder = get_preset_folders()
     filepath = os.path.join(folder['user'], name + '.json')
 
-    with open(filepath, mode='w') as f:
-        json.dump(data, f, indent=4)
+    with open(filepath, mode='w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)

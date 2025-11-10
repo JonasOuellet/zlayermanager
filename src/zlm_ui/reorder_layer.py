@@ -85,13 +85,24 @@ class TableWidgetDragRows(QtWidgets.QTableWidget):
 
     def save_order(self, filepath):
         lines = [self.item(x, 0).text() for x in range(self.rowCount())]
-        with open(filepath, mode='w') as f:
+        with open(filepath, mode='w', encoding='utf-8') as f:
             f.write('\n'.join(lines))
 
     def load_order(self, filepath):
         try:
-            with open(filepath, mode='r') as f:
+            with open(filepath, mode='r', encoding='utf-8') as f:
                 lines = f.readlines()
+        except UnicodeDecodeError:
+            try:
+                with open(filepath, mode='r', encoding='cp949') as f:
+                    lines = f.readlines()
+            except Exception:
+                QtWidgets.QMessageBox.critical(
+                    self,
+                    "Error foading file",
+                    "Error occured loading specified file."
+                )
+                return
         except:
             QtWidgets.QMessageBox.critical(
                 self,
