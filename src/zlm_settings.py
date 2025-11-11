@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 import os
 import json
 
@@ -90,7 +90,7 @@ class ZlmSettings(object):
             elif isinstance(value, dict):
                 self._recursive_update(_dict[k], value)
 
-    def get(self, key, defaultValue=None) -> dict[str, Any]:
+    def get(self, key, defaultValue=None) -> Dict[str, Any]:
         if key not in self.bigData:
             self.bigData[key] = defaultValue
 

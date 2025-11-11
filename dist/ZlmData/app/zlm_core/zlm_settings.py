@@ -1,3 +1,4 @@
+from typing import Any, Dict
 import os
 import json
 
@@ -25,8 +26,6 @@ class ZlmSettings(object):
         self.additionnal_preset_dir = []
 
         self.bigData = {}
-
-        self.allow_negative_layer = False
 
         if auto_load:
             self.load()
@@ -58,23 +57,25 @@ class ZlmSettings(object):
         for attr in self.bigData:
             outdict[attr] = self.bigData[attr]
 
-        with open(self.getsettingfile(), mode='w') as f:
-            json.dump(outdict, f, indent=4)
+        with open(self.getsettingfile(), mode='w', encoding='utf-8') as f:
+            json.dump(outdict, f, indent=4, ensure_ascii=False)
 
     def load(self):
         try:
-            with open(self.getsettingfile(), mode='r') as f:
+            with open(self.getsettingfile(), mode='r', encoding='utf-8') as f:
                 outdict = json.load(f)
-
-                for attr in vars(self):
-                    if attr not in self.exclude_attr:
-                        setattr(self, attr, outdict.pop(attr, getattr(self, attr)))
-
-                for key, value in outdict.items():
-                    self.bigData[key] = value
-
-        except Exception as e:
+        except UnicodeDecodeError:
+            with open(self.getsettingfile(), mode='r', encoding='cp949') as f:
+                outdict = json.load(f)
+        except:
             pass
+        else:
+            for attr in vars(self):
+                if attr not in self.exclude_attr:
+                    setattr(self, attr, outdict.pop(attr, getattr(self, attr)))
+
+            for key, value in outdict.items():
+                self.bigData[key] = value
 
     @staticmethod
     def instance():
@@ -89,7 +90,7 @@ class ZlmSettings(object):
             elif isinstance(value, dict):
                 self._recursive_update(_dict[k], value)
 
-    def get(self, key, defaultValue=None):
+    def get(self, key, defaultValue=None) -> Dict[str, Any]:
         if key not in self.bigData:
             self.bigData[key] = defaultValue
 
@@ -104,7 +105,7 @@ class ZlmSettings(object):
     def __getitem__(self, index):
         try:
             return self.bigData[index]
-        except KeyError as e:
+        except KeyError:
             return None
 
     def __setitem__(self, key, value):
