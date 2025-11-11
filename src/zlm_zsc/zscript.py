@@ -39,7 +39,7 @@ class ZScript(object):
         self.end()
 
     def write_to_file(self, file):
-        with open(file, mode='w') as f:
+        with open(file, mode='w', encoding='utf-8') as f:
             self.write_code(f)
 
     def _write_dep(self, cmd_name, defined, fp):

@@ -13,7 +13,7 @@ def get_port_file():
 
 def get_port():
     try:
-        with open(get_port_file(), mode='r') as f:
+        with open(get_port_file(), mode='r', encoding='utf-8') as f:
             return int(f.read())
     except:
         pass
@@ -22,7 +22,7 @@ def get_port():
 
 
 def set_port(port):
-    with open(get_port_file(), mode='w') as f:
+    with open(get_port_file(), mode='w', encoding='utf-8') as f:
         f.write(str(port))
 
 

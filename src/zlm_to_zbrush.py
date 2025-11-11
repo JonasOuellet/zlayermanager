@@ -359,7 +359,7 @@ def send_new_layer_order(layers: List[zlm_core.ZlmLayer]):
 
 
 def send_new_sub_tool(index: int, port: int) -> bool:
-    with open(zlm_info.SCRIPT_PATH, mode='w') as f:
+    with open(zlm_info.SCRIPT_PATH, mode='w', encoding='utf-8') as f:
         f.write(f"""
 [IFreeze,
 [SubToolSelect, {index}]

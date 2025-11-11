@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import partial
 
 from PyQt5 import QtWidgets, QtCore, QtGui

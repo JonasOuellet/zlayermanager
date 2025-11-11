@@ -283,7 +283,7 @@ class ZlmMainUI(QtWidgets.QMainWindow):
 
         stylesheet = os.path.join(root, 'stylesheet.css')
         try:
-            with open(stylesheet, mode='r') as f:
+            with open(stylesheet, mode='r', encoding='utf-8') as f:
                 self.setStyleSheet(f.read())
         except:
             pass
